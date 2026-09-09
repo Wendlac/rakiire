@@ -15,6 +15,7 @@
  * en noir et manquer en blanc, et proposer une combinaison indisponible se paie
  * par un aller-retour sur WhatsApp.
  */
+import { Image } from "astro:assets";
 import Page from "../layouts/Page.astro";
 import Bouton from "../components/ui/Bouton.astro";
 import Pastille from "../components/ui/Pastille.astro";
@@ -71,9 +72,11 @@ const donnees = {
         (produit.images.length ? produit.images : [null, null]).map((image, index) => (
           <div class="fiche__visuel reserve-image">
             {image ? (
-              <img
-                src={image.src}
+              <Image
+                src={image.fichier}
                 alt={image.alt[langue]}
+                widths={[480, 800, 1200]}
+                sizes="(min-width: 64rem) 45vw, 100vw"
                 loading={index === 0 ? "eager" : "lazy"}
                 decoding="async"
               />
@@ -202,6 +205,7 @@ const donnees = {
           {similaires.map((autre) => (
             <CarteProduit
               langue={langue}
+              image={autre.images[0] ? { fichier: autre.images[0].fichier, alt: autre.images[0].alt[langue] } : undefined}
               href={lienProduit(langue, autre.reference)}
               nom={autre.nom[langue]}
               reference={autre.reference}

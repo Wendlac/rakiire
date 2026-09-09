@@ -10,8 +10,10 @@
  * ligne. C'est invisible à la relecture et évident pour le visiteur. Le script
  * a d'ailleurs été écrit après avoir trouvé exactement ce défaut.
  *
- * Sort en code 1 si un lien est mort, ce qui arrête la publication : mieux vaut
- * ne rien publier qu'un site aux liens cassés.
+ * Vérifie aussi les images : fichier réellement produit, et attribut alt présent.
+ *
+ * Sort en code 1 au moindre défaut, ce qui arrête la publication : mieux vaut ne
+ * rien publier qu'un site aux liens cassés ou aux images manquantes.
  *
  * Usage : npm run verifier:liens   (après npm run build)
  */
@@ -102,9 +104,63 @@ for (const page of pages) {
   }
 }
 
+/* -- Images ----------------------------------------------------------------
+ * Deux defauts passent inapercus a la relecture et sautent aux yeux en ligne :
+ * une image dont le fichier n'a pas ete produit, et une image sans attribut
+ * `alt`. On les cherche ici plutot que de les decouvrir apres publication.
+ *
+ * Attention : `alt=""` s'ecrit aussi `alt` tout court, forme que produit Astro
+ * pour une image decorative. Les deux sont valides et doivent passer.
+ * ----------------------------------------------------------------------- */
+const imagesAbsentes = [];
+const sansAlt = [];
+let balisesImage = 0;
+
+for (const page of pages) {
+  const htmlPage = fs.readFileSync(page, "utf8");
+  const rel = path.relative(RACINE, page).split(path.sep).join("/");
+  const depuis = normaliser("/" + rel.replace(/index\.html$/, ""));
+
+  for (const m of htmlPage.matchAll(/<img\b[^>]*>/g)) {
+    balisesImage++;
+    const balise = m[0];
+
+    // `alt` seul vaut `alt=""`. Seule son absence complete est un defaut.
+    if (!/\salt(\s|=|>|\/)/.test(balise)) sansAlt.push({ depuis, balise: balise.slice(0, 90) });
+
+    const src = balise.match(/src="([^"]+)"/)?.[1];
+    const srcset = balise.match(/srcset="([^"]+)"/)?.[1] ?? "";
+    const urls = [src, ...srcset.split(",").map((x) => x.trim().split(/\s+/)[0])].filter(Boolean);
+
+    for (const u of urls) {
+      if (!u.startsWith("/")) continue;
+      const chemin = BASE && u.startsWith(`${BASE}/`) ? u.slice(BASE.length) : u;
+      if (!fs.existsSync(path.join(RACINE, chemin))) {
+        imagesAbsentes.push({ depuis, vers: u });
+      }
+    }
+  }
+}
+
 console.log(`racine de publication : ${BASE || "(aucune)"}`);
 console.log(`pages construites     : ${pages.length}`);
 console.log(`liens analyses        : ${total}`);
+console.log(`images analysees      : ${balisesImage}`);
+console.log("");
+
+if (imagesAbsentes.length) {
+  console.log(`ECHEC — ${imagesAbsentes.length} image(s) introuvable(s) :`);
+  for (const i of imagesAbsentes.slice(0, 10)) console.log(`   ${i.depuis}  ->  ${i.vers}`);
+} else {
+  console.log("OK — toutes les images referencees existent");
+}
+
+if (sansAlt.length) {
+  console.log(`ECHEC — ${sansAlt.length} image(s) sans attribut alt :`);
+  for (const i of sansAlt.slice(0, 10)) console.log(`   ${i.depuis}  ->  ${i.balise}`);
+} else {
+  console.log("OK — chaque image porte un attribut alt");
+}
 console.log("");
 
 if (morts.length === 0) {
@@ -133,4 +189,4 @@ for (const e of [...externes].sort()) console.log(`   ${e}`);
 // Un lien mort arrête la publication. Une ancre orpheline est un avertissement :
 // elle peut être consommée par un script plutôt que par le défilement, comme
 // les filtres de la boutique.
-process.exit(morts.length === 0 ? 0 : 1);
+process.exit(morts.length === 0 && imagesAbsentes.length === 0 && sansAlt.length === 0 ? 0 : 1);

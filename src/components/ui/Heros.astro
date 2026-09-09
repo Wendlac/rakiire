@@ -19,8 +19,10 @@
  * 3. `svh` plutôt que `vh` : sur mobile, la barre d'adresse fait varier `vh` et
  *    coupe le bas du héros au chargement.
  */
+import { Image } from "astro:assets";
+
 interface Props {
-  image?: { src: string; alt: string };
+  image?: { fichier: ImageMetadata; alt: string };
   surtitre?: string;
   titre: string;
   texte?: string;
@@ -55,7 +57,15 @@ const centre = ancrage === "centre";
   <div class="heros__image reserve-image">
     {
       image ? (
-        <img src={image.src} alt={image.alt} fetchpriority="high" decoding="async" />
+        <Image
+          src={image.fichier}
+          alt={image.alt}
+          widths={[720, 1200, 1800]}
+          sizes="100vw"
+          fetchpriority="high"
+          loading="eager"
+          decoding="async"
+        />
       ) : (
         <span class="heros__attente" aria-hidden="true">Visuel à venir</span>
       )

@@ -24,6 +24,7 @@
  * Recommandation : le laisser éteint sur la page d'accueil, l'activer sur la
  * boutique où l'acheteur compare déjà des articles connus.
  */
+import { Image } from "astro:assets";
 import { COLLECTIONS, type CodeCollection, type Langue } from "../../lib/catalogue";
 import { traduire } from "../../lib/i18n";
 import Pastille from "./Pastille.astro";
@@ -37,7 +38,7 @@ interface Props {
   reference: string;
   collection: CodeCollection;
   prix: number;
-  image?: { src: string; alt: string };
+  image?: { fichier: ImageMetadata; alt: string };
   /** Rapport largeur/hauteur de la réserve d'image. */
   ratio?: string;
   epuise?: boolean;
@@ -83,7 +84,14 @@ const ajoutRapide = Boolean(taillesRapides?.length) && !epuise;
   <div class="carte__visuel reserve-image" style={`aspect-ratio:${ratio}`}>
     {
       image ? (
-        <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+        <Image
+          src={image.fichier}
+          alt={image.alt}
+          widths={[320, 480, 720]}
+          sizes="(min-width: 64rem) 22vw, (min-width: 48rem) 30vw, 45vw"
+          loading="lazy"
+          decoding="async"
+        />
       ) : (
         <span class="visuellement-cache">{langue === "fr" ? "Visuel à venir" : "Image coming"}</span>
       )

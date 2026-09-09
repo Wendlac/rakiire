@@ -19,8 +19,48 @@
  * collection non déclarée : une faute de saisie casse la construction du site
  * plutôt que la boutique en production.
  */
-import type { Produit, Variante } from "../lib/catalogue";
+import type { Produit, Variante, VisuelProduit } from "../lib/catalogue";
 import { TAILLES } from "../lib/catalogue";
+
+/* -- Visuels d'exemple ------------------------------------------------------
+ * ⚠ CES PHOTOGRAPHIES NE SONT PAS CELLES DE LA MARQUE.
+ * Ce sont des images de banque, versees pour que le prototype se presente avec
+ * de vrais visuels plutot qu'avec des rectangles gris. Aucun vetement montre
+ * n'est un produit Rakiire. A remplacer integralement apres la seance photo.
+ *
+ * Les textes alternatifs decrivent donc ce que l'image montre reellement, et
+ * non un produit du catalogue : ecrire « tee-shirt Nasara en noir » sur une
+ * photo qui montre autre chose serait faux pour qui navigue au lecteur d'ecran.
+ * ------------------------------------------------------------------------- */
+import portrait01 from "../images/portrait-01.jpg";
+import portrait02 from "../images/portrait-02.jpg";
+import portrait03 from "../images/portrait-03.jpg";
+import portrait04 from "../images/portrait-04.jpg";
+import portrait05 from "../images/portrait-05.jpg";
+import portrait06 from "../images/portrait-06.jpg";
+
+/** Raccourci de declaration d'un visuel bilingue. */
+const visuel = (fichier: ImageMetadata, fr: string, en: string): VisuelProduit => ({
+  fichier,
+  alt: { fr, en },
+});
+
+/* Descriptions honnetes de ce que chaque photographie montre. Elles seront
+   remplacees en meme temps que les images. */
+const V = {
+  fauteuil: (): VisuelProduit =>
+    visuel(portrait01, "Mannequin assise dans un fauteuil, portrait en noir et blanc", "Model seated in an armchair, black and white portrait"),
+  rue: (): VisuelProduit =>
+    visuel(portrait02, "Mannequin en veste a motifs geometriques, dans la rue", "Model in a geometric-patterned jacket, in the street"),
+  ankara: (): VisuelProduit =>
+    visuel(portrait03, "Mannequin en ensemble a motifs, sur fond orange", "Model in a patterned outfit against an orange background"),
+  costume: (): VisuelProduit =>
+    visuel(portrait04, "Mannequin en costume, en exterieur", "Model in a suit, outdoors"),
+  denim: (): VisuelProduit =>
+    visuel(portrait05, "Mannequin en veste en jean, assise", "Model in a denim jacket, seated"),
+  miroir: (): VisuelProduit =>
+    visuel(portrait06, "Mannequin en ensemble blanc, devant un miroir pose sur des galets", "Model in a white outfit, before a mirror set on pebbles"),
+};
 
 /** Raccourci : toutes les tailles disponibles dans une couleur donnée. */
 function toutesTailles(couleur: "NR" | "BL", sauf: string[] = []): Variante[] {
@@ -46,7 +86,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 220 gsm",
     },
     prix: 15000,
-    images: [],
+    images: [V.ankara(), V.fauteuil()],
     variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["3XL"])],
   },
   {
@@ -63,7 +103,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 180 gsm",
     },
     prix: 12000,
-    images: [],
+    images: [V.rue(), V.miroir()],
     variantes: [...toutesTailles("NR", ["3XL"]), ...toutesTailles("BL")],
   },
   {
@@ -80,7 +120,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 240 gsm",
     },
     prix: 18000,
-    images: [],
+    images: [V.costume(), V.denim()],
     variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["S", "3XL"])],
   },
   {
@@ -97,7 +137,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 200 gsm",
     },
     prix: 21000,
-    images: [],
+    images: [V.fauteuil(), V.ankara()],
     variantes: [...toutesTailles("NR", ["2XL", "3XL"]), ...toutesTailles("BL", ["2XL", "3XL"])],
   },
   {
@@ -114,7 +154,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 240 gsm",
     },
     prix: 19000,
-    images: [],
+    images: [V.denim(), V.costume()],
     variantes: [
       ...toutesTailles("NR", TAILLES.slice()), // épuisé partout
       ...toutesTailles("BL", TAILLES.slice()),
@@ -134,7 +174,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 190 gsm",
     },
     prix: 14000,
-    images: [],
+    images: [V.miroir(), V.rue()],
     variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["XL", "2XL", "3XL"])],
   },
 ];

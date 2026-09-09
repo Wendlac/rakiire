@@ -19,8 +19,15 @@ import Revele from "../components/ui/Revele.astro";
 
 import type { Langue } from "../lib/catalogue";
 import { COLLECTIONS, COULEURS } from "../lib/catalogue";
-import { traduire, lienBoutique, lienProduit, lien, lienPage } from "../lib/i18n";
+import { traduire, lienBoutique, lienProduit, lienPage } from "../lib/i18n";
 import { produits, misEnAvant } from "../data/produits";
+
+/* Visuels d'exemple. Voir l'avertissement en tete de src/data/produits.ts :
+   aucune de ces photographies ne montre un produit Rakiire. */
+import { Image } from "astro:assets";
+import heros from "../images/paysage-05.jpg";
+import collectionCls from "../images/paysage-06.jpg";
+import collectionJea from "../images/paysage-03.jpg";
 
 interface Props {
   langue: Langue;
@@ -33,6 +40,12 @@ const t = traduire(langue);
 const selection = misEnAvant
   .map((reference) => produits.find((p) => p.reference === reference))
   .filter((p): p is NonNullable<typeof p> => Boolean(p));
+
+/** Premier visuel d'un article, aplati pour la carte produit. */
+function visuelDe(produit: (typeof produits)[number]) {
+  const premier = produit.images[0];
+  return premier ? { fichier: premier.fichier, alt: premier.alt[langue] } : undefined;
+}
 
 /** Pastilles de couleur d'un article, dans l'ordre du catalogue. */
 function couleursDe(produit: (typeof produits)[number]) {
@@ -53,6 +66,7 @@ function couleursDe(produit: (typeof produits)[number]) {
   chemin={chemin}
 >
   <Heros
+    image={{ fichier: heros, alt: langue === "fr" ? "Mannequin en costume, adosse a un mat, ciel degage" : "Model in a suit, leaning against a pole, clear sky" }}
     surtitre={COLLECTIONS.CLS}
     titre={langue === "fr" ? "Le choix d’être soi" : "The choice to be yourself"}
     texte={langue === "fr"
@@ -78,6 +92,7 @@ function couleursDe(produit: (typeof produits)[number]) {
         selection.map((produit) => (
           <CarteProduit
             langue={langue}
+            image={visuelDe(produit)}
             href={lienProduit(langue, produit.reference)}
             nom={produit.nom[langue]}
             reference={produit.reference}
@@ -132,7 +147,16 @@ function couleursDe(produit: (typeof produits)[number]) {
         (Object.keys(COLLECTIONS) as (keyof typeof COLLECTIONS)[]).map((code) => (
           <li class="collection">
             <a class="collection__lien" href={`${lienBoutique(langue)}#${code}`}>
-              <span class="collection__visuel reserve-image" />
+              <span class="collection__visuel reserve-image">
+                <Image
+                  src={code === "CLS" ? collectionCls : collectionJea}
+                  alt=""
+                  widths={[480, 800, 1200]}
+                  sizes="(min-width: 48rem) 45vw, 100vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
               <span class="collection__nom">{COLLECTIONS[code]}</span>
               <span class="collection__nombre chiffres-tabulaires">
                 {produits.filter((p) => p.collection === code).length}

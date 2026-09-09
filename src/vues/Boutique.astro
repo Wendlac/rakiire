@@ -72,6 +72,12 @@ function variantesDisponibles(produit: (typeof produits)[number]) {
     .map((v) => `${v.couleur}:${v.taille}`);
 }
 
+/** Premier visuel d'un article, aplati pour la carte produit. */
+function visuelDe(produit: (typeof produits)[number]) {
+  const premier = produit.images[0];
+  return premier ? { fichier: premier.fichier, alt: premier.alt[langue] } : undefined;
+}
+
 /** Tailles proposées à l'ajout rapide : celles disponibles en première couleur. */
 function taillesRapides(produit: (typeof produits)[number]) {
   const premiere = produit.variantes.find((v) => v.disponible)?.couleur;
@@ -127,6 +133,7 @@ function taillesRapides(produit: (typeof produits)[number]) {
           >
             <CarteProduit
               langue={langue}
+              image={visuelDe(produit)}
               href={lienProduit(langue, produit.reference)}
               nom={produit.nom[langue]}
               reference={produit.reference}

@@ -22,6 +22,15 @@ import Revele from "../components/ui/Revele.astro";
 import type { Langue } from "../lib/catalogue";
 import { traduire, lienBoutique } from "../lib/i18n";
 
+/* Visuels d'exemple — voir l'avertissement en tete de src/data/produits.ts.
+   Aucune de ces photographies ne montre un produit Rakiire. */
+import { Image } from "astro:assets";
+import ouverture from "../images/paysage-04.jpg";
+import planNoir from "../images/portrait-03.jpg";
+import planBlanc from "../images/portrait-06.jpg";
+import detail from "../images/portrait-01.jpg";
+import cloture from "../images/paysage-02.jpg";
+
 interface Props {
   langue: Langue;
   chemin: string;
@@ -38,6 +47,8 @@ const fr = langue === "fr";
 const plans = [
   {
     disposition: "large",
+    fichier: ouverture,
+    alt: fr ? "Mannequin en haut de mousseline claire, bras leves" : "Model in a light chiffon top, arms raised",
     format: "16 / 9",
     titre: fr ? "Ouverture" : "Opening",
     note: fr
@@ -46,18 +57,24 @@ const plans = [
   },
   {
     disposition: "paire",
+    fichier: planNoir,
+    alt: fr ? "Mannequin en ensemble a motifs, sur fond orange" : "Model in a patterned outfit against an orange background",
     format: "3 / 4",
     titre: fr ? "Nasara, noir" : "Nasara, black",
     note: fr ? "Plan taille, fond neutre." : "Waist-up, neutral background.",
   },
   {
     disposition: "paire",
+    fichier: planBlanc,
+    alt: fr ? "Mannequin en ensemble blanc, devant un miroir pose sur des galets" : "Model in a white outfit, before a mirror set on pebbles",
     format: "3 / 4",
     titre: fr ? "Wendé, blanc" : "Wendé, white",
     note: fr ? "Plan taille, même lumière." : "Waist-up, same light.",
   },
   {
     disposition: "decale",
+    fichier: detail,
+    alt: fr ? "Mannequin assise dans un fauteuil, portrait en noir et blanc" : "Model seated in an armchair, black and white portrait",
     format: "4 / 5",
     titre: fr ? "Détail" : "Detail",
     note: fr
@@ -66,6 +83,8 @@ const plans = [
   },
   {
     disposition: "large",
+    fichier: cloture,
+    alt: fr ? "Mannequin en veste et chapeau clair, en exterieur" : "Model in a jacket and light hat, outdoors",
     format: "21 / 9",
     titre: fr ? "Clôture" : "Closing",
     note: fr
@@ -96,9 +115,14 @@ const plans = [
       plans.map((plan) => (
         <Revele class={`planche planche--${plan.disposition}`}>
           <div class="planche__visuel reserve-image" style={`aspect-ratio:${plan.format}`}>
-            <span class="planche__attente" aria-hidden="true">
-              {fr ? "Visuel à venir" : "Image coming"} · {plan.format.replace(" / ", ":")}
-            </span>
+            <Image
+              src={plan.fichier}
+              alt={plan.alt}
+              widths={[480, 900, 1600]}
+              sizes="(min-width: 48rem) 60vw, 100vw"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
           <div class="planche__legende">
             <p class="planche__titre">{plan.titre}</p>

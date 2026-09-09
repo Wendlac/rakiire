@@ -1,3 +1,5 @@
+import type { ImageMetadata } from "astro";
+
 /**
  * Contrat de donnees du catalogue — Rakiire
  *
@@ -39,6 +41,20 @@ export type Langue = "fr" | "en";
 export type Traduit = Record<Langue, string>;
 
 /**
+ * Visuel de produit.
+ *
+ * `fichier` est une image importee depuis `src/images/`, pas une adresse en
+ * chaine. Cela change trois choses : Astro produit les tailles servies et les
+ * formats modernes, applique la racine de publication, et refuse de construire
+ * si le fichier n'existe pas. Une adresse ecrite a la main echouerait en
+ * silence, et l'on decouvrirait le trou en ligne.
+ */
+export interface VisuelProduit {
+  fichier: ImageMetadata;
+  alt: Traduit;
+}
+
+/**
  * Variante commandable : un couple couleur/taille d'un modele.
  * C'est l'unite de stock et l'unite qui part dans le message WhatsApp.
  */
@@ -69,7 +85,7 @@ export interface Produit {
   composition: Traduit;
   /** En francs CFA, entier. Aucun centime : le CFA n'a pas de subdivision usuelle. */
   prix: number;
-  images: { src: string; alt: Traduit }[];
+  images: VisuelProduit[];
   variantes: Variante[];
 }
 

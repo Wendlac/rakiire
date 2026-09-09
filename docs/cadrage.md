@@ -129,8 +129,8 @@ Réseaux à connecter : **Facebook** et **TikTok**.
 | Sujet | Décision |
 |---|---|
 | Framework | Astro + Tailwind |
-| Hébergement | Vercel |
-| Domaine | Non réservé — à faire |
+| Hébergement | GitHub Pages, dépôt github.com/Wendlac/rakiire |
+| Domaine | Non réservé. Le site est servi sous le sous-chemin `/rakiire`, déclaré par `base` dans `astro.config.mjs`. Sur un domaine propre : `base: "/"`, et corriger l'hébergeur dans `src/data/mentions.ts` |
 | Typographies | Google Fonts uniquement |
 | Mode sombre | Non |
 | Caractères spéciaux | Aucun pour l'instant (pas de ɛ ɔ ŋ) |
