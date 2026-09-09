@@ -65,7 +65,11 @@ src/
   pages/            Routes minces qui appellent les vues
   layouts/          Base.astro (document) et Page.astro (en-tête, menu, pied)
 docs/
-  cadrage.md        Décisions de projet
+  cadrage.md            Décisions de projet
+  apercu-prototype.html Aperçu autonome des neuf écrans, à ouvrir d'un
+                        double-clic. Fonte et visuels intégrés : aucune
+                        connexion requise. Instantané, pas une source —
+                        en cas de divergence, le site fait foi.
 ```
 
 ## Bloquant avant la mise en ligne
@@ -77,8 +81,21 @@ docs/
       un avertissement rouge et signale chaque trou à sa place exacte.
 - [ ] **Catalogue réel.** `src/data/produits.ts` contient six articles
       d'exemple. Noms, descriptions, prix et compositions sont à remplacer.
-- [ ] **Photos produit.** Renseigner `images` sur chaque article. Les cadrages
-      attendus pour la séance photo sont décrits sur `/lookbook`.
+- [ ] **Photos produit.** `src/images/` contient douze photographies de banque,
+      versées pour que le prototype se présente avec de vraies images. **Aucun
+      vêtement montré n'est un produit Rakiire**, et l'une d'elles porte un
+      monogramme de marque reconnaissable. À remplacer intégralement.
+
+      Après la séance photo :
+
+      1. `node scripts/preparer-images.mjs <dossier-des-photos>` — réduit à
+         1800 px et renomme selon l'orientation.
+      2. Mettre à jour les visuels et leurs textes alternatifs dans
+         `src/data/produits.ts`. Les `alt` décrivent ce que la photo montre,
+         jamais un article du catalogue : un lecteur d'écran ne doit pas
+         entendre « tee-shirt Nasara » devant une image qui montre autre chose.
+
+      Les cadrages attendus pour la séance sont décrits sur `/lookbook`.
 - [ ] **Nom de domaine.** Le site est aujourd'hui servi sous le sous-chemin
       `/rakiire`, déclaré par `base` dans `astro.config.mjs`. Sur un domaine
       propre, cette ligne devient `base: "/"` et l'hébergeur doit être corrigé
