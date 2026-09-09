@@ -1,7 +1,13 @@
 # Rakiire — site
 
-Catalogue premium, commande sur WhatsApp. Astro + Tailwind, déploiement Vercel.
-Bilingue français / anglais.
+Catalogue premium, commande sur WhatsApp. Astro + Tailwind, bilingue
+français / anglais.
+
+**En ligne :** https://wendlac.github.io/rakiire/
+
+Publié par GitHub Pages à chaque envoi sur `main`, via
+`.github/workflows/deploiement.yml`. Le dossier `dist/` n'est pas versionné :
+c'est le workflow qui construit.
 
 ## Démarrer
 
@@ -73,7 +79,11 @@ docs/
       d'exemple. Noms, descriptions, prix et compositions sont à remplacer.
 - [ ] **Photos produit.** Renseigner `images` sur chaque article. Les cadrages
       attendus pour la séance photo sont décrits sur `/lookbook`.
-- [ ] **Nom de domaine.**
+- [ ] **Nom de domaine.** Le site est aujourd'hui servi sous le sous-chemin
+      `/rakiire`, déclaré par `base` dans `astro.config.mjs`. Sur un domaine
+      propre, cette ligne devient `base: "/"` et l'hébergeur doit être corrigé
+      dans `src/data/mentions.ts` — une mention légale qui nomme le mauvais
+      hébergeur est fausse.
 
 ## Informations commerciales à arrêter
 

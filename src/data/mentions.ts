@@ -49,12 +49,17 @@ export function identiteIncomplete(): boolean {
 
 /**
  * Hébergeur. Décision de projet, donc renseigné.
- * L'adresse postale complète de Vercel est à ajouter si le conseil juridique
+ *
+ * Cette version est publiée sur GitHub Pages. Le jour d'une mise en ligne
+ * ailleurs, cette déclaration doit suivre : nommer un hébergeur qui n'est pas
+ * le bon est une mention légale fausse.
+ *
+ * L'adresse postale complète de GitHub est à ajouter si le conseil juridique
  * l'exige — je ne l'ai pas vérifiée et je ne la cite donc pas de mémoire.
  */
 export const hebergeur = {
-  nom: "Vercel Inc.",
-  site: "https://vercel.com",
+  nom: "GitHub, Inc. — GitHub Pages",
+  site: "https://pages.github.com",
   adresse: "",
 };
 

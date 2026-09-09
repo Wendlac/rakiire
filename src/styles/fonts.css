@@ -5,15 +5,18 @@
                             Charge via <link> dans le gabarit, avec preconnect.
    Satoshi                : absente de Google Fonts. Distribuee par Fontshare
                             (licence commerciale incluse), en auto-hebergement.
-                            Deposer les fichiers dans /public/fonts/.
 
-   Tant que les fichiers Satoshi ne sont pas presents, la pile de repli de
-   --font-corps prend le relais sans casser la mise en page.
+   Les fichiers vivent dans src/fonts/ et non dans public/, et sont references
+   ici en chemin RELATIF. C'est volontaire : Vite reecrit alors ces adresses a
+   la construction, en appliquant la racine de publication et une empreinte de
+   contenu. Un chemin absolu comme /fonts/Satoshi.woff2 fonctionnerait en
+   developpement puis tomberait en 404 sur GitHub Pages, ou le site est servi
+   sous /rakiire/ — la panne la plus courante d'un deploiement en sous-chemin.
    ========================================================================== */
 
 @font-face {
   font-family: "Satoshi";
-  src: url("/fonts/Satoshi-Variable.woff2") format("woff2-variations");
+  src: url("../fonts/Satoshi-Variable.woff2") format("woff2-variations");
   font-weight: 300 900;
   font-style: normal;
   font-display: swap;
@@ -21,7 +24,7 @@
 
 @font-face {
   font-family: "Satoshi";
-  src: url("/fonts/Satoshi-VariableItalic.woff2") format("woff2-variations");
+  src: url("../fonts/Satoshi-VariableItalic.woff2") format("woff2-variations");
   font-weight: 300 900;
   font-style: italic;
   font-display: swap;

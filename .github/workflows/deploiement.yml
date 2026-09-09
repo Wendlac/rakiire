@@ -1,0 +1,75 @@
+# =============================================================================
+# Publication du site Rakiire sur GitHub Pages
+#
+# Le site est entierement statique : on le construit ici, puis on remet le
+# dossier produit a GitHub Pages. Rien n'est construit sur la machine du
+# developpeur, et `dist/` reste hors du depot — ce qui evite les conflits de
+# fusion sur des fichiers generes, plaie classique des sites publies a la main.
+#
+# Adresse de publication : https://wendlac.github.io/rakiire/
+# La racine `/rakiire` est declaree dans astro.config.mjs. Renommer le depot
+# oblige a la changer la-bas, sinon toutes les adresses internes cassent.
+# =============================================================================
+name: Deploiement GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Permet de relancer une publication a la main depuis l'onglet Actions,
+  # sans avoir a produire un commit vide.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule publication a la fois. `cancel-in-progress: false` laisse la
+# publication en cours se terminer : interrompre un deploiement de Pages en
+# vol peut laisser le site dans un etat partiel.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construire:
+    name: Construire le site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v4
+
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` plutot que `npm install` : il installe exactement ce que
+      # package-lock.json decrit, sans jamais le modifier. La construction
+      # publiee est donc identique a celle validee en local.
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Verifier les types
+        run: npx astro check
+
+      - name: Construire
+        run: npm run build
+
+      - name: Deposer le dossier produit
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deployer:
+    name: Publier
+    needs: construire
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - name: Publier sur GitHub Pages
+        id: deploiement
+        uses: actions/deploy-pages@v4

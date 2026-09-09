@@ -13,6 +13,7 @@
  * n'a pas encore chargé.
  */
 import type { Langue } from "../../lib/catalogue";
+import { traduireChemin } from "../../lib/i18n";
 
 interface Props {
   langue?: Langue;
@@ -23,10 +24,11 @@ interface Props {
 
 const { langue = "fr", chemin = "/", class: classe = "" } = Astro.props;
 
-const propre = chemin.replace(/^\/en(?=\/|$)/, "") || "/";
+/* Les segments sont traduits : `/en/shop` doit renvoyer vers `/boutique`, et
+   non vers `/shop`, qui n'existe pas. La traduction se fait par cle de page. */
 const cibles: Record<Langue, string> = {
-  fr: propre,
-  en: `/en${propre === "/" ? "" : propre}`,
+  fr: traduireChemin(chemin, "fr"),
+  en: traduireChemin(chemin, "en"),
 };
 ---
 

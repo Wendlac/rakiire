@@ -8,6 +8,11 @@
  */
 import "../styles/global.css";
 
+/* L'adresse finale de la fonte, empreinte et racine de publication comprises,
+   n'est connue qu'a la construction. On la demande a Vite plutot que de
+   l'ecrire en dur : un chemin en dur casserait sous /rakiire/. */
+import satoshi from "../fonts/Satoshi-Variable.woff2?url";
+
 interface Props {
   titre: string;
   description?: string;
@@ -33,13 +38,7 @@ const {
     {/* Satoshi porte tout le texte courant : elle est prechargee pour que la
         premiere peinture se fasse deja dans la bonne fonte. L'italique n'est
         pas prechargee — elle ne se telecharge que si une page l'emploie. */}
-    <link
-      rel="preload"
-      href="/fonts/Satoshi-Variable.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    <link rel="preload" href={satoshi} as="font" type="font/woff2" crossorigin />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

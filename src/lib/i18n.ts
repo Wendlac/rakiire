@@ -177,14 +177,24 @@ export function traduire(langue: Langue) {
 }
 
 /**
- * Préfixe une adresse interne de la langue courante.
- * `lien("fr", "/boutique")` -> `/boutique`
- * `lien("en", "/boutique")` -> `/en/boutique`
+ * Racine de publication, sans barre oblique finale.
+ *
+ * Vaut `/rakiire` sur GitHub Pages et `` sur un domaine propre. Toute adresse
+ * interne du site passe par `lien()` : une adresse ecrite en dur ailleurs
+ * fonctionnerait en developpement et tomberait en 404 une fois publiee sous
+ * un sous-chemin. C'est le piege classique de GitHub Pages.
+ */
+const RACINE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+/**
+ * Adresse interne, dans la langue courante et prefixee de la racine.
+ * Sur GitHub Pages : `lien("fr", "/boutique")` -> `/rakiire/boutique`
+ *                    `lien("en", "/boutique")` -> `/rakiire/en/boutique`
  */
 export function lien(langue: Langue, chemin: string): string {
   const propre = chemin.startsWith("/") ? chemin : `/${chemin}`;
-  if (langue === "fr") return propre;
-  return `/en${propre === "/" ? "" : propre}`;
+  const localise = langue === "fr" ? propre : `/en${propre === "/" ? "" : propre}`;
+  return `${RACINE}${localise}` || "/";
 }
 
 /**
@@ -227,6 +237,36 @@ export type ClePage = keyof (typeof segments)["fr"];
 export function lienPage(langue: Langue, cle: ClePage, ancre?: string): string {
   const base = lien(langue, `/${segments[langue][cle]}`);
   return ancre ? `${base}#${ancre}` : base;
+}
+
+/**
+ * Traduit une adresse d'une langue vers l'autre, segment par segment.
+ *
+ * Indispensable parce que les segments sont traduits : depuis `/en/shop`, se
+ * contenter de retirer le prefixe `/en` donnerait `/shop`, qui n'existe pas en
+ * francais. Il faut retrouver la cle de page, puis reconstruire l'adresse avec
+ * le segment de la langue visee.
+ *
+ * Le reste du chemin est conserve tel quel : une reference produit reste la
+ * meme des deux cotes, seul son segment parent change.
+ */
+export function traduireChemin(chemin: string, vers: Langue): string {
+  const source: Langue = /^\/en(\/|$)/.test(chemin) ? "en" : "fr";
+  const sansLangue = chemin.replace(/^\/en(?=\/|$)/, "") || "/";
+
+  const [, premier = "", ...reste] = sansLangue.split("/");
+  if (!premier) return lien(vers, "/");
+
+  const cle = (Object.keys(segments[source]) as ClePage[]).find(
+    (k) => segments[source][k] === premier,
+  );
+
+  // Page sans segment traduit (la documentation du design system, par exemple) :
+  // on la sert telle quelle plutot que d'inventer une adresse.
+  if (!cle) return lien(vers, sansLangue);
+
+  const suite = reste.length ? `/${reste.join("/")}` : "";
+  return lien(vers, `/${segments[vers][cle]}${suite}`);
 }
 
 export function lienBoutique(langue: Langue): string {
