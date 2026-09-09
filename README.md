@@ -48,9 +48,10 @@ src/
                     pour faire évoluer la charte.
     fonts.css       Chargement des deux fontes, auto-hébergées : aucune
                     requête vers un tiers, aucune adresse IP transmise
-  fonts/            Fichiers .woff2 et leurs licences (LICENCES.md)
     base.css        Socle : éléments, focus, mouvement, prose, utilitaires
     global.css      Point d'entrée unique
+  fonts/            Fichiers .woff2 et leurs licences (LICENCES.md)
+  images/           Visuels d'exemple — à remplacer, voir plus bas
   lib/
     catalogue.ts    Contrat de données produit, collections, tailles, couleurs
     i18n.ts         Dictionnaire bilingue et adresses traduites
