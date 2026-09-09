@@ -1,0 +1,90 @@
+---
+/**
+ * Sélecteur de langue — Rakiire
+ *
+ * Denim Tears affiche « XOF / Fr » dans son pied de page : devise et langue au
+ * même endroit. Pour Rakiire, la devise ne change jamais — tout est en francs
+ * CFA — donc seule la langue bascule. La devise reste affichée en clair, parce
+ * qu'un visiteur ivoirien ou ghanéen doit voir immédiatement dans quelle monnaie
+ * il commande, sans avoir à le déduire.
+ *
+ * Un vrai `<select>` plutôt qu'un menu maison : il hérite du sélecteur natif du
+ * téléphone, familier et accessible, et fonctionne sans JavaScript si le script
+ * n'a pas encore chargé.
+ */
+import type { Langue } from "../../lib/catalogue";
+
+interface Props {
+  langue?: Langue;
+  /** Chemin courant, pour revenir à la même page dans l'autre langue. */
+  chemin?: string;
+  class?: string;
+}
+
+const { langue = "fr", chemin = "/", class: classe = "" } = Astro.props;
+
+const propre = chemin.replace(/^\/en(?=\/|$)/, "") || "/";
+const cibles: Record<Langue, string> = {
+  fr: propre,
+  en: `/en${propre === "/" ? "" : propre}`,
+};
+---
+
+<div class={`langue ${classe}`}>
+  <span class="langue__devise" aria-hidden="true">XOF</span>
+  <span class="langue__separateur" aria-hidden="true">/</span>
+
+  <label class="visuellement-cache" for="choix-langue">Langue du site</label>
+  <select class="langue__choix" id="choix-langue" data-langue>
+    <option value={cibles.fr} selected={langue === "fr"}>Français</option>
+    <option value={cibles.en} selected={langue === "en"}>English</option>
+  </select>
+</div>
+
+<style>
+  .langue {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: var(--text-legende);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .langue__separateur { opacity: 0.5; }
+
+  .langue__choix {
+    min-height: 2.75rem;
+    padding: 0 1.25rem 0 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    cursor: pointer;
+    appearance: none;
+
+    /* Chevron dessiné en dégradés plutôt qu'en image : aucune requête réseau,
+       et il suit la couleur du texte. */
+    background-image:
+      linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: right 6px center, right 2px center;
+    background-size: 4px 4px, 4px 4px;
+    background-repeat: no-repeat;
+  }
+
+  .langue__choix option {
+    color: var(--color-encre);
+    background-color: var(--color-fond);
+  }
+</style>
+
+<script>
+  for (const choix of document.querySelectorAll<HTMLSelectElement>("[data-langue]")) {
+    choix.addEventListener("change", () => {
+      window.location.pathname = choix.value;
+    });
+  }
+</script>

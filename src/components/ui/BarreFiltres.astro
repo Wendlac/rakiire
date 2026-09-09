@@ -1,0 +1,471 @@
+---
+/**
+ * Barre de filtres collante — Rakiire
+ *
+ * Catégories à gauche, tri et filtres à droite.
+ *
+ * Deux points repris de la référence :
+ *
+ * 1. Elle y flottait sur les images avec un simple dégradé, et le texte devenait
+ *    illisible dès qu'une photo claire passait dessous. Ici la barre porte un
+ *    fond plein plus un filet bas : le contraste tient quelle que soit l'image.
+ *
+ * 2. Les catégories débordent sur mobile. Elles défilent horizontalement, avec
+ *    les marges du cadre reportées à l'intérieur du conteneur pour que le
+ *    premier et le dernier élément ne se collent pas au bord de l'écran.
+ *
+ * Le panneau est un vrai dépliant : le bouton porte `aria-expanded` et
+ * `aria-controls`, Échap le referme et rend le focus au bouton. Ce composant ne
+ * filtre rien lui-même — il émet un événement `rakiire:filtres` avec l'état
+ * courant, et la page qui connaît les produits s'en charge. Un composant
+ * d'interface qui connaîtrait le catalogue ne serait plus réutilisable.
+ */
+interface Props {
+  liens: { href: string; libelle: string; actif?: boolean }[];
+  /** Décalage vertical, à aligner sur la hauteur de l'en-tête du site. */
+  decalage?: string;
+  /** Couleurs proposées au filtrage. */
+  couleurs?: { code: string; nom: string; valeur: string }[];
+  /** Tailles proposées au filtrage. */
+  tailles?: readonly string[];
+  libelles?: {
+    ouvrir: string;
+    trier: string;
+    couleur: string;
+    taille: string;
+    nouveautes: string;
+    prixCroissant: string;
+    prixDecroissant: string;
+    effacer: string;
+    fermer: string;
+  };
+  class?: string;
+}
+
+const {
+  liens,
+  decalage = "4rem",
+  couleurs = [],
+  tailles = [],
+  libelles = {
+    ouvrir: "Filtrer et trier",
+    trier: "Trier",
+    couleur: "Couleur",
+    taille: "Taille",
+    nouveautes: "Nouveautés",
+    prixCroissant: "Prix croissant",
+    prixDecroissant: "Prix décroissant",
+    effacer: "Tout effacer",
+    fermer: "Voir les résultats",
+  },
+  class: classe = "",
+} = Astro.props;
+
+const avecPanneau = couleurs.length > 0 || tailles.length > 0;
+
+const tris = [
+  { valeur: "defaut", libelle: libelles.nouveautes },
+  { valeur: "prix-asc", libelle: libelles.prixCroissant },
+  { valeur: "prix-desc", libelle: libelles.prixDecroissant },
+];
+---
+
+<div class={`filtres ${classe}`} style={`--decalage:${decalage}`} data-filtres>
+  <div class="cadre filtres__cadre">
+    <nav class="filtres__liens" aria-label="Catégories">
+      {
+        liens.map((lien) => (
+          <a
+            class={`filtres__lien ${lien.actif ? "est-actif" : ""}`}
+            href={lien.href}
+            aria-current={lien.actif ? "page" : undefined}
+          >
+            {lien.libelle}
+          </a>
+        ))
+      }
+    </nav>
+
+    {
+      avecPanneau && (
+        <button
+          class="filtres__tri"
+          type="button"
+          aria-expanded="false"
+          aria-controls="panneau-filtres"
+          data-bascule-filtres
+        >
+          {libelles.ouvrir}
+          <span class="filtres__compteur chiffres-tabulaires" data-compteur-filtres hidden />
+          <span class="filtres__plus" aria-hidden="true" />
+        </button>
+      )
+    }
+  </div>
+
+  {
+    avecPanneau && (
+      <div class="panneau" id="panneau-filtres" data-panneau-filtres hidden>
+        <div class="cadre panneau__cadre">
+          <fieldset class="groupe">
+            <legend class="groupe__titre">{libelles.trier}</legend>
+            <div class="groupe__choix">
+              {tris.map((tri, index) => (
+                <div>
+                  <input
+                    class="visuellement-cache"
+                    type="radio"
+                    name="tri"
+                    id={`tri-${tri.valeur}`}
+                    value={tri.valeur}
+                    checked={index === 0}
+                    data-champ-filtre
+                  />
+                  <label class="jeton" for={`tri-${tri.valeur}`}>{tri.libelle}</label>
+                </div>
+              ))}
+            </div>
+          </fieldset>
+
+          {couleurs.length > 0 && (
+            <fieldset class="groupe">
+              <legend class="groupe__titre">{libelles.couleur}</legend>
+              <div class="groupe__choix">
+                {couleurs.map((couleur) => (
+                  <div>
+                    <input
+                      class="visuellement-cache"
+                      type="checkbox"
+                      name="couleur"
+                      id={`f-c-${couleur.code}`}
+                      value={couleur.code}
+                      data-champ-filtre
+                    />
+                    <label class="jeton jeton--couleur" for={`f-c-${couleur.code}`}>
+                      <span class="jeton__pastille" style={`background-color:${couleur.valeur}`} aria-hidden="true" />
+                      {couleur.nom}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
+          {tailles.length > 0 && (
+            <fieldset class="groupe">
+              <legend class="groupe__titre">{libelles.taille}</legend>
+              <div class="groupe__choix">
+                {tailles.map((taille) => (
+                  <div>
+                    <input
+                      class="visuellement-cache"
+                      type="checkbox"
+                      name="taille"
+                      id={`f-t-${taille}`}
+                      value={taille}
+                      data-champ-filtre
+                    />
+                    <label class="jeton jeton--taille" for={`f-t-${taille}`}>{taille}</label>
+                  </div>
+                ))}
+              </div>
+            </fieldset>
+          )}
+
+          <div class="panneau__actions">
+            <button class="panneau__effacer" type="button" data-effacer-filtres>
+              {libelles.effacer}
+            </button>
+            <button class="panneau__fermer" type="button" data-fermer-filtres>
+              {libelles.fermer}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .filtres {
+    position: sticky;
+    top: var(--decalage);
+    z-index: var(--plan-collant);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-bordure-tenue);
+  }
+
+  .filtres__cadre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 3.25rem;
+  }
+
+  .filtres__liens {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-inline: calc(var(--spacing-gouttiere) * -1);
+    padding-inline: var(--spacing-gouttiere);
+  }
+
+  .filtres__liens::-webkit-scrollbar { display: none; }
+
+  .filtres__lien,
+  .filtres__tri {
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-texte-secondaire);
+    transition: color var(--duree-rapide) var(--ease-doux);
+  }
+
+  .filtres__lien { padding-block: 1rem; }
+
+  .filtres__lien:hover,
+  .filtres__tri:hover { color: var(--color-texte); }
+
+  .filtres__lien.est-actif {
+    color: var(--color-texte);
+    box-shadow: inset 0 -2px 0 0 var(--color-encre);
+  }
+
+  .filtres__tri {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    flex-shrink: 0;
+  }
+
+  /* Le signe bascule de + a − : l'etat du depliant se lit sans l'ouvrir. */
+  .filtres__plus {
+    position: relative;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .filtres__plus::before,
+  .filtres__plus::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 1px;
+    background-color: currentColor;
+  }
+
+  .filtres__plus::after {
+    transform: rotate(90deg);
+    transition: transform var(--duree-normale) var(--ease-sortie);
+  }
+
+  .filtres__tri[aria-expanded="true"] .filtres__plus::after {
+    transform: rotate(0deg);
+  }
+
+  /* Nombre de filtres actifs : sans lui, un filtre pose puis oublie fait
+     croire que le catalogue est vide. */
+  .filtres__compteur {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.125rem;
+    height: 1.125rem;
+    padding-inline: 0.25rem;
+    border-radius: var(--radius-pilule);
+    background-color: var(--color-encre);
+    color: var(--color-fond);
+    font-size: 0.625rem;
+    letter-spacing: 0;
+  }
+
+  /* -- Panneau -------------------------------------------------------------- */
+  .panneau {
+    border-top: 1px solid var(--color-bordure-tenue);
+    background-color: var(--color-surface-haute);
+  }
+
+  .panneau__cadre {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    padding-block: 1.75rem;
+  }
+
+  @media (min-width: 48rem) {
+    .panneau__cadre {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2.5rem;
+    }
+  }
+
+  .groupe {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .groupe__titre {
+    padding: 0;
+    margin-bottom: 0.75rem;
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-secondaire);
+  }
+
+  .groupe__choix {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .jeton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding-inline: 0.875rem;
+    border: 1px solid var(--color-bordure-forte);
+    border-radius: var(--radius-nul);
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    color: var(--color-texte);
+    cursor: pointer;
+    transition:
+      background-color var(--duree-rapide) var(--ease-doux),
+      color var(--duree-rapide) var(--ease-doux),
+      border-color var(--duree-rapide) var(--ease-doux);
+  }
+
+  .jeton--taille { min-width: 3.25rem; justify-content: center; padding-inline: 0.75rem; }
+
+  .jeton:hover { border-color: var(--color-encre); }
+
+  .jeton__pastille {
+    display: block;
+    width: 0.875rem;
+    height: 0.875rem;
+    border: 1px solid var(--color-bordure-forte);
+  }
+
+  input:checked + .jeton {
+    background-color: var(--color-encre);
+    border-color: var(--color-encre);
+    color: var(--color-fond);
+  }
+
+  input:focus-visible + .jeton {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .panneau__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    grid-column: 1 / -1;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-bordure-tenue);
+  }
+
+  .panneau__effacer {
+    min-height: 2.75rem;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-tertiaire);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .panneau__effacer:hover { color: var(--color-texte); }
+
+  .panneau__fermer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding-inline: 1.5rem;
+    background-color: var(--color-encre);
+    color: var(--color-fond);
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+  }
+
+  .panneau__fermer:hover { background-color: var(--color-encre-80); }
+</style>
+
+<script>
+  const racine = document.querySelector<HTMLElement>("[data-filtres]");
+  const bascule = racine?.querySelector<HTMLButtonElement>("[data-bascule-filtres]");
+  const panneau = racine?.querySelector<HTMLElement>("[data-panneau-filtres]");
+
+  if (racine && bascule && panneau) {
+    const compteur = racine.querySelector<HTMLElement>("[data-compteur-filtres]");
+    const champs = [...racine.querySelectorAll<HTMLInputElement>("[data-champ-filtre]")];
+
+    const ouvrir = (ouvert: boolean) => {
+      panneau.hidden = !ouvert;
+      bascule.setAttribute("aria-expanded", String(ouvert));
+    };
+
+    /** Etat courant, diffuse a la page qui connait les produits. */
+    function etat() {
+      const coche = (nom: string) =>
+        champs.filter((c) => c.name === nom && c.checked).map((c) => c.value);
+      return {
+        tri: champs.find((c) => c.name === "tri" && c.checked)?.value ?? "defaut",
+        couleurs: coche("couleur"),
+        tailles: coche("taille"),
+      };
+    }
+
+    function diffuser() {
+      const courant = etat();
+      const actifs = courant.couleurs.length + courant.tailles.length;
+
+      if (compteur) {
+        compteur.textContent = String(actifs);
+        compteur.hidden = actifs === 0;
+      }
+
+      document.dispatchEvent(new CustomEvent("rakiire:filtres", { detail: courant }));
+    }
+
+    bascule.addEventListener("click", () => ouvrir(panneau.hidden));
+    racine.querySelector("[data-fermer-filtres]")?.addEventListener("click", () => {
+      ouvrir(false);
+      bascule.focus();
+    });
+
+    racine.querySelector("[data-effacer-filtres]")?.addEventListener("click", () => {
+      for (const champ of champs) {
+        if (champ.type === "checkbox") champ.checked = false;
+        if (champ.type === "radio") champ.checked = champ.value === "defaut";
+      }
+      diffuser();
+    });
+
+    for (const champ of champs) champ.addEventListener("change", diffuser);
+
+    // Echap referme et rend le focus au bouton : sans cela, le clavier reste
+    // piege dans un panneau qu'on ne sait plus fermer.
+    document.addEventListener("keydown", (evenement) => {
+      if (evenement.key !== "Escape" || panneau.hidden) return;
+      ouvrir(false);
+      bascule.focus();
+    });
+
+    diffuser();
+  }
+</script>

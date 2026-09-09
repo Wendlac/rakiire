@@ -1,0 +1,40 @@
+---
+/**
+ * Symbole Rakiire — les deux branches.
+ *
+ * La charte designe comme symbole les deux « i » du logotype, dessines en
+ * branches paralleles. Ils sont ici extraits du trace d'origine et recadres
+ * sur leur propre boite (589.25 -> 662.23 en x, 451 -> 630 en y).
+ *
+ * Usage : favicon, avatar de reseau social, marqueur de chargement, filigrane.
+ * Jamais en remplacement du logotype dans l'en-tete d'une page.
+ */
+interface Props {
+  hauteur?: string;
+  titre?: string;
+  class?: string;
+}
+
+const { hauteur = "1.5rem", titre = "", class: classe = "" } = Astro.props;
+const decoratif = titre === "";
+
+/* Meme raison que pour le logotype : une largeur explicite empeche un conteneur
+   flex ou grille d etirer le trace. Rapport du viewBox : 72.98 / 179. */
+const RAPPORT = 0.4077;
+const dimensions = `height:${hauteur};width:calc(${hauteur} * ${RAPPORT});flex:none`;
+---
+
+<svg
+  viewBox="589.25 451 72.98 179"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  style={dimensions}
+  class={classe}
+  role={decoratif ? "presentation" : "img"}
+  aria-hidden={decoratif ? "true" : undefined}
+  aria-label={decoratif ? undefined : titre}
+>
+  {!decoratif && <title>{titre}</title>}
+  <path d="M662.227 451L649.727 630H634.098V451H662.227Z" fill="currentColor"/>
+  <path d="M615.098 451V630H589.25L599.75 451H615.098Z" fill="currentColor"/>
+</svg>

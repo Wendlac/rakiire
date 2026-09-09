@@ -1,0 +1,185 @@
+---
+/**
+ * Lookbook — Rakiire
+ *
+ * Une page de photographies, donc une page qui n'existe pas encore vraiment :
+ * tant que le shooting n'a pas eu lieu, elle montre la composition et rien
+ * d'autre. Elle est livrée maintenant pour deux raisons : le lien figure déjà
+ * dans la navigation, et le photographe doit connaître les cadrages attendus
+ * avant la prise de vue, pas après.
+ *
+ * Le rythme alterne volontairement : pleine largeur, puis deux colonnes, puis
+ * un portrait décalé. Une grille régulière transformerait un lookbook en
+ * catalogue — or le catalogue existe déjà, c'est la boutique.
+ *
+ * Chaque bloc porte le format attendu. C'est le brief du shooting.
+ */
+import Page from "../layouts/Page.astro";
+import EnteteEditoriale from "../components/ui/EnteteEditoriale.astro";
+import Bouton from "../components/ui/Bouton.astro";
+import Revele from "../components/ui/Revele.astro";
+
+import type { Langue } from "../lib/catalogue";
+import { traduire, lienBoutique } from "../lib/i18n";
+
+interface Props {
+  langue: Langue;
+  chemin: string;
+}
+
+const { langue, chemin } = Astro.props;
+const t = traduire(langue);
+const fr = langue === "fr";
+
+/**
+ * Plans du lookbook. `format` est le rapport de cadrage demandé au photographe,
+ * `note` la légende éditoriale affichée sous l'image.
+ */
+const plans = [
+  {
+    disposition: "large",
+    format: "16 / 9",
+    titre: fr ? "Ouverture" : "Opening",
+    note: fr
+      ? "Plan large, deux mannequins, lumière de fin de journée."
+      : "Wide shot, two models, late afternoon light.",
+  },
+  {
+    disposition: "paire",
+    format: "3 / 4",
+    titre: fr ? "Nasara, noir" : "Nasara, black",
+    note: fr ? "Plan taille, fond neutre." : "Waist-up, neutral background.",
+  },
+  {
+    disposition: "paire",
+    format: "3 / 4",
+    titre: fr ? "Wendé, blanc" : "Wendé, white",
+    note: fr ? "Plan taille, même lumière." : "Waist-up, same light.",
+  },
+  {
+    disposition: "decale",
+    format: "4 / 5",
+    titre: fr ? "Détail" : "Detail",
+    note: fr
+      ? "Col côtelé, couture d’épaule, à hauteur de regard."
+      : "Ribbed collar, shoulder seam, at eye level.",
+  },
+  {
+    disposition: "large",
+    format: "21 / 9",
+    titre: fr ? "Clôture" : "Closing",
+    note: fr
+      ? "Plan très large, silhouette de dos, extérieur."
+      : "Very wide shot, figure from behind, outdoors.",
+  },
+] as const;
+---
+
+<Page
+  titre={`${t("lookbook")} — Rakiire`}
+  description={fr
+    ? "La collection Ethnic Rakiire Classic en images."
+    : "The Ethnic Rakiire Classic collection in pictures."}
+  langue={langue}
+  chemin={chemin}
+>
+  <EnteteEditoriale
+    surtitre="Ethnic Rakiire Classic"
+    titre="Lookbook"
+    chapeau={fr
+      ? "Les visuels de la première série. Séance photographique à venir : les cadrages ci-dessous font office de brief."
+      : "Visuals for the first series. Photo session pending: the framings below serve as the brief."}
+  />
+
+  <div class="cadre planches">
+    {
+      plans.map((plan) => (
+        <Revele class={`planche planche--${plan.disposition}`}>
+          <div class="planche__visuel reserve-image" style={`aspect-ratio:${plan.format}`}>
+            <span class="planche__attente" aria-hidden="true">
+              {fr ? "Visuel à venir" : "Image coming"} · {plan.format.replace(" / ", ":")}
+            </span>
+          </div>
+          <div class="planche__legende">
+            <p class="planche__titre">{plan.titre}</p>
+            <p class="planche__note">{plan.note}</p>
+          </div>
+        </Revele>
+      ))
+    }
+  </div>
+
+  <div class="cadre fin">
+    <Bouton variante="contour" href={lienBoutique(langue)}>{t("voirLaCollection")}</Bouton>
+  </div>
+</Page>
+
+<style>
+  .planches {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1.5rem, 1rem + 3vw, 3.5rem) clamp(0.75rem, 0.25rem + 1.5vw, 1.5rem);
+    padding-bottom: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+  }
+
+  /* Chaque disposition occupe la grille différemment : c'est l'irrégularité qui
+     distingue un lookbook d'une planche contact. */
+  .planche--large { grid-column: 1 / -1; }
+  .planche--paire { grid-column: span 1; }
+  .planche--decale { grid-column: 1 / -1; }
+
+  @media (min-width: 48rem) {
+    .planche--decale {
+      grid-column: 2 / -1;
+      max-width: 30rem;
+    }
+  }
+
+  .planche {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .planche__visuel {
+    position: relative;
+    width: 100%;
+    background-color: var(--color-encre-08);
+  }
+
+  .planche__attente {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-legende);
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-encre-45);
+    text-align: center;
+    padding-inline: 1rem;
+  }
+
+  .planche__legende {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .planche__titre {
+    font-family: var(--font-titre);
+    font-size: var(--text-t5);
+  }
+
+  .planche__note {
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-tertiaire);
+  }
+
+  .fin {
+    display: flex;
+    justify-content: center;
+    padding-bottom: var(--spacing-section);
+  }
+</style>

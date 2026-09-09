@@ -1,0 +1,118 @@
+---
+/**
+ * Gabarit de page — Rakiire
+ *
+ * En-tête, menu plein écran, contenu, pied de page. Toutes les pages du site
+ * passent par ici : c'est le seul endroit où la navigation est déclarée, donc
+ * le seul à modifier quand une rubrique s'ajoute.
+ */
+import Base from "./Base.astro";
+import Entete from "../components/ui/Entete.astro";
+import MenuPleinEcran from "../components/ui/MenuPleinEcran.astro";
+import PiedDePage from "../components/ui/PiedDePage.astro";
+import SelecteurLangue from "../components/ui/SelecteurLangue.astro";
+import Logo from "../components/ui/Logo.astro";
+import type { Langue } from "../lib/catalogue";
+import { traduire, lienBoutique, lienPage } from "../lib/i18n";
+import { NUMERO_AFFICHE, NUMERO_WHATSAPP } from "../lib/whatsapp";
+
+interface Props {
+  titre: string;
+  description?: string;
+  langue: Langue;
+  chemin: string;
+}
+
+const { titre, description, langue, chemin } = Astro.props;
+const t = traduire(langue);
+
+const rubriques = [
+  {
+    libelle: t("boutique"),
+    href: lienBoutique(langue),
+    entrees: [
+      { libelle: "Ethnic Rakiire Classic", href: `${lienBoutique(langue)}#CLS` },
+      { libelle: "Ethnic Rakiire Jean", href: `${lienBoutique(langue)}#JEA` },
+      { libelle: t("homme"), href: `${lienBoutique(langue)}#H` },
+      { libelle: t("femme"), href: `${lienBoutique(langue)}#F` },
+    ],
+  },
+  { libelle: t("lookbook"), href: lienPage(langue, "lookbook") },
+  { libelle: t("histoire"), href: lienPage(langue, "histoire") },
+  {
+    libelle: t("contact"),
+    href: lienPage(langue, "contact"),
+    entrees: [
+      { libelle: t("faq"), href: lienPage(langue, "faq") },
+      { libelle: t("livraison"), href: lienPage(langue, "faq", "livraison") },
+      { libelle: t("mentions"), href: lienPage(langue, "mentions") },
+    ],
+  },
+];
+
+const colonnesPied = [
+  {
+    titre: t("boutique"),
+    liens: [
+      { libelle: "Ethnic Rakiire Classic", href: `${lienBoutique(langue)}#CLS` },
+      { libelle: "Ethnic Rakiire Jean", href: `${lienBoutique(langue)}#JEA` },
+      { libelle: t("lookbook"), href: lienPage(langue, "lookbook") },
+    ],
+  },
+  {
+    titre: "Rakiire",
+    liens: [
+      { libelle: t("histoire"), href: lienPage(langue, "histoire") },
+      { libelle: t("contact"), href: lienPage(langue, "contact") },
+    ],
+  },
+  {
+    titre: t("faq"),
+    liens: [
+      { libelle: t("livraison"), href: lienPage(langue, "faq", "livraison") },
+      { libelle: t("faq"), href: lienPage(langue, "faq") },
+      { libelle: t("mentions"), href: lienPage(langue, "mentions") },
+    ],
+  },
+];
+---
+
+<Base titre={titre} description={description} langue={langue}>
+  <Entete langue={langue} chemin={chemin} />
+
+  <MenuPleinEcran id="menu-principal" rubriques={rubriques}>
+    <Logo slot="entete" hauteur="1.0625rem" titre="Rakiire" />
+    <SelecteurLangue slot="pied" langue={langue} chemin={chemin} />
+  </MenuPleinEcran>
+
+  <main id="contenu">
+    <slot />
+  </main>
+
+  <PiedDePage
+    colonnes={colonnesPied}
+    telephone={NUMERO_AFFICHE}
+    telephoneBrut={NUMERO_WHATSAPP}
+    ville="Ouagadougou, Burkina Faso"
+  >
+    <div slot="marque" class="pied-marque">
+      <Logo hauteur="1.375rem" titre="Rakiire" />
+      <p class="pied-slogan">Le choix d’être soi</p>
+    </div>
+    <SelecteurLangue slot="reglages" langue={langue} chemin={chemin} />
+  </PiedDePage>
+</Base>
+
+<style>
+  .pied-marque {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    color: var(--color-fond);
+  }
+
+  .pied-slogan {
+    font-family: var(--font-titre);
+    font-size: var(--text-t4);
+  }
+</style>

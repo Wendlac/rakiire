@@ -1,0 +1,138 @@
+---
+/**
+ * Selecteur de couleur — Rakiire
+ *
+ * Meme mecanique que le selecteur de taille : radios natifs, styles au CSS.
+ *
+ * Deux precautions :
+ *   - Le nom de la couleur est affiche en toutes lettres a cote des pastilles.
+ *     Une pastille seule fait reposer l'information sur la seule couleur, ce
+ *     qui echoue au critere WCAG 1.4.1.
+ *   - Chaque pastille porte un contour encre-45. Sans lui, le blanc (#FFFFFF)
+ *     ne mesure que 1.16 sur le fond de marque et devient invisible.
+ */
+import { COULEURS, type CodeCouleur, type Langue } from "../../lib/catalogue";
+
+interface Props {
+  nom: string;
+  couleurs: CodeCouleur[];
+  valeur?: CodeCouleur;
+  langue?: Langue;
+  legende?: string;
+  class?: string;
+}
+
+const {
+  nom,
+  couleurs,
+  valeur,
+  langue = "fr",
+  legende = "Couleur",
+  class: classe = "",
+} = Astro.props;
+
+const choisie = valeur ?? couleurs[0];
+---
+
+<fieldset class={`couleurs ${classe}`}>
+  <legend class="couleurs__legende">
+    {legende}
+    <span class="couleurs__nom">{choisie ? COULEURS[choisie].nom[langue] : ""}</span>
+  </legend>
+
+  <div class="couleurs__grille">
+    {
+      couleurs.map((code) => {
+        const id = `${nom}-${code}`;
+        return (
+          <div>
+            <input
+              class="couleurs__radio visuellement-cache"
+              type="radio"
+              id={id}
+              name={nom}
+              value={code}
+              checked={choisie === code}
+            />
+            <label class="couleurs__etiquette" for={id}>
+              <span
+                class="couleurs__pastille"
+                style={`background-color:${COULEURS[code].valeur}`}
+                aria-hidden="true"
+              />
+              <span class="visuellement-cache">{COULEURS[code].nom[langue]}</span>
+            </label>
+          </div>
+        );
+      })
+    }
+  </div>
+</fieldset>
+
+<style>
+  .couleurs {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .couleurs__legende {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0;
+    margin-bottom: 0.75rem;
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-secondaire);
+  }
+
+  .couleurs__nom {
+    color: var(--color-texte);
+  }
+
+  .couleurs__grille {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  /* La zone cliquable fait 44 px, la pastille visible 28 px : la cible
+     tactile est respectee sans alourdir le dessin. */
+  .couleurs__etiquette {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    cursor: pointer;
+  }
+
+  .couleurs__pastille {
+    display: block;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--color-bordure-forte);
+    border-radius: var(--radius-nul);
+    transition: box-shadow var(--duree-rapide) var(--ease-doux);
+  }
+
+  .couleurs__etiquette:hover .couleurs__pastille {
+    box-shadow: 0 0 0 1px var(--color-encre);
+  }
+
+  /* Selection : un anneau detache, jamais un simple epaississement de bordure
+     qui se confondrait avec l'etat survole. */
+  .couleurs__radio:checked + .couleurs__etiquette .couleurs__pastille {
+    box-shadow:
+      0 0 0 1px var(--color-fond),
+      0 0 0 3px var(--color-encre);
+  }
+
+  .couleurs__radio:focus-visible + .couleurs__etiquette {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 0;
+  }
+</style>

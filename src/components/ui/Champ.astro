@@ -1,0 +1,145 @@
+---
+/**
+ * Champ de saisie — Rakiire
+ *
+ * Ligne unique sous le texte plutot que boite fermee : moins de matiere a
+ * l'ecran, plus proche du formulaire editorial que du formulaire administratif.
+ *
+ * Le libelle est toujours visible. Aucun placeholder ne fait office d'etiquette :
+ * il disparait a la saisie et laisse l'utilisateur sans repere, ce qui penalise
+ * en premier lieu les lecteurs d'ecran et les saisies longues sur mobile.
+ *
+ * L'erreur est portee par trois signaux simultanes — couleur, texte et
+ * aria-invalid — pour ne jamais dependre de la seule couleur.
+ */
+interface Props {
+  id: string;
+  nom: string;
+  libelle: string;
+  type?: "text" | "tel" | "email" | "search";
+  valeur?: string;
+  placeholder?: string;
+  aide?: string;
+  erreur?: string;
+  requis?: boolean;
+  autocomplete?: string;
+  class?: string;
+}
+
+const {
+  id,
+  nom,
+  libelle,
+  type = "text",
+  valeur = "",
+  placeholder,
+  aide,
+  erreur,
+  requis = false,
+  autocomplete,
+  class: classe = "",
+} = Astro.props;
+
+const idAide = aide ? `${id}-aide` : undefined;
+const idErreur = erreur ? `${id}-erreur` : undefined;
+const decritPar = [idAide, idErreur].filter(Boolean).join(" ") || undefined;
+---
+
+<div class={`champ ${erreur ? "champ--erreur" : ""} ${classe}`}>
+  <label class="champ__libelle" for={id}>
+    {libelle}
+    {requis && <span aria-hidden="true"> *</span>}
+    {requis && <span class="visuellement-cache"> (obligatoire)</span>}
+  </label>
+
+  <input
+    class="champ__saisie"
+    id={id}
+    name={nom}
+    type={type}
+    value={valeur}
+    placeholder={placeholder}
+    required={requis}
+    autocomplete={autocomplete}
+    aria-describedby={decritPar}
+    aria-invalid={erreur ? "true" : undefined}
+  />
+
+  {aide && !erreur && <p class="champ__aide" id={idAide}>{aide}</p>}
+  {erreur && <p class="champ__erreur" id={idErreur}>{erreur}</p>}
+</div>
+
+<style>
+  .champ {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .champ__libelle {
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-secondaire);
+  }
+
+  .champ__saisie {
+    min-height: 3rem; /* 48 px */
+    padding: 0.5rem 0;
+    background-color: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--color-bordure-forte);
+    border-radius: var(--radius-nul);
+    font-size: var(--text-corps);
+    color: var(--color-texte);
+    transition: border-color var(--duree-normale) var(--ease-doux);
+  }
+
+  .champ__saisie::placeholder {
+    color: var(--color-texte-tertiaire);
+  }
+
+  .champ__saisie:hover {
+    border-bottom-color: var(--color-encre-62);
+  }
+
+  .champ__saisie:focus {
+    outline: none;
+    border-bottom-color: var(--color-encre);
+    border-bottom-width: 2px;
+    padding-bottom: calc(0.5rem - 1px);
+  }
+
+  /* L'anneau reste visible au clavier, en plus du soulignement. */
+  .champ__saisie:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 4px;
+  }
+
+  .champ__saisie:disabled {
+    color: var(--color-desactive-texte);
+    border-bottom-color: var(--color-bordure);
+    cursor: not-allowed;
+  }
+
+  .champ__aide,
+  .champ__erreur {
+    font-size: var(--text-corps-s);
+    line-height: var(--leading-normal);
+  }
+
+  .champ__aide {
+    color: var(--color-texte-tertiaire);
+  }
+
+  .champ__erreur {
+    color: var(--color-texte-erreur);
+  }
+
+  .champ--erreur .champ__saisie {
+    border-bottom-color: var(--color-erreur);
+    border-bottom-width: 2px;
+    padding-bottom: calc(0.5rem - 1px);
+  }
+</style>

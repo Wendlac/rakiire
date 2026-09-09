@@ -1,0 +1,333 @@
+---
+/**
+ * Carte produit — Rakiire
+ *
+ * Le vêtement occupe la carte ; le texte se range dessous, aligné à gauche, sans
+ * encadrement. Pas de survol qui zoome brutalement : l'image se rapproche de
+ * 3 %, pas davantage, sinon le mouvement attire l'œil sur l'effet plutôt que
+ * sur le produit.
+ *
+ * Le lien couvre toute la carte via un pseudo-élément étendu : une seule zone
+ * cliquable, un seul élément focalisable, aucun lien dupliqué pour un lecteur
+ * d'écran.
+ *
+ * AJOUT RAPIDE — arbitrage à connaître avant de l'activer
+ * BonneGueule fait apparaître au survol un panneau « ajouter au panier » avec
+ * les tailles, directement sur la vignette. Fear of God ne le fait pas : chez
+ * eux l'achat se décide sur la fiche. Les deux se défendent, mais deux limites
+ * pèsent ici :
+ *   1. Le survol n'existe pas sur mobile, et la clientèle de Rakiire est
+ *      massivement mobile. Le panneau est donc désactivé sous `hover: none` —
+ *      un motif réservé au poste fixe ne doit pas dicter le dessin.
+ *   2. Ajouter sans avoir vu la fiche augmente les retours, ce qui coûte cher
+ *      quand chaque commande se règle à la main sur WhatsApp.
+ * Recommandation : le laisser éteint sur la page d'accueil, l'activer sur la
+ * boutique où l'acheteur compare déjà des articles connus.
+ */
+import { COLLECTIONS, type CodeCollection, type Langue } from "../../lib/catalogue";
+import { traduire } from "../../lib/i18n";
+import Pastille from "./Pastille.astro";
+import Prix from "./Prix.astro";
+
+interface Props {
+  href: string;
+  nom: string;
+  /** Langue des étiquettes — « Épuisé », « Nouveau », « Ajouter au panier ». */
+  langue?: Langue;
+  reference: string;
+  collection: CodeCollection;
+  prix: number;
+  image?: { src: string; alt: string };
+  /** Rapport largeur/hauteur de la réserve d'image. */
+  ratio?: string;
+  epuise?: boolean;
+  nouveau?: boolean;
+  /** Ligne de composition, sous le nom. Jamais d'origine de fabrication. */
+  matiere?: string;
+  /** Pastilles de couleur disponibles. Au-delà de `maxCouleurs`, un compteur. */
+  couleurs?: { nom: string; valeur: string }[];
+  maxCouleurs?: number;
+  /** Active le panneau d'ajout rapide au survol. Poste fixe uniquement. */
+  taillesRapides?: string[];
+  /** « ligne » place le prix à droite du nom, comme chez BonneGueule. */
+  meta?: "colonne" | "ligne";
+  class?: string;
+}
+
+const {
+  href,
+  nom,
+  langue = "fr",
+  reference,
+  collection,
+  prix,
+  image,
+  ratio = "3 / 4",
+  epuise = false,
+  nouveau = false,
+  matiere,
+  couleurs = [],
+  maxCouleurs = 4,
+  taillesRapides,
+  meta = "colonne",
+  class: classe = "",
+} = Astro.props;
+
+const t = traduire(langue);
+const visibles = couleurs.slice(0, maxCouleurs);
+const reste = couleurs.length - visibles.length;
+const ajoutRapide = Boolean(taillesRapides?.length) && !epuise;
+---
+
+<article class={`carte carte--${meta} ${epuise ? "carte--epuise" : ""} ${classe}`}>
+  <div class="carte__visuel reserve-image" style={`aspect-ratio:${ratio}`}>
+    {
+      image ? (
+        <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+      ) : (
+        <span class="visuellement-cache">{langue === "fr" ? "Visuel à venir" : "Image coming"}</span>
+      )
+    }
+
+    {
+      (epuise || nouveau) && (
+        <div class="carte__marques">
+          {nouveau && !epuise && <Pastille variante="inverse">{t("nouveau")}</Pastille>}
+          {epuise && <Pastille variante="epuise">{t("epuise")}</Pastille>}
+        </div>
+      )
+    }
+
+    {
+      ajoutRapide && (
+        <div class="carte__rapide">
+          <p class="carte__rapide-titre">{t("ajouterAuPanier")}</p>
+          <ul class="carte__tailles">
+            {taillesRapides!.map((taille) => (
+              <li>
+                <button class="carte__taille" type="button" data-reference={reference} data-taille={taille}>
+                  <span class="visuellement-cache">{t("ajouterAuPanier")} — {t("taille")} </span>{taille}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </div>
+
+  <div class="carte__texte">
+    <p class="surtitre carte__collection">{COLLECTIONS[collection]}</p>
+
+    <div class="carte__ligne">
+      <h3 class="carte__nom">
+        <a class="carte__lien" href={href}>{nom}</a>
+      </h3>
+      <Prix montant={prix} taille="s" class="carte__prix" />
+    </div>
+
+    {matiere && <p class="carte__matiere">{matiere}</p>}
+    <p class="carte__reference chiffres-tabulaires">{reference}</p>
+
+    {
+      couleurs.length > 0 && (
+        <ul class="carte__couleurs">
+          {visibles.map((c) => (
+            <li>
+              <span class="carte__pastille" style={`background-color:${c.valeur}`} aria-hidden="true" />
+              <span class="visuellement-cache">{c.nom}</span>
+            </li>
+          ))}
+          {reste > 0 && <li class="carte__reste">+{reste}</li>}
+        </ul>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .carte {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .carte__visuel {
+    position: relative;
+    width: 100%;
+  }
+
+  .carte__visuel > :global(img) {
+    transition: transform var(--duree-lente) var(--ease-sortie);
+  }
+
+  .carte:hover .carte__visuel > :global(img) {
+    transform: scale(1.03);
+  }
+
+  .carte__marques {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.375rem;
+  }
+
+  .carte--epuise .carte__visuel > :global(img) {
+    opacity: 0.55;
+  }
+
+  /* -- Ajout rapide --------------------------------------------------------- */
+  .carte__rapide {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 3;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 1rem 0.75rem;
+    background-color: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    opacity: 0;
+    transform: translateY(0.5rem);
+    transition:
+      opacity var(--duree-normale) var(--ease-sortie),
+      transform var(--duree-normale) var(--ease-sortie);
+  }
+
+  /* Le panneau n'existe que là où le survol existe. Sur mobile, la carte
+     conduit à la fiche et rien d'autre. */
+  @media (hover: hover) and (pointer: fine) {
+    .carte__rapide { display: flex; }
+
+    .carte:hover .carte__rapide,
+    .carte:focus-within .carte__rapide {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .carte__rapide-titre {
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-secondaire);
+  }
+
+  .carte__tailles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.375rem;
+  }
+
+  .carte__taille {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding-inline: 0.5rem;
+    border: 1px solid var(--color-bordure-forte);
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    color: var(--color-texte);
+    background-color: var(--color-surface-haute);
+    transition:
+      background-color var(--duree-rapide) var(--ease-doux),
+      color var(--duree-rapide) var(--ease-doux);
+  }
+
+  .carte__taille:hover {
+    background-color: var(--color-encre);
+    border-color: var(--color-encre);
+    color: var(--color-fond);
+  }
+
+  /* -- Texte ---------------------------------------------------------------- */
+  .carte__texte {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .carte__collection {
+    margin-bottom: 0.125rem;
+  }
+
+  .carte__ligne {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  /* Nom à gauche, prix à droite, sur une même ligne de base. */
+  .carte--ligne .carte__ligne {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .carte__nom {
+    font-size: var(--text-t5);
+    line-height: 1.3;
+  }
+
+  .carte__lien::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .carte__lien:focus-visible { outline: none; }
+
+  .carte:has(.carte__lien:focus-visible) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 6px;
+  }
+
+  .carte__matiere {
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+  }
+
+  .carte__reference {
+    font-size: var(--text-legende);
+    letter-spacing: 0.06em;
+    color: var(--color-texte-tertiaire);
+  }
+
+  .carte--ligne .carte__prix {
+    flex-shrink: 0;
+  }
+
+  /* -- Pastilles de couleur -------------------------------------------------- */
+  .carte__couleurs {
+    display: flex;
+    align-items: center;
+    gap: 0.4375rem;
+    margin-top: 0.5rem;
+  }
+
+  .carte__pastille {
+    display: block;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-bordure-forte);
+  }
+
+  .carte__reste {
+    font-size: var(--text-legende);
+    color: var(--color-texte-tertiaire);
+    font-variant-numeric: tabular-nums;
+  }
+</style>

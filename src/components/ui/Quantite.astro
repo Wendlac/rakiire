@@ -1,0 +1,152 @@
+---
+/**
+ * Selecteur de quantite — Rakiire
+ *
+ * Trois elements : retirer, valeur, ajouter.
+ *
+ * Le champ central reste un <input type="number"> reel — la saisie directe
+ * doit rester possible pour passer de 1 a 12 sans onze appuis. Les boutons ne
+ * sont qu'un raccourci pose par-dessus.
+ *
+ * La valeur est annoncee par aria-live : un lecteur d'ecran doit entendre le
+ * changement sans avoir a reparcourir la ligne.
+ */
+interface Props {
+  id: string;
+  nom: string;
+  valeur?: number;
+  min?: number;
+  max?: number;
+  libelle?: string;
+  class?: string;
+}
+
+const {
+  id,
+  nom,
+  valeur = 1,
+  min = 1,
+  max = 99,
+  libelle = "Quantité",
+  class: classe = "",
+} = Astro.props;
+---
+
+<div class={`quantite ${classe}`} data-quantite data-min={min} data-max={max}>
+  <label class="visuellement-cache" for={id}>{libelle}</label>
+
+  <button
+    class="quantite__bouton"
+    type="button"
+    data-action="retirer"
+    aria-label="Retirer une unité"
+  >
+    <span aria-hidden="true">&minus;</span>
+  </button>
+
+  <input
+    class="quantite__valeur chiffres-tabulaires"
+    id={id}
+    name={nom}
+    type="number"
+    inputmode="numeric"
+    value={valeur}
+    min={min}
+    max={max}
+    step="1"
+  />
+
+  <button
+    class="quantite__bouton"
+    type="button"
+    data-action="ajouter"
+    aria-label="Ajouter une unité"
+  >
+    <span aria-hidden="true">+</span>
+  </button>
+
+  <span class="visuellement-cache" aria-live="polite" data-annonce></span>
+</div>
+
+<style>
+  .quantite {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--color-bordure-forte);
+    border-radius: var(--radius-nul);
+  }
+
+  .quantite__bouton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    min-height: 2.75rem;
+    font-size: 1.125rem;
+    line-height: 1;
+    color: var(--color-texte);
+    transition: background-color var(--duree-rapide) var(--ease-doux);
+  }
+
+  .quantite__bouton:hover:not(:disabled) {
+    background-color: var(--color-encre-08);
+  }
+
+  .quantite__bouton:disabled {
+    color: var(--color-desactive-texte);
+    cursor: not-allowed;
+  }
+
+  .quantite__valeur {
+    width: 3rem;
+    border: 0;
+    border-inline: 1px solid var(--color-bordure-forte);
+    background-color: transparent;
+    text-align: center;
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    color: var(--color-texte);
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  /* Les fleches natives doublonneraient avec nos deux boutons. */
+  .quantite__valeur::-webkit-outer-spin-button,
+  .quantite__valeur::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .quantite__valeur:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+</style>
+
+<script>
+  // Delegation unique : autant de selecteurs que voulu sur une page,
+  // un seul ecouteur.
+  document.addEventListener("click", (evenement) => {
+    const bouton = (evenement.target as HTMLElement)?.closest<HTMLButtonElement>(
+      "[data-action='ajouter'], [data-action='retirer']",
+    );
+    if (!bouton) return;
+
+    const racine = bouton.closest<HTMLElement>("[data-quantite]");
+    const champ = racine?.querySelector<HTMLInputElement>(".quantite__valeur");
+    if (!racine || !champ) return;
+
+    const min = Number(racine.dataset.min ?? 1);
+    const max = Number(racine.dataset.max ?? 99);
+    const pas = bouton.dataset.action === "ajouter" ? 1 : -1;
+    const suivante = Math.min(max, Math.max(min, Number(champ.value) + pas));
+
+    if (suivante === Number(champ.value)) return;
+
+    champ.value = String(suivante);
+    champ.dispatchEvent(new Event("change", { bubbles: true }));
+
+    const annonce = racine.querySelector<HTMLElement>("[data-annonce]");
+    if (annonce) annonce.textContent = `Quantité : ${suivante}`;
+  });
+</script>

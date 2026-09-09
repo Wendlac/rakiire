@@ -1,0 +1,56 @@
+---
+/**
+ * Gabarit de base — Rakiire
+ *
+ * Goudy Bookletter 1911 est servie par Google Fonts en attendant son
+ * auto-hebergement : le preconnect vers fonts.gstatic.com economise un aller-
+ * retour DNS + TLS, ce qui se sent immediatement sur un reseau mobile lent.
+ */
+import "../styles/global.css";
+
+interface Props {
+  titre: string;
+  description?: string;
+  langue?: "fr" | "en";
+}
+
+const {
+  titre,
+  description = "Rakiire — Le choix d'être soi.",
+  langue = "fr",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={langue}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titre}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#EEEEEE" />
+
+    {/* Satoshi porte tout le texte courant : elle est prechargee pour que la
+        premiere peinture se fasse deja dans la bonne fonte. L'italique n'est
+        pas prechargee — elle ne se telecharge que si une page l'emploie. */}
+    <link
+      rel="preload"
+      href="/fonts/Satoshi-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&display=swap"
+    />
+  </head>
+
+  <body>
+    <a class="evitement" href="#contenu">Aller au contenu</a>
+    <slot />
+  </body>
+</html>

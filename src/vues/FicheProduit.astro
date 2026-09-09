@@ -1,0 +1,546 @@
+---
+/**
+ * Fiche produit — Rakiire
+ *
+ * Deux colonnes sur grand écran : les visuels à gauche, la décision à droite.
+ * Sur mobile, les visuels puis la décision, dans cet ordre — on regarde avant
+ * de choisir.
+ *
+ * Le bloc de choix est collant sur grand écran uniquement. Sur mobile, une barre
+ * d'achat fixée en bas de l'écran mangerait un tiers de la hauteur utile sur les
+ * petits téléphones, et masquerait justement la photo.
+ *
+ * Les variantes sont sérialisées en JSON dans la page. Le script s'en sert pour
+ * recalculer les tailles à chaque changement de couleur : une taille peut exister
+ * en noir et manquer en blanc, et proposer une combinaison indisponible se paie
+ * par un aller-retour sur WhatsApp.
+ */
+import Page from "../layouts/Page.astro";
+import Bouton from "../components/ui/Bouton.astro";
+import Pastille from "../components/ui/Pastille.astro";
+import Prix from "../components/ui/Prix.astro";
+import Quantite from "../components/ui/Quantite.astro";
+import Alerte from "../components/ui/Alerte.astro";
+import GrilleProduits from "../components/ui/GrilleProduits.astro";
+import CarteProduit from "../components/ui/CarteProduit.astro";
+
+import type { Langue, Produit } from "../lib/catalogue";
+import { COLLECTIONS, COULEURS, TAILLES, estDisponible } from "../lib/catalogue";
+import { traduire, lienProduit, lienPanier } from "../lib/i18n";
+import { produits } from "../data/produits";
+import { NUMERO_AFFICHE } from "../lib/whatsapp";
+
+interface Props {
+  produit: Produit;
+  langue: Langue;
+  chemin: string;
+}
+
+const { produit, langue, chemin } = Astro.props;
+const t = traduire(langue);
+
+const couleurs = [...new Set(produit.variantes.map((v) => v.couleur))];
+const disponible = estDisponible(produit);
+const premiere = produit.variantes.find((v) => v.disponible)?.couleur ?? couleurs[0];
+
+const similaires = produits
+  .filter((p) => p.reference !== produit.reference && p.collection === produit.collection)
+  .slice(0, 4);
+
+/* Sérialisation destinée au script : uniquement ce dont il a besoin. */
+const donnees = {
+  reference: produit.reference,
+  nom: produit.nom[langue],
+  prix: produit.prix,
+  variantes: produit.variantes,
+};
+---
+
+<Page
+  titre={`${produit.nom[langue]} — Rakiire`}
+  description={produit.description[langue]}
+  langue={langue}
+  chemin={chemin}
+>
+  <article class="cadre fiche" data-fiche>
+    <script is:inline type="application/json" data-donnees-produit set:html={JSON.stringify(donnees)} />
+
+    <!-- Visuels ---------------------------------------------------------- -->
+    <div class="fiche__visuels">
+      {
+        (produit.images.length ? produit.images : [null, null]).map((image, index) => (
+          <div class="fiche__visuel reserve-image">
+            {image ? (
+              <img
+                src={image.src}
+                alt={image.alt[langue]}
+                loading={index === 0 ? "eager" : "lazy"}
+                decoding="async"
+              />
+            ) : (
+              <span class="fiche__attente" aria-hidden="true">{langue === "fr" ? "Visuel à venir" : "Image coming"}</span>
+            )}
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Décision --------------------------------------------------------- -->
+    <div class="fiche__choix">
+      <div class="fiche__entete">
+        <p class="surtitre">{COLLECTIONS[produit.collection]}</p>
+        <h1 class="fiche__nom">{produit.nom[langue]}</h1>
+        <Prix montant={produit.prix} taille="l" />
+        {!disponible && <Pastille variante="epuise">{t("epuise")}</Pastille>}
+      </div>
+
+      <p class="fiche__description">{produit.description[langue]}</p>
+
+      <form class="fiche__form" data-form-achat>
+        <!-- Couleur -->
+        <fieldset class="fiche__groupe">
+          <legend class="fiche__legende">
+            {t("couleur")}
+            <b data-nom-couleur>{COULEURS[premiere].nom[langue]}</b>
+          </legend>
+          <div class="fiche__couleurs">
+            {
+              couleurs.map((code) => (
+                <div>
+                  <input
+                    class="visuellement-cache"
+                    type="radio"
+                    name="couleur"
+                    id={`c-${code}`}
+                    value={code}
+                    checked={code === premiere}
+                    data-nom={COULEURS[code].nom[langue]}
+                  />
+                  <label class="fiche__couleur" for={`c-${code}`}>
+                    <span style={`background-color:${COULEURS[code].valeur}`} aria-hidden="true" />
+                    <span class="visuellement-cache">{COULEURS[code].nom[langue]}</span>
+                  </label>
+                </div>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <!-- Taille -->
+        <fieldset class="fiche__groupe">
+          <legend class="fiche__legende">{t("taille")}</legend>
+          <div class="fiche__tailles">
+            {
+              TAILLES.map((taille) => (
+                <div>
+                  <input
+                    class="visuellement-cache"
+                    type="radio"
+                    name="taille"
+                    id={`t-${taille}`}
+                    value={taille}
+                  />
+                  <label class="fiche__taille" for={`t-${taille}`}>{taille}</label>
+                </div>
+              ))
+            }
+          </div>
+          <p class="fiche__erreur" data-erreur-taille hidden>{t("choisirTaille")}</p>
+        </fieldset>
+
+        <!-- Quantité + achat -->
+        <div class="fiche__achat">
+          <Quantite id="qte-produit" nom="quantite" valeur={1} max={20} libelle={t("quantite")} />
+          <Bouton variante="primaire" type="submit" pleineLargeur desactive={!disponible}>
+            {disponible ? t("ajouterAuPanier") : t("indisponible")}
+          </Bouton>
+        </div>
+
+        <div class="fiche__confirmation" data-confirmation hidden>
+          <Alerte variante="succes">
+            <span data-texte-confirmation></span>
+            <a class="lien" href={lienPanier(langue)}>{t("panier")}</a>
+          </Alerte>
+        </div>
+      </form>
+
+      <!-- Informations -->
+      <dl class="fiche__infos">
+        <div>
+          <dt>{t("composition")}</dt>
+          <dd>{produit.composition[langue]}</dd>
+        </div>
+        <div>
+          <dt>{t("reference")}</dt>
+          <dd class="chiffres-tabulaires">{produit.reference}</dd>
+        </div>
+        <div>
+          <dt>{t("detailsLivraison")}</dt>
+          <dd>
+            {
+              langue === "fr"
+                ? "Livraison au Burkina Faso et en Côte d’Ivoire. Règlement par mobile money, convenu sur WhatsApp."
+                : "Delivery in Burkina Faso and Côte d’Ivoire. Payment by mobile money, arranged on WhatsApp."
+            }
+            <br />
+            <a class="lien" href={`https://wa.me/${NUMERO_AFFICHE.replace(/\D/g, "")}`}>
+              {NUMERO_AFFICHE}
+            </a>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </article>
+
+  {
+    similaires.length > 0 && (
+      <section class="cadre similaires">
+        <h2 class="similaires__titre">
+          {langue === "fr" ? "Dans la même collection" : "From the same collection"}
+        </h2>
+        <GrilleProduits densite="confortable">
+          {similaires.map((autre) => (
+            <CarteProduit
+              langue={langue}
+              href={lienProduit(langue, autre.reference)}
+              nom={autre.nom[langue]}
+              reference={autre.reference}
+              collection={autre.collection}
+              prix={autre.prix}
+              matiere={autre.composition[langue]}
+              meta="ligne"
+              epuise={!estDisponible(autre)}
+            />
+          ))}
+        </GrilleProduits>
+      </section>
+    )
+  }
+</Page>
+
+<style>
+  .fiche {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(2rem, 1.5rem + 3vw, 4rem);
+    padding-block: clamp(1.5rem, 1rem + 2vw, 3rem) var(--spacing-section);
+  }
+
+  @media (min-width: 64rem) {
+    .fiche {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .fiche__visuels {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .fiche__visuel {
+    aspect-ratio: 3 / 4;
+    background-color: var(--color-encre-08);
+  }
+
+  .fiche__attente {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-legende);
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-encre-45);
+  }
+
+  /* Le bloc de décision suit le défilement sur grand écran seulement.
+     Sur mobile, une barre fixe mangerait la photo. */
+  .fiche__choix {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  @media (min-width: 64rem) {
+    .fiche__choix {
+      position: sticky;
+      top: 5.5rem;
+    }
+  }
+
+  .fiche__entete {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.625rem;
+  }
+
+  .fiche__nom {
+    font-size: var(--text-t2);
+  }
+
+  .fiche__description {
+    color: var(--color-texte-secondaire);
+    max-width: 34rem;
+  }
+
+  .fiche__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .fiche__groupe {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .fiche__legende {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0;
+    margin-bottom: 0.75rem;
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-secondaire);
+  }
+
+  .fiche__legende b {
+    color: var(--color-texte);
+    font-weight: 500;
+  }
+
+  .fiche__couleurs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .fiche__couleur {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    cursor: pointer;
+  }
+
+  .fiche__couleur > span:first-child {
+    display: block;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--color-bordure-forte);
+    transition: box-shadow var(--duree-rapide) var(--ease-doux);
+  }
+
+  .fiche__couleur:hover > span:first-child {
+    box-shadow: 0 0 0 1px var(--color-encre);
+  }
+
+  input:checked + .fiche__couleur > span:first-child {
+    box-shadow: 0 0 0 1px var(--color-fond), 0 0 0 3px var(--color-encre);
+  }
+
+  input:focus-visible + .fiche__couleur {
+    outline: 2px solid var(--color-focus);
+  }
+
+  .fiche__tailles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .fiche__taille {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.25rem;
+    min-height: 2.75rem;
+    padding-inline: 0.75rem;
+    border: 1px solid var(--color-bordure-forte);
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background-color var(--duree-rapide) var(--ease-doux),
+      color var(--duree-rapide) var(--ease-doux),
+      border-color var(--duree-rapide) var(--ease-doux);
+  }
+
+  .fiche__taille:hover { border-color: var(--color-encre); }
+
+  input:checked + .fiche__taille {
+    background-color: var(--color-encre);
+    border-color: var(--color-encre);
+    color: var(--color-fond);
+  }
+
+  input:focus-visible + .fiche__taille {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  input:disabled + .fiche__taille {
+    color: var(--color-desactive-texte);
+    border-color: var(--color-bordure);
+    cursor: not-allowed;
+    background-image: linear-gradient(
+      to top left,
+      transparent calc(50% - 0.5px),
+      var(--color-bordure-forte) calc(50% - 0.5px),
+      var(--color-bordure-forte) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+  }
+
+  .fiche__erreur {
+    margin-top: 0.75rem;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-erreur);
+  }
+
+  .fiche__achat {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .fiche__achat > :global(.bouton) {
+    flex: 1 1 12rem;
+  }
+
+  .fiche__infos {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin: 0;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--color-bordure-tenue);
+  }
+
+  .fiche__infos dt {
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-tertiaire);
+    margin-bottom: 0.25rem;
+  }
+
+  .fiche__infos dd {
+    margin: 0;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+  }
+
+  /* -- Similaires ------------------------------------------------------------ */
+  .similaires {
+    padding-bottom: var(--spacing-section);
+  }
+
+  .similaires__titre {
+    font-size: var(--text-t3);
+    margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+</style>
+
+<script>
+  import { ajouterAuPanier } from "../lib/panier";
+  import { referenceVariante, type CodeCouleur, type Taille, type Variante } from "../lib/catalogue";
+
+  interface Donnees {
+    reference: string;
+    nom: string;
+    prix: number;
+    variantes: Variante[];
+  }
+
+  const balise = document.querySelector<HTMLScriptElement>("[data-donnees-produit]");
+  const form = document.querySelector<HTMLFormElement>("[data-form-achat]");
+  if (balise && form) {
+    const donnees: Donnees = JSON.parse(balise.textContent ?? "{}");
+
+    const nomCouleur = document.querySelector<HTMLElement>("[data-nom-couleur]");
+    const erreurTaille = document.querySelector<HTMLElement>("[data-erreur-taille]");
+    const confirmation = document.querySelector<HTMLElement>("[data-confirmation]");
+    const texteConfirmation = document.querySelector<HTMLElement>("[data-texte-confirmation]");
+
+    const radiosCouleur = [...form.querySelectorAll<HTMLInputElement>('input[name="couleur"]')];
+    const radiosTaille = [...form.querySelectorAll<HTMLInputElement>('input[name="taille"]')];
+
+    /** Réaccorde les tailles à la couleur choisie. */
+    function accorderTailles() {
+      const couleur = radiosCouleur.find((r) => r.checked)?.value as CodeCouleur | undefined;
+      if (!couleur) return;
+
+      if (nomCouleur) {
+        nomCouleur.textContent =
+          radiosCouleur.find((r) => r.checked)?.dataset.nom ?? "";
+      }
+
+      for (const radio of radiosTaille) {
+        const variante = donnees.variantes.find(
+          (v) => v.couleur === couleur && v.taille === radio.value,
+        );
+        const ouverte = Boolean(variante?.disponible);
+        radio.disabled = !ouverte;
+        // Une taille cochée qui devient indisponible doit se décocher, sinon on
+        // commande une combinaison qui n'existe pas.
+        if (!ouverte && radio.checked) radio.checked = false;
+      }
+    }
+
+    for (const radio of radiosCouleur) {
+      radio.addEventListener("change", accorderTailles);
+    }
+    accorderTailles();
+
+    form.addEventListener("submit", (evenement) => {
+      evenement.preventDefault();
+
+      const couleur = radiosCouleur.find((r) => r.checked)?.value as CodeCouleur | undefined;
+      const taille = radiosTaille.find((r) => r.checked)?.value as Taille | undefined;
+
+      if (!taille) {
+        if (erreurTaille) erreurTaille.hidden = false;
+        radiosTaille.find((r) => !r.disabled)?.focus();
+        return;
+      }
+      if (erreurTaille) erreurTaille.hidden = true;
+      if (!couleur) return;
+
+      const champQuantite = form.querySelector<HTMLInputElement>("#qte-produit");
+      const quantite = Math.max(1, Number(champQuantite?.value ?? 1));
+
+      ajouterAuPanier(
+        {
+          reference: referenceVariante(donnees, couleur, taille),
+          modele: donnees.reference,
+          nom: donnees.nom,
+          couleur,
+          taille,
+          prixUnitaire: donnees.prix,
+        },
+        quantite,
+      );
+
+      if (confirmation && texteConfirmation) {
+        const langue = document.documentElement.lang === "en" ? "en" : "fr";
+        texteConfirmation.textContent =
+          langue === "fr"
+            ? `${donnees.nom} — taille ${taille} — ajouté au panier. `
+            : `${donnees.nom} — size ${taille} — added to the cart. `;
+        confirmation.hidden = false;
+      }
+    });
+  }
+</script>

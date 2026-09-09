@@ -1,0 +1,84 @@
+---
+/**
+ * Bloc de demonstration — Rakiire
+ * Un titre, une note d'usage, une aire de rendu sur fond de marque.
+ */
+interface Props {
+  titre: string;
+  note?: string;
+  /** Aire de rendu sur fond encre, pour eprouver les composants en inverse. */
+  inverse?: boolean;
+  /** Retire le rembourrage : pour les motifs qui doivent occuper toute la largeur. */
+  plein?: boolean;
+}
+
+const { titre, note, inverse = false, plein = false } = Astro.props;
+---
+
+<div class="bloc">
+  <div class="bloc__entete">
+    <h3 class="bloc__titre">{titre}</h3>
+    {note && <p class="bloc__note mesure">{note}</p>}
+  </div>
+  <div
+    class:list={[
+      "bloc__aire",
+      inverse && "bloc__aire--inverse sur-sombre",
+      plein && "bloc__aire--plein",
+    ]}
+  >
+    <slot />
+  </div>
+</div>
+
+<style>
+  .bloc {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .bloc__entete {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .bloc__titre {
+    font-family: var(--font-corps);
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte);
+  }
+
+  .bloc__note {
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+  }
+
+  .bloc__aire {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 2rem;
+    background-color: var(--color-surface-haute);
+    border: 1px solid var(--color-bordure-tenue);
+  }
+
+  .bloc__aire--inverse {
+    background-color: var(--color-surface-inverse);
+    border-color: var(--color-encre);
+    color: var(--color-texte-inverse);
+  }
+
+  /* Les motifs de page se jugent bord à bord : un héros dans une boîte
+     rembourrée ne dit rien de ce qu'il fera en pleine largeur. */
+  .bloc__aire--plein {
+    display: block;
+    padding: 0;
+    overflow: hidden;
+  }
+</style>

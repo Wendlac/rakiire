@@ -1,0 +1,231 @@
+---
+/**
+ * Mentions légales — Rakiire
+ *
+ * Les informations d'identité viennent de `src/data/mentions.ts` et ne sont pas
+ * renseignées : un champ vide s'affiche en rouge, à sa place exacte, et un
+ * avertissement coiffe la page tant qu'il en reste un.
+ *
+ * Ce qui est écrit ici sur les données personnelles est vrai à la lettre au
+ * moment où j'écris : le site ne dépose aucun cookie, n'envoie rien à un
+ * serveur, et ne conserve le panier que dans le navigateur du visiteur.
+ * ⚠ Le jour où une mesure d'audience sera installée, ce paragraphe devra être
+ * repris — c'est la première chose que vérifie une autorité de contrôle.
+ */
+import Page from "../layouts/Page.astro";
+import EnteteEditoriale from "../components/ui/EnteteEditoriale.astro";
+import Alerte from "../components/ui/Alerte.astro";
+
+import type { Langue } from "../lib/catalogue";
+import { traduire, lienPage } from "../lib/i18n";
+import { NUMERO_AFFICHE, NUMERO_WHATSAPP } from "../lib/whatsapp";
+import { identite, identiteIncomplete, hebergeur, derniereRevision } from "../data/mentions";
+
+interface Props {
+  langue: Langue;
+  chemin: string;
+}
+
+const { langue, chemin } = Astro.props;
+const t = traduire(langue);
+const fr = langue === "fr";
+const incomplet = identiteIncomplete();
+
+/** Champs d'identité, dans l'ordre d'affichage. */
+const champs = [
+  { libelle: fr ? "Raison sociale" : "Registered name", valeur: identite.raisonSociale },
+  { libelle: fr ? "Forme juridique" : "Legal form", valeur: identite.formeJuridique },
+  { libelle: fr ? "Siège social" : "Registered office", valeur: identite.siege },
+  { libelle: "RCCM", valeur: identite.rccm },
+  { libelle: "IFU", valeur: identite.ifu },
+  { libelle: fr ? "Directeur de la publication" : "Publication director", valeur: identite.directeurPublication },
+  { libelle: fr ? "Contact" : "Contact", valeur: identite.contact || NUMERO_AFFICHE },
+];
+---
+
+<Page
+  titre={`${t("mentions")} — Rakiire`}
+  description={fr ? "Éditeur, hébergement, données personnelles." : "Publisher, hosting, personal data."}
+  langue={langue}
+  chemin={chemin}
+>
+  <EnteteEditoriale
+    titre={t("mentions")}
+    chapeau={fr
+      ? "Qui édite ce site, où il est hébergé, et ce qu’il fait de vos données."
+      : "Who publishes this site, where it is hosted, and what it does with your data."}
+  />
+
+  <div class="cadre contenu">
+    {
+      incomplet && (
+        <div class="avertissement">
+          <Alerte variante="erreur" titre={fr ? "Page incomplète" : "Incomplete page"}>
+            {
+              fr
+                ? "L’identité légale de l’éditeur n’est pas renseignée. Cette page ne doit pas être publiée en l’état : complétez src/data/mentions.ts avant la mise en ligne."
+                : "The publisher’s legal identity is missing. This page must not go live as it stands: fill in src/data/mentions.ts before publishing."
+            }
+          </Alerte>
+        </div>
+      )
+    }
+
+    <section class="prose">
+      <h2>{fr ? "Éditeur du site" : "Site publisher"}</h2>
+      <dl class="identite">
+        {
+          champs.map((champ) => (
+            <div class="identite__ligne">
+              <dt>{champ.libelle}</dt>
+              <dd>
+                {champ.valeur.trim() ? (
+                  champ.valeur
+                ) : (
+                  <span class="manquant">{fr ? "à compléter" : "to be completed"}</span>
+                )}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <h2>{fr ? "Hébergement" : "Hosting"}</h2>
+      <p>
+        {fr ? "Ce site est hébergé par " : "This site is hosted by "}
+        <a href={hebergeur.site} target="_blank" rel="noopener">{hebergeur.nom}</a>
+        {hebergeur.adresse ? `, ${hebergeur.adresse}.` : "."}
+      </p>
+
+      <h2>{fr ? "Données personnelles" : "Personal data"}</h2>
+      <p>
+        {
+          fr
+            ? "Ce site ne comporte aucun compte client, aucun formulaire de paiement et aucune base de données. Il ne transmet aucune information à un serveur."
+            : "This site has no customer accounts, no payment form and no database. It sends no information to any server."
+        }
+      </p>
+      <ul>
+        <li>
+          {
+            fr
+              ? "Votre panier, votre nom et votre ville sont enregistrés dans la mémoire de votre navigateur, sur votre seul appareil. Vider les données du site les efface définitivement."
+              : "Your cart, your name and your city are stored in your browser’s memory, on your device alone. Clearing the site data erases them permanently."
+          }
+        </li>
+        <li>
+          {
+            fr
+              ? "Ces informations ne nous parviennent qu’au moment où vous envoyez vous-même le message WhatsApp. C’est vous qui décidez de l’envoi."
+              : "This information reaches us only when you send the WhatsApp message yourself. You decide when it is sent."
+          }
+        </li>
+        <li>
+          {
+            fr
+              ? "La conversation qui s’ensuit est régie par les conditions de WhatsApp, auxquelles nous ne pouvons rien changer."
+              : "The resulting conversation is governed by WhatsApp’s own terms, over which we have no control."
+          }
+        </li>
+      </ul>
+
+      <h2>{fr ? "Cookies" : "Cookies"}</h2>
+      <p>
+        {
+          fr
+            ? "Ce site ne dépose aucun cookie et n’utilise aucun traceur publicitaire. C’est pourquoi aucune bannière de consentement ne vous est présentée : il n’y a rien à consentir."
+            : "This site sets no cookies and uses no advertising trackers. That is why no consent banner is shown: there is nothing to consent to."
+        }
+      </p>
+
+      <h2>{fr ? "Propriété intellectuelle" : "Intellectual property"}</h2>
+      <p>
+        {
+          fr
+            ? "Le nom Rakiire, le logotype, les visuels et les textes de ce site sont la propriété de son éditeur. Toute reproduction sans autorisation écrite est interdite."
+            : "The Rakiire name, logotype, images and texts on this site are the property of its publisher. Any reproduction without written permission is prohibited."
+        }
+      </p>
+
+      <h2>{fr ? "Commandes et livraison" : "Orders and delivery"}</h2>
+      <p>
+        {
+          fr
+            ? "Aucune transaction n’est conclue sur ce site. Les prix affichés sont en francs CFA. La commande, le règlement et la livraison sont convenus directement dans la conversation WhatsApp, au numéro "
+            : "No transaction is completed on this site. Prices are shown in CFA francs. Ordering, payment and delivery are agreed directly in the WhatsApp conversation, at "
+        }
+        <a href={`https://wa.me/${NUMERO_WHATSAPP}`}>{NUMERO_AFFICHE}</a>
+        {fr ? ". Les conditions de livraison figurent dans les " : ". Delivery terms are set out in the "}
+        <a href={lienPage(langue, "faq", "livraison")}>{fr ? "questions fréquentes" : "frequently asked questions"}</a>.
+      </p>
+
+      {
+        derniereRevision && (
+          <p class="revision">
+            {fr ? "Dernière révision : " : "Last revised: "}{derniereRevision}
+          </p>
+        )
+      }
+    </section>
+  </div>
+</Page>
+
+<style>
+  .contenu {
+    padding-bottom: var(--spacing-section);
+  }
+
+  .avertissement {
+    max-width: 40rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .identite {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+    width: 100%;
+  }
+
+  .identite__ligne {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.125rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-bordure-tenue);
+  }
+
+  @media (min-width: 30rem) {
+    .identite__ligne {
+      grid-template-columns: 14rem 1fr;
+      gap: 1rem;
+      align-items: baseline;
+    }
+  }
+
+  .identite dt {
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-tertiaire);
+  }
+
+  .identite dd {
+    margin: 0;
+    color: var(--color-texte);
+  }
+
+  /* Un champ manquant doit se voir à la relecture, pas se deviner. */
+  .manquant {
+    color: var(--color-texte-erreur);
+    font-style: italic;
+  }
+
+  .revision {
+    margin-top: 1.5rem;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-tertiaire);
+  }
+</style>

@@ -1,0 +1,228 @@
+---
+/**
+ * Questions fréquentes — Rakiire
+ *
+ * ⚠ CE QUI MANQUE ET QUE JE N'AI PAS INVENTÉ
+ * Trois informations relèvent d'une décision commerciale et n'existent pas
+ * encore : le délai de livraison par ville, les frais de livraison, et la
+ * politique d'échange. Écrire « livré sous 48 h » ou « échange sous 14 jours »
+ * aurait été inventer un engagement que la marque devra tenir. Les réponses
+ * ci-dessous renvoient donc honnêtement à la conversation WhatsApp — elles sont
+ * vraies aujourd'hui, et à remplacer dès que ces règles seront fixées.
+ *
+ * Les dépliants sont des <details> natifs : ouverture, clavier et annonce aux
+ * lecteurs d'écran viennent du navigateur, et les réponses restent lisibles si
+ * le JavaScript ne charge pas.
+ */
+import Page from "../layouts/Page.astro";
+import EnteteEditoriale from "../components/ui/EnteteEditoriale.astro";
+import Bouton from "../components/ui/Bouton.astro";
+
+import type { Langue } from "../lib/catalogue";
+import { TAILLES } from "../lib/catalogue";
+import { traduire, lienBoutique } from "../lib/i18n";
+import { NUMERO_AFFICHE, NUMERO_WHATSAPP } from "../lib/whatsapp";
+
+interface Props {
+  langue: Langue;
+  chemin: string;
+}
+
+const { langue, chemin } = Astro.props;
+const t = traduire(langue);
+const fr = langue === "fr";
+const tailles = TAILLES.join(", ");
+
+const rubriques = [
+  {
+    id: "commande",
+    titre: fr ? "Commander" : "Ordering",
+    questions: [
+      {
+        q: fr ? "Comment passer commande ?" : "How do I place an order?",
+        r: fr
+          ? "Ajoutez les articles à votre panier, indiquez votre nom et votre ville, puis appuyez sur « Commander sur WhatsApp ». Un message pré-rempli s’ouvre dans la conversation, avec le détail de votre panier et son total. Il ne vous reste qu’à l’envoyer."
+          : "Add items to your cart, enter your name and city, then tap “Order on WhatsApp”. A pre-filled message opens in the conversation, listing your cart and its total. All you have to do is send it.",
+      },
+      {
+        q: fr ? "Pourquoi la commande passe-t-elle par WhatsApp ?" : "Why does ordering go through WhatsApp?",
+        r: fr
+          ? "Parce qu’une commande se prépare mieux dans une conversation. Nous confirmons la disponibilité, convenons de la livraison et répondons à vos questions avant que vous ne payiez quoi que ce soit."
+          : "Because an order is better prepared in a conversation. We confirm availability, agree on delivery and answer your questions before you pay anything.",
+      },
+      {
+        q: fr ? "Mon panier est-il conservé ?" : "Is my cart saved?",
+        r: fr
+          ? "Oui. Il reste dans votre navigateur même si vous fermez le site, et vous le retrouvez à votre retour. Il n’est enregistré nulle part ailleurs que sur votre appareil."
+          : "Yes. It stays in your browser even if you close the site, and it is there when you come back. It is not stored anywhere other than on your device.",
+      },
+    ],
+  },
+  {
+    id: "livraison",
+    titre: fr ? "Livraison et paiement" : "Shipping and payment",
+    questions: [
+      {
+        q: fr ? "Où livrez-vous ?" : "Where do you deliver?",
+        r: fr
+          ? "Au Burkina Faso et en Côte d’Ivoire. Si vous êtes ailleurs dans la sous-région, écrivez-nous : nous étudions chaque demande."
+          : "In Burkina Faso and Côte d’Ivoire. If you are elsewhere in the region, write to us: we look at each request.",
+      },
+      {
+        q: fr ? "Quels sont les délais et les frais ?" : "What are the times and costs?",
+        r: fr
+          ? "Ils dépendent de votre ville. Nous vous les indiquons dans la conversation WhatsApp, avant toute confirmation de commande — jamais après."
+          : "They depend on your city. We tell you in the WhatsApp conversation, before any order is confirmed — never after.",
+      },
+      {
+        q: fr ? "Comment se fait le paiement ?" : "How is payment made?",
+        r: fr
+          ? "Par mobile money, convenu dans la conversation. Aucun paiement n’est demandé sur ce site : nous ne collectons ni numéro de carte, ni coordonnées bancaires."
+          : "By mobile money, arranged in the conversation. No payment is taken on this site: we collect no card numbers and no bank details.",
+      },
+    ],
+  },
+  {
+    id: "tailles",
+    titre: fr ? "Tailles et matières" : "Sizes and fabric",
+    questions: [
+      {
+        q: fr ? "Quelles tailles proposez-vous ?" : "Which sizes do you offer?",
+        r: fr
+          ? `Du ${tailles.replace(/, ([^,]*)$/, " au $1")}, en coupe homme et en coupe femme. Une taille épuisée reste affichée et barrée sur la fiche produit : vous voyez qu’elle existe, et qu’elle reviendra.`
+          : `From ${tailles.replace(/, ([^,]*)$/, " to $1")}, in men’s and women’s cuts. A sold-out size stays visible and struck through on the product page: you can see that it exists, and that it will return.`,
+      },
+      {
+        q: fr ? "Comment choisir ma taille ?" : "How do I choose my size?",
+        r: fr
+          ? "Le guide des mesures détaillées arrive. En attendant, écrivez-nous sur WhatsApp en indiquant votre taille habituelle : nous vous répondons pièce par pièce, certaines coupes taillant plus large que d’autres."
+          : "The detailed measurement guide is coming. In the meantime, write to us on WhatsApp with your usual size: we answer piece by piece, as some cuts run wider than others.",
+      },
+      {
+        q: fr ? "En quoi sont faits les vêtements ?" : "What are the clothes made of?",
+        r: fr
+          ? "En jersey de coton peigné. Le grammage est indiqué sur chaque fiche produit : plus il est élevé, plus le tissu est dense et plus le vêtement tombe droit."
+          : "Combed cotton jersey. The weight is given on each product page: the higher it is, the denser the fabric and the straighter the garment hangs.",
+      },
+    ],
+  },
+  {
+    id: "apres",
+    titre: fr ? "Après la commande" : "After ordering",
+    questions: [
+      {
+        q: fr ? "Puis-je échanger un article ?" : "Can I exchange an item?",
+        r: fr
+          ? "Écrivez-nous sur WhatsApp dès réception. Nos conditions d’échange sont en cours de formalisation ; en attendant, chaque situation est traitée directement avec vous."
+          : "Write to us on WhatsApp as soon as you receive your order. Our exchange terms are being finalised; in the meantime, each situation is handled directly with you.",
+      },
+      {
+        q: fr ? "Comment suivre ma commande ?" : "How do I track my order?",
+        r: fr
+          ? "Dans la conversation où vous l’avez passée. Conservez la référence de vos articles — elle figure dans le message envoyé, une par ligne."
+          : "In the conversation where you placed it. Keep your item references — they are in the message you sent, one per line.",
+      },
+    ],
+  },
+];
+---
+
+<Page
+  titre={`${t("faq")} — Rakiire`}
+  description={fr
+    ? "Commande, livraison, paiement, tailles : les réponses aux questions les plus courantes."
+    : "Ordering, delivery, payment, sizes: answers to the most common questions."}
+  langue={langue}
+  chemin={chemin}
+>
+  <EnteteEditoriale
+    titre={t("faq")}
+    chapeau={fr
+      ? "Si votre question ne figure pas ici, écrivez-nous : nous répondons nous-mêmes."
+      : "If your question is not here, write to us: we answer personally."}
+  />
+
+  <div class="cadre rubriques">
+    {
+      rubriques.map((rubrique) => (
+        <section class="rubrique" id={rubrique.id}>
+          <h2 class="rubrique__titre">{rubrique.titre}</h2>
+          <div class="rubrique__questions">
+            {rubrique.questions.map((entree) => (
+              <details class="question">
+                <summary class="question__titre">{entree.q}</summary>
+                <div class="question__reponse"><p>{entree.r}</p></div>
+              </details>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <div class="cadre appel">
+    <div class="appel__contenu">
+      <p class="surtitre">{fr ? "Une autre question" : "Another question"}</p>
+      <p class="appel__texte">
+        {fr ? "Écrivez-nous, nous répondons." : "Write to us, we answer."}
+      </p>
+      <div class="appel__actions">
+        <Bouton variante="accent" href={`https://wa.me/${NUMERO_WHATSAPP}`}>
+          WhatsApp · {NUMERO_AFFICHE}
+        </Bouton>
+        <Bouton variante="contour" href={lienBoutique(langue)}>{t("boutique")}</Bouton>
+      </div>
+    </div>
+  </div>
+</Page>
+
+<style>
+  .rubriques {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.5rem, 2rem + 3vw, 4rem);
+    padding-bottom: clamp(2.5rem, 2rem + 3vw, 4rem);
+  }
+
+  .rubrique {
+    scroll-margin-top: 5.5rem;
+  }
+
+  .rubrique__titre {
+    font-size: var(--text-t3);
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--color-bordure-forte);
+  }
+
+  .rubrique__questions {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .appel {
+    padding-bottom: var(--spacing-section);
+  }
+
+  .appel__contenu {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    background-color: var(--color-surface-haute);
+    border: 1px solid var(--color-bordure-tenue);
+  }
+
+  .appel__texte {
+    font-family: var(--font-titre);
+    font-size: var(--text-t4);
+  }
+
+  .appel__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+</style>

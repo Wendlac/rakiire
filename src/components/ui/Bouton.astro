@@ -1,0 +1,198 @@
+---
+/**
+ * Bouton — Rakiire
+ *
+ * Angles vifs, capitales espacees, aucune ombre. Le bouton ne flotte pas :
+ * il est pose.
+ *
+ * Hauteurs minimales : 44, 52 et 60 px. Le plancher de 44 px est la cible
+ * tactile recommandee et n'est jamais franchi, y compris en taille « petite » —
+ * la clientele est massivement mobile.
+ *
+ * Sur la variante accent, le texte est encre et jamais blanc : blanc sur
+ * #FD5200 ne mesure que 3.29 et echoue en AA pour le corps de texte, tandis
+ * qu'encre sur orange atteint 5.88.
+ */
+interface Props {
+  variante?: "primaire" | "accent" | "contour" | "discret";
+  taille?: "s" | "m" | "l";
+  /** Rendu en <a> si fourni, en <button> sinon. */
+  href?: string;
+  type?: "button" | "submit" | "reset";
+  desactive?: boolean;
+  /** Occupe toute la largeur du parent. */
+  pleineLargeur?: boolean;
+  class?: string;
+  [attr: string]: unknown;
+}
+
+const {
+  variante = "primaire",
+  taille = "m",
+  href,
+  type = "button",
+  desactive = false,
+  pleineLargeur = false,
+  class: classe = "",
+  ...reste
+} = Astro.props;
+
+const Balise = href ? "a" : "button";
+
+const classes = [
+  "bouton",
+  `bouton--${variante}`,
+  `bouton--${taille}`,
+  pleineLargeur && "bouton--plein",
+  classe,
+]
+  .filter(Boolean)
+  .join(" ");
+---
+
+<Balise
+  class={classes}
+  href={href}
+  type={href ? undefined : type}
+  disabled={href ? undefined : desactive}
+  aria-disabled={href && desactive ? "true" : undefined}
+  {...reste}
+>
+  <span class="bouton__texte"><slot /></span>
+</Balise>
+
+<style>
+  .bouton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    border-radius: var(--radius-nul);
+    border: 1px solid transparent;
+    font-family: var(--font-corps);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-large);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--duree-normale) var(--ease-doux),
+      color var(--duree-normale) var(--ease-doux),
+      border-color var(--duree-normale) var(--ease-doux);
+  }
+
+  .bouton--plein {
+    display: flex;
+    width: 100%;
+  }
+
+  /* -- Tailles -------------------------------------------------------------- */
+  .bouton--s {
+    min-height: 2.75rem; /* 44 px, plancher tactile */
+    padding-inline: 1.25rem;
+    font-size: var(--text-surtitre);
+  }
+
+  .bouton--m {
+    min-height: 3.25rem; /* 52 px */
+    padding-inline: 2rem;
+    font-size: var(--text-corps-s);
+  }
+
+  .bouton--l {
+    min-height: 3.75rem; /* 60 px */
+    padding-inline: 2.75rem;
+    font-size: var(--text-corps-s);
+  }
+
+  /* -- Variantes ------------------------------------------------------------ */
+  /* Les variantes s'expriment par variables plutot qu'en dur : une aire sombre
+     (classe .sur-sombre, voir base.css) reaffecte ces trois valeurs et les
+     boutons s'inversent sans variante supplementaire ni prop a passer. */
+  .bouton--primaire {
+    --bouton-fond: var(--color-encre);
+    --bouton-texte: var(--color-fond);
+    --bouton-fond-survol: var(--color-encre-80);
+    background-color: var(--bouton-fond);
+    color: var(--bouton-texte);
+  }
+
+  .bouton--primaire:hover {
+    background-color: var(--bouton-fond-survol);
+  }
+
+  .bouton--accent {
+    background-color: var(--color-orange);
+    color: var(--color-encre);
+  }
+
+  .bouton--accent:hover {
+    background-color: color-mix(in oklab, var(--color-orange) 86%, var(--color-encre));
+  }
+
+  .bouton--contour {
+    --bouton-trait: var(--color-encre);
+    --bouton-fond-survol: var(--color-encre);
+    --bouton-texte-survol: var(--color-fond);
+    background-color: transparent;
+    color: var(--bouton-trait);
+    border-color: var(--bouton-trait);
+  }
+
+  .bouton--contour:hover {
+    background-color: var(--bouton-fond-survol);
+    color: var(--bouton-texte-survol);
+  }
+
+  .bouton--discret {
+    min-height: 2.75rem;
+    padding-inline: 0;
+    background-color: transparent;
+    color: currentColor;
+  }
+
+  /* Le soulignement est present au repos — sans lui, rien ne signale que
+     l'element est actionnable — et s'epaissit au survol. Regle du systeme :
+     un soulignement apparait ou s'epaissit, il ne disparait jamais. */
+  .bouton--discret .bouton__texte {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 1px;
+    padding-bottom: 0.25em;
+    transition: background-size var(--duree-normale) var(--ease-sortie);
+  }
+
+  .bouton--discret:hover .bouton__texte {
+    background-size: 100% 2px;
+  }
+
+  /* -- Inversion sur aire sombre --------------------------------------------
+     Un ancetre portant .sur-sombre suffit : aucune prop a passer, aucun risque
+     d'oublier l'inversion sur un bouton isole dans un pied de page encre.
+     --------------------------------------------------------------------- */
+  :global(.sur-sombre) .bouton--primaire,
+  :global(.sur-image) .bouton--primaire {
+    --bouton-fond: var(--color-fond);
+    --bouton-texte: var(--color-encre);
+    --bouton-fond-survol: var(--color-sauge);
+  }
+
+  :global(.sur-sombre) .bouton--contour,
+  :global(.sur-image) .bouton--contour {
+    --bouton-trait: var(--color-fond);
+    --bouton-fond-survol: var(--color-fond);
+    --bouton-texte-survol: var(--color-encre);
+  }
+
+  /* -- Desactive ------------------------------------------------------------ */
+  .bouton:disabled,
+  .bouton[aria-disabled="true"] {
+    background-color: var(--color-desactive-fond);
+    color: var(--color-desactive-texte);
+    border-color: transparent;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+</style>

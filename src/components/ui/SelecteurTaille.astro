@@ -1,0 +1,134 @@
+---
+/**
+ * Selecteur de taille — Rakiire
+ *
+ * Construit sur de vrais boutons radio masques visuellement : la navigation au
+ * clavier (fleches), l'annonce du groupe et l'envoi dans un formulaire
+ * fonctionnent nativement, sans une ligne de JavaScript.
+ *
+ * Une taille epuisee reste affichee et barree plutot que retiree. Voir qu'une
+ * taille existe mais manque informe l'acheteur ; la faire disparaitre le laisse
+ * croire qu'elle n'a jamais existe.
+ */
+import { TAILLES, type Taille } from "../../lib/catalogue";
+
+interface Props {
+  nom: string;
+  /** Tailles commandables. Les autres sont affichees barrees. */
+  disponibles: Taille[];
+  valeur?: Taille;
+  legende?: string;
+  class?: string;
+}
+
+const {
+  nom,
+  disponibles,
+  valeur,
+  legende = "Taille",
+  class: classe = "",
+} = Astro.props;
+---
+
+<fieldset class={`tailles ${classe}`}>
+  <legend class="tailles__legende">{legende}</legend>
+  <div class="tailles__grille">
+    {
+      TAILLES.map((taille) => {
+        const ouverte = disponibles.includes(taille);
+        const id = `${nom}-${taille}`;
+        return (
+          <div class="tailles__case">
+            <input
+              class="tailles__radio visuellement-cache"
+              type="radio"
+              id={id}
+              name={nom}
+              value={taille}
+              checked={valeur === taille}
+              disabled={!ouverte}
+            />
+            <label class="tailles__etiquette" for={id}>
+              <span aria-hidden={!ouverte ? "true" : undefined}>{taille}</span>
+              {!ouverte && <span class="visuellement-cache">{taille}, épuisé</span>}
+            </label>
+          </div>
+        );
+      })
+    }
+  </div>
+</fieldset>
+
+<style>
+  .tailles {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tailles__legende {
+    padding: 0;
+    margin-bottom: 0.75rem;
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-secondaire);
+  }
+
+  .tailles__grille {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tailles__etiquette {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3.25rem;
+    min-height: 2.75rem; /* 44 px, cible tactile */
+    padding-inline: 0.75rem;
+    border: 1px solid var(--color-bordure-forte);
+    border-radius: var(--radius-nul);
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--color-texte);
+    cursor: pointer;
+    transition:
+      background-color var(--duree-rapide) var(--ease-doux),
+      color var(--duree-rapide) var(--ease-doux),
+      border-color var(--duree-rapide) var(--ease-doux);
+  }
+
+  .tailles__etiquette:hover {
+    border-color: var(--color-encre);
+  }
+
+  .tailles__radio:checked + .tailles__etiquette {
+    background-color: var(--color-encre);
+    border-color: var(--color-encre);
+    color: var(--color-fond);
+  }
+
+  .tailles__radio:focus-visible + .tailles__etiquette {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  /* Epuise : barre en diagonale, texte attenue, curseur explicite.
+     Le barre est un second signal, en plus de l'attribut disabled. */
+  .tailles__radio:disabled + .tailles__etiquette {
+    color: var(--color-desactive-texte);
+    border-color: var(--color-bordure);
+    cursor: not-allowed;
+    background-image: linear-gradient(
+      to top left,
+      transparent calc(50% - 0.5px),
+      var(--color-bordure-forte) calc(50% - 0.5px),
+      var(--color-bordure-forte) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    );
+  }
+</style>

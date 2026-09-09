@@ -1,0 +1,52 @@
+---
+/**
+ * Prix — Rakiire
+ *
+ * Toujours en chiffres tabulaires : dans une liste de panier, les unites
+ * doivent s'aligner verticalement, sinon le total parait approximatif.
+ *
+ * Le montant brut est reporte dans un attribut `data-montant` pour permettre
+ * un recalcul cote client sans reparser la chaine formatee.
+ */
+import { formaterPrix, formaterPrixCourt } from "../../lib/prix";
+
+interface Props {
+  montant: number;
+  taille?: "s" | "m" | "l";
+  /** Forme courte « 15 000 F », pour les contextes denses. */
+  court?: boolean;
+  class?: string;
+}
+
+const { montant, taille = "m", court = false, class: classe = "" } = Astro.props;
+const texte = court ? formaterPrixCourt(montant) : formaterPrix(montant);
+---
+
+<span
+  class={`prix prix--${taille} chiffres-tabulaires ${classe}`}
+  data-montant={montant}
+>{texte}</span>
+
+<style>
+  .prix {
+    font-family: var(--font-corps);
+    color: var(--color-texte);
+    white-space: nowrap;
+  }
+
+  .prix--s {
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+  }
+
+  .prix--m {
+    font-size: var(--text-corps);
+    font-weight: 500;
+  }
+
+  .prix--l {
+    font-size: var(--text-t4);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+</style>

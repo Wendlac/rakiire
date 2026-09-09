@@ -1,0 +1,45 @@
+---
+/**
+ * En-tête de page éditoriale — Rakiire
+ *
+ * Surtitre, titre, chapeau. Employé par Notre histoire, la FAQ, le contact et
+ * les mentions légales, pour que ces quatre pages partagent exactement la même
+ * attaque — c'est ce qui les fait lire comme un même site plutôt que comme
+ * quatre pages assemblées.
+ */
+interface Props {
+  surtitre?: string;
+  titre: string;
+  chapeau?: string;
+  class?: string;
+}
+
+const { surtitre, titre, chapeau, class: classe = "" } = Astro.props;
+---
+
+<header class={`entete-edito cadre ${classe}`}>
+  {surtitre && <p class="surtitre">{surtitre}</p>}
+  <h1 class="entete-edito__titre">{titre}</h1>
+  {chapeau && <p class="entete-edito__chapeau">{chapeau}</p>}
+</header>
+
+<style>
+  .entete-edito {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding-block: clamp(2.5rem, 2rem + 3vw, 5rem) clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .entete-edito__titre {
+    font-size: var(--text-t1);
+    max-width: 18ch;
+  }
+
+  .entete-edito__chapeau {
+    max-width: var(--container-lecture);
+    font-size: var(--text-corps-l);
+    color: var(--color-texte-secondaire);
+    margin-top: 0.25rem;
+  }
+</style>

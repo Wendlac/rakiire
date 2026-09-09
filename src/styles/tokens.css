@@ -1,0 +1,242 @@
+/* =============================================================================
+   RAKIIRE — Tokens de design
+   Source d'autorite : « Branding Rakiire v1 ». Toute valeur ajoutee ici est
+   signalee comme EXTENSION et justifiee.
+   Direction : luxe silencieux. L'interface se tait, le vetement parle.
+   ========================================================================== */
+
+@theme {
+  /* ---------------------------------------------------------------------------
+     1. COULEURS DE MARQUE — issues de la charte, intouchables
+     ------------------------------------------------------------------------ */
+  --color-encre: #080f0f;   /* primaire, contenu */
+  --color-fond: #eeeeee;    /* fond de marque */
+  --color-sauge: #a4bab7;   /* gris style pour le contraste */
+  --color-orange: #fd5200;  /* accent 1 — occasionnel, par decision de charte */
+  --color-citron: #eff2c0;  /* accent 2 */
+  --color-blanc: #ffffff;
+
+  /* ---------------------------------------------------------------------------
+     2. RAMPE DE NEUTRES — EXTENSION
+     La charte ne fournit aucun gris de travail. Chaque valeur est un melange
+     d'encre sur le fond, donc rigoureusement dans la teinte de la marque.
+     Le suffixe est le pourcentage d'encre. Le commentaire donne le contraste
+     mesure sur --color-fond et l'usage maximal autorise.
+     ------------------------------------------------------------------------ */
+  --color-encre-08: #dcdcdc; /* 1.18 — filet decoratif uniquement */
+  --color-encre-12: #d2d3d3; /* 1.29 — filet decoratif uniquement */
+  --color-encre-16: #c9caca; /* 1.41 — filet decoratif uniquement */
+  --color-encre-24: #b7b8b8; /* 1.71 — filet decoratif uniquement */
+  --color-encre-32: #a4a7a7; /* 2.09 — filet decoratif uniquement */
+  --color-encre-45: #878a8a; /* 3.02 — seuil minimal bordure et icone */
+  --color-encre-55: #6f7373; /* 4.11 — bordure et icone */
+  --color-encre-62: #5f6464; /* 5.19 — texte secondaire, seuil AA */
+  --color-encre-70: #4d5252; /* 6.85 — texte secondaire confortable */
+  --color-encre-80: #363c3c; /* 9.74 — texte AAA */
+  --color-encre-90: #1f2525; /* 13.37 — texte AAA */
+
+  /* ---------------------------------------------------------------------------
+     3. COULEURS FONCTIONNELLES — EXTENSION
+     Necessaires a la validation du formulaire de commande. Choisies dans la
+     famille chromatique de la charte et verifiees AA sur fond ET en surface.
+     ------------------------------------------------------------------------ */
+  --color-erreur: #a32100;  /* 6.52 sur fond — parent sombre de l'orange */
+  --color-succes: #2f5d50;  /* 6.46 sur fond — parent sombre de la sauge  */
+
+  /* ---------------------------------------------------------------------------
+     4. ROLES SEMANTIQUES
+     Le code applicatif utilise CES noms, jamais les couleurs brutes.
+     Changer la charte revient a reaffecter ce bloc, et rien d'autre.
+     ------------------------------------------------------------------------ */
+
+  /* Surfaces */
+  --color-surface: var(--color-fond);
+  --color-surface-haute: var(--color-blanc);    /* elevation tenue, non porteuse de sens */
+  --color-surface-inverse: var(--color-encre);
+  --color-surface-sauge: var(--color-sauge);
+  --color-surface-citron: var(--color-citron);
+  --color-surface-accent: var(--color-orange);
+
+  /* Texte */
+  --color-texte: var(--color-encre);
+  --color-texte-secondaire: var(--color-encre-70);
+  --color-texte-tertiaire: var(--color-encre-62);
+  --color-texte-inverse: var(--color-fond);
+  --color-texte-sur-accent: var(--color-encre);  /* 5.88 — jamais de blanc sur l'orange */
+  --color-texte-erreur: var(--color-erreur);
+  --color-texte-succes: var(--color-succes);
+
+  /* Bordures */
+  --color-bordure-tenue: var(--color-encre-12);  /* filets, separateurs decoratifs */
+  --color-bordure: var(--color-encre-16);        /* contour de carte */
+  --color-bordure-forte: var(--color-encre-45);  /* seul contour conforme AA */
+  --color-bordure-active: var(--color-encre);    /* selection, etat actif */
+  --color-bordure-inverse: var(--color-encre-70);
+
+  /* Interaction */
+  --color-focus: var(--color-encre);             /* l'orange echoue a 2.84, l'encre passe a 16.67 */
+  --color-desactive-fond: var(--color-encre-08);
+  --color-desactive-texte: var(--color-encre-45);
+
+  /* ---------------------------------------------------------------------------
+     5. TYPOGRAPHIE
+     Goudy Bookletter 1911 n'existe qu'en 400 romain : aucune graisse, aucune
+     italique. La hierarchie se joue donc sur la taille, l'interlettrage et le
+     blanc — jamais sur le gras.
+     ------------------------------------------------------------------------ */
+  --font-titre: "Goudy Bookletter 1911", "EB Garamond", Georgia, "Times New Roman", serif;
+  --font-corps: "Satoshi", "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, monospace;
+
+  /* Echelle fluide. Le second terme de chaque clamp assure la mise a l'echelle
+     entre 375 px et 1440 px sans palier brutal. */
+  --text-affiche: clamp(3.25rem, 1.2rem + 8.7vw, 9rem);
+  --text-affiche--line-height: 0.92;
+  --text-affiche--letter-spacing: -0.03em;
+
+  --text-t1: clamp(2.5rem, 1.4rem + 4.7vw, 5.5rem);
+  --text-t1--line-height: 1.02;
+  --text-t1--letter-spacing: -0.025em;
+
+  --text-t2: clamp(2rem, 1.35rem + 2.8vw, 3.75rem);
+  --text-t2--line-height: 1.08;
+  --text-t2--letter-spacing: -0.02em;
+
+  --text-t3: clamp(1.5rem, 1.2rem + 1.3vw, 2.375rem);
+  --text-t3--line-height: 1.16;
+  --text-t3--letter-spacing: -0.015em;
+
+  --text-t4: clamp(1.25rem, 1.1rem + 0.6vw, 1.625rem);
+  --text-t4--line-height: 1.25;
+  --text-t4--letter-spacing: -0.01em;
+
+  --text-t5: 1.125rem;
+  --text-t5--line-height: 1.35;
+  --text-t5--letter-spacing: 0em;
+
+  --text-corps-l: 1.125rem;
+  --text-corps-l--line-height: 1.65;
+
+  --text-corps: 1rem;
+  --text-corps--line-height: 1.65;
+
+  --text-corps-s: 0.875rem;
+  --text-corps-s--line-height: 1.6;
+
+  --text-legende: 0.75rem;
+  --text-legende--line-height: 1.5;
+
+  /* Surtitre : petites capitales tres espacees. Signature du luxe editorial.
+     Plancher a 0.6875rem — en dessous, illisible sur mobile. */
+  --text-surtitre: 0.6875rem;
+  --text-surtitre--line-height: 1.4;
+  --text-surtitre--letter-spacing: 0.18em;
+
+  --tracking-affiche: -0.03em;
+  --tracking-serre: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-large: 0.08em;
+  --tracking-surtitre: 0.18em;
+
+  --leading-titre: 1.05;
+  --leading-normal: 1.5;
+  --leading-lecture: 1.65;
+
+  /* ---------------------------------------------------------------------------
+     6. ESPACEMENT — base 4 px
+     ------------------------------------------------------------------------ */
+  --spacing: 0.25rem;
+
+  /* Respirations editoriales, fluides. Le luxe se mesure au vide. */
+  --spacing-section: clamp(5rem, 3rem + 9vw, 11rem);
+  --spacing-section-serree: clamp(3rem, 2rem + 5vw, 6rem);
+  --spacing-gouttiere: clamp(1.25rem, 0.5rem + 3.2vw, 3.5rem);
+
+  /* ---------------------------------------------------------------------------
+     7. GRILLE ET LARGEURS
+     ------------------------------------------------------------------------ */
+  --breakpoint-sm: 30rem;   /*  480 px */
+  --breakpoint-md: 48rem;   /*  768 px */
+  --breakpoint-lg: 64rem;   /* 1024 px */
+  --breakpoint-xl: 80rem;   /* 1280 px */
+  --breakpoint-2xl: 96rem;  /* 1536 px */
+
+  --container-cadre: 90rem;    /* 1440 px — largeur maximale du site */
+  --container-lecture: 38rem;  /* mesure de lecture, ~68 signes */
+  --container-etroit: 52rem;
+
+  /* ---------------------------------------------------------------------------
+     8. RAYONS
+     Le luxe silencieux est anguleux. Zero est la regle, pas l'exception.
+     ------------------------------------------------------------------------ */
+  --radius-nul: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-pilule: 999px; /* reserve aux pastilles de statut */
+
+  /* ---------------------------------------------------------------------------
+     9. OMBRES
+     Une ombre est un aveu de faiblesse hierarchique : on prefere le filet et le
+     vide. Deux ombres seulement, pour les couches flottantes reelles.
+     ------------------------------------------------------------------------ */
+  --shadow-tenue: 0 1px 2px 0 rgb(8 15 15 / 0.06);
+  --shadow-flottante: 0 16px 48px -12px rgb(8 15 15 / 0.18);
+
+  /* ---------------------------------------------------------------------------
+     10. MOUVEMENT
+     Animations marquees au scroll, mais toujours desactivables. Voir base.css
+     pour la prise en charge de prefers-reduced-motion.
+     ------------------------------------------------------------------------ */
+  --ease-sortie: cubic-bezier(0.16, 1, 0.3, 1);      /* deceleration franche */
+  --ease-entree: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-doux: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --duree-instant: 0ms;
+  --duree-rapide: 160ms;
+  --duree-normale: 280ms;
+  --duree-lente: 480ms;
+  --duree-reveal: 900ms;
+
+  /* ---------------------------------------------------------------------------
+     11. SUPERPOSITION SUR IMAGE
+     Toutes les references de la marque posent du texte sur de la photographie.
+     C'est le seul endroit du systeme ou le contraste n'est pas calculable a
+     l'avance : une photo peut etre blanche sous le mot. Les valeurs ci-dessous
+     sont donc calees sur le pire cas — une image entierement blanche — pour que
+     la regle tienne quelle que soit la photo livree.
+
+     Mesures du texte --color-fond sur voile d'encre pose sur du blanc :
+       alpha 0.50 -> 3.13  seuil du grand texte (>= 18,66 px, ou 14 px gras)
+       alpha 0.62 -> 4.71  seuil du texte courant
+       alpha 0.70 -> 6.33  confortable
+     ------------------------------------------------------------------------ */
+
+  /* Voile degrade, pour un contenu cale en bas d'image. Il tient 0.68 sur toute
+     la zone de texte puis s'efface : la photographie reste lisible au-dessus. */
+  --voile-bas: linear-gradient(
+    to top,
+    rgb(8 15 15 / 0.78) 0%,
+    rgb(8 15 15 / 0.68) 26%,
+    rgb(8 15 15 / 0.30) 55%,
+    rgb(8 15 15 / 0) 80%
+  );
+
+  /* Voile uniforme, pour un contenu centre. */
+  --voile-plein: rgb(8 15 15 / 0.66);
+
+  /* Voile leger : GRAND TEXTE UNIQUEMENT. Ne jamais y poser du corps de texte. */
+  --voile-leger: rgb(8 15 15 / 0.52);
+
+  --color-texte-sur-image: var(--color-fond);
+
+  /* ---------------------------------------------------------------------------
+     12. PLANS
+     ------------------------------------------------------------------------ */
+  --plan-base: 0;
+  --plan-collant: 10;
+  --plan-entete: 100;
+  --plan-voile: 200;
+  --plan-panneau: 210;
+  --plan-modale: 300;
+  --plan-notification: 400;
+}

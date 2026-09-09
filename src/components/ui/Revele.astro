@@ -1,0 +1,112 @@
+---
+/**
+ * Reveal au defilement — Rakiire
+ *
+ * L'element se pose quand il entre dans le champ de vision, une seule fois.
+ *
+ * Trois garde-fous, parce qu'une animation ratee coute plus cher que pas
+ * d'animation du tout :
+ *   1. Si prefers-reduced-motion est actif, le script ne fait rien et le CSS
+ *      neutralise le deplacement : le contenu est visible d'emblee.
+ *   2. Si IntersectionObserver manque (navigateurs anciens encore repandus dans
+ *      la sous-region), tout est revele immediatement.
+ *   3. La classe .reveal n'est posee que par le script. Sans JavaScript, le
+ *      contenu reste visible : on ne cache jamais du contenu que le script
+ *      seul saurait rendre.
+ */
+interface Props {
+  /** Cascade sur les enfants directs plutot que sur le bloc entier. */
+  cascade?: boolean;
+  balise?: "div" | "section" | "ul" | "ol" | "article";
+  class?: string;
+}
+
+const { cascade = false, balise: Balise = "div", class: classe = "" } = Astro.props;
+---
+
+<Balise class={classe} data-revele={cascade ? "cascade" : "bloc"}>
+  <slot />
+</Balise>
+
+<script>
+  const cibles = [...document.querySelectorAll<HTMLElement>("[data-revele]")];
+  const mouvementReduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function toutReveler() {
+    for (const cible of cibles) cible.classList.add("est-visible");
+  }
+
+  if (!mouvementReduit && "IntersectionObserver" in window) {
+    // La classe est ajoutee ici, pas dans le HTML : sans JavaScript, rien
+    // n'est masque.
+    for (const cible of cibles) {
+      cible.classList.add(cible.dataset.revele === "cascade" ? "reveal-cascade" : "reveal");
+    }
+
+    const observateur = new IntersectionObserver(
+      (entrees) => {
+        for (const entree of entrees) {
+          if (!entree.isIntersecting) continue;
+          entree.target.classList.add("est-visible");
+          observateur.unobserve(entree.target);
+        }
+      },
+      // Declenchement legerement avant l'entree reelle : le mouvement doit
+      // sembler accompagner le defilement, pas le suivre.
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+    );
+
+    for (const cible of cibles) observateur.observe(cible);
+
+    /**
+     * FILET DE SECURITE — ne pas retirer.
+     *
+     * Dans certains navigateurs integres, l'observateur repond une fois a
+     * l'installation puis ne se declenche plus jamais, malgre un defilement
+     * reel. Le cas est loin d'etre theorique ici : une grande part du trafic de
+     * Rakiire arrivera par un lien colle dans une conversation, donc par le
+     * navigateur interne de WhatsApp. Sans garde-fou, les sections concernees
+     * resteraient invisibles pour toujours et la page paraitrait a moitie vide.
+     *
+     * Le critere retenu n'est pas « l'observateur a-t-il repondu » — il repond
+     * des l'observation, meme quand il est inerte — mais « un element largement
+     * visible a l'ecran est-il encore masque ». Si oui, l'observateur ne fait
+     * pas son travail : on abandonne l'effet et on montre tout.
+     *
+     * Une animation perdue est sans consequence. Une section perdue est une
+     * vente perdue.
+     */
+    const bienVisible = (element: HTMLElement) => {
+      const boite = element.getBoundingClientRect();
+      const dedans =
+        Math.min(window.innerHeight, boite.bottom) - Math.max(0, boite.top);
+      // 35 % de recouvrement : bien au-dela du seuil de 12 % de l'observateur,
+      // donc aucun risque de couper l'effet pendant qu'il fait son travail.
+      return dedans > 0 && dedans >= Math.min(boite.height, window.innerHeight) * 0.35;
+    };
+
+    let verificationPlanifiee = false;
+
+    const verifier = () => {
+      verificationPlanifiee = false;
+
+      const rate = cibles.some(
+        (cible) => !cible.classList.contains("est-visible") && bienVisible(cible),
+      );
+      if (!rate) return;
+
+      observateur.disconnect();
+      toutReveler();
+      window.removeEventListener("scroll", auDefilement);
+    };
+
+    const auDefilement = () => {
+      if (verificationPlanifiee) return;
+      verificationPlanifiee = true;
+      requestAnimationFrame(() => setTimeout(verifier, 500));
+    };
+
+    window.addEventListener("scroll", auDefilement, { passive: true });
+    setTimeout(verifier, 2000);
+  }
+</script>

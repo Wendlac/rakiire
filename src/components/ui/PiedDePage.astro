@@ -1,0 +1,141 @@
+---
+/**
+ * Pied de page — Rakiire
+ *
+ * Motif de Denim Tears : plusieurs colonnes courtes plutôt qu'une longue liste,
+ * l'adresse de la boutique traitée comme un vrai bloc d'information et non comme
+ * une ligne perdue. Sur un site dont toutes les commandes passent par WhatsApp,
+ * ce pied de page porte une charge inhabituelle : c'est là que se trouve le
+ * numéro, et c'est souvent par là qu'on écrit.
+ *
+ * L'adresse est en `<address>`, le numéro en lien `tel:`. Sur mobile, un numéro
+ * qui ne se compose pas d'un appui est un numéro qu'on ne compose pas.
+ */
+interface Props {
+  colonnes: {
+    titre: string;
+    liens: { libelle: string; href: string }[];
+  }[];
+  /** Numéro affiché, format lisible. */
+  telephone?: string;
+  /** Même numéro, format international sans espace, pour le lien. */
+  telephoneBrut?: string;
+  ville?: string;
+  class?: string;
+}
+
+const {
+  colonnes,
+  telephone,
+  telephoneBrut,
+  ville,
+  class: classe = "",
+} = Astro.props;
+
+const annee = new Date().getFullYear();
+---
+
+<footer class={`pied sur-sombre ${classe}`}>
+  <div class="cadre pied__cadre">
+    <div class="pied__marque">
+      <slot name="marque" />
+      {
+        (telephone || ville) && (
+          <address class="pied__adresse">
+            {ville && <span>{ville}</span>}
+            {telephone && (
+              <a class="lien" href={`tel:${telephoneBrut ?? telephone.replace(/\s/g, "")}`}>
+                {telephone}
+              </a>
+            )}
+          </address>
+        )
+      }
+    </div>
+
+    {
+      colonnes.map((colonne) => (
+        <nav class="pied__colonne" aria-label={colonne.titre}>
+          <h2 class="surtitre pied__titre">{colonne.titre}</h2>
+          <ul class="pied__liens">
+            {colonne.liens.map((lien) => (
+              <li>
+                <a class="lien pied__lien" href={lien.href}>{lien.libelle}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+
+  <div class="cadre pied__bas">
+    <p>&copy; {annee} Rakiire</p>
+    <slot name="reglages" />
+  </div>
+</footer>
+
+<style>
+  .pied {
+    padding-block: clamp(3rem, 2rem + 4vw, 5rem) 2rem;
+  }
+
+  .pied__cadre {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem 1.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .pied__cadre {
+      grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
+      gap: 3rem;
+    }
+  }
+
+  .pied__marque {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 48rem) {
+    .pied__marque { grid-column: auto; }
+  }
+
+  .pied__adresse {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-style: normal;
+    font-size: var(--text-corps-s);
+  }
+
+  .pied__titre {
+    margin-bottom: 1rem;
+  }
+
+  .pied__liens {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .pied__lien {
+    font-size: var(--text-corps-s);
+  }
+
+  .pied__bas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-bordure-inverse);
+    font-size: var(--text-legende);
+    color: var(--color-sauge);
+  }
+</style>

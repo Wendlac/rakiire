@@ -1,0 +1,10 @@
+/* =============================================================================
+   RAKIIRE — Feuille d'entree unique
+   Ordre imperatif : Tailwind, puis les tokens (@theme), puis le socle.
+   ========================================================================== */
+
+@import "tailwindcss";
+
+@import "./tokens.css";
+@import "./fonts.css";
+@import "./base.css";

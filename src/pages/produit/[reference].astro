@@ -1,0 +1,26 @@
+---
+/**
+ * Fiche produit, français. Une page statique par article.
+ *
+ * L'adresse porte la référence en minuscules : `/produit/rkr-cls-001`. Elle est
+ * stable et lisible, et surtout elle se recolle telle quelle dans une
+ * conversation WhatsApp — le canal par lequel la marque vend.
+ */
+import FicheProduit from "../../vues/FicheProduit.astro";
+import { produits } from "../../data/produits";
+
+export function getStaticPaths() {
+  return produits.map((produit) => ({
+    params: { reference: produit.reference.toLowerCase() },
+    props: { produit },
+  }));
+}
+
+const { produit } = Astro.props;
+---
+
+<FicheProduit
+  produit={produit}
+  langue="fr"
+  chemin={`/produit/${produit.reference.toLowerCase()}`}
+/>

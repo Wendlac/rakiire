@@ -1,0 +1,196 @@
+---
+/**
+ * En-tête du site — Rakiire
+ *
+ * Disposition reprise de Merz b. Schwanen et Denim Tears : commande de menu à
+ * gauche, logotype au centre, panier à droite. Le logotype centré tient parce
+ * que la marque n'a que sept lettres — sur un nom long, il faudrait le caler à
+ * gauche.
+ *
+ * Le compteur du panier est rendu vide côté serveur puis rempli par le script :
+ * le site est statique, il ne peut pas connaître le panier au moment de la
+ * construction. Il est marqué `aria-live` pour qu'un ajout depuis une autre page
+ * soit annoncé.
+ */
+import type { Langue } from "../../lib/catalogue";
+import { traduire, lien, lienBoutique, lienPanier } from "../../lib/i18n";
+import Logo from "./Logo.astro";
+
+interface Props {
+  langue: Langue;
+  /** Chemin courant, pour le sélecteur de langue et l'état actif. */
+  chemin: string;
+}
+
+const { langue, chemin } = Astro.props;
+const t = traduire(langue);
+
+/* La boutique est signalée comme page courante quand on s'y trouve, y compris
+   sur une fiche produit : le visiteur doit voir où il est dans le site. */
+const surBoutique =
+  chemin.startsWith(lienBoutique(langue)) || chemin.includes("/produit/") || chemin.includes("/product/");
+---
+
+<header class="entete">
+  <div class="cadre entete__cadre">
+    <button class="entete__action entete__menu" type="button" data-ouvrir-menu="menu-principal">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.5" />
+      </svg>
+      <span class="entete__libelle">{t("menu")}</span>
+    </button>
+
+    <a class="entete__logo" href={lien(langue, "/")}>
+      <Logo hauteur="1.0625rem" titre="Rakiire" />
+    </a>
+
+    <nav class="entete__droite" aria-label={t("boutique")}>
+      <a
+        class:list={["entete__action", "entete__lien-bureau", surBoutique && "est-actif"]}
+        href={lienBoutique(langue)}
+        aria-current={surBoutique ? "page" : undefined}
+      >
+        {t("boutique")}
+      </a>
+
+      <a class="entete__action entete__panier" href={lienPanier(langue)}>
+        <span class="entete__libelle">{t("panier")}</span>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true" class="entete__icone">
+          <path
+            d="M6 8h12l-1 12H7L6 8Zm3 0V6a3 3 0 0 1 6 0v2"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span class="entete__compteur chiffres-tabulaires" data-compteur-panier hidden></span>
+        <span class="visuellement-cache" aria-live="polite" data-annonce-panier></span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .entete {
+    position: sticky;
+    top: 0;
+    z-index: var(--plan-entete);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-bordure-tenue);
+  }
+
+  .entete__cadre {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4rem;
+  }
+
+  .entete__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte);
+    transition: opacity var(--duree-rapide) var(--ease-doux);
+  }
+
+  .entete__action:hover { opacity: 0.6; }
+
+  .entete__menu { margin-inline-start: -0.25rem; }
+
+  /* Page courante : un filet sous le mot, pas seulement une nuance de gris. */
+  .entete__lien-bureau.est-actif {
+    box-shadow: inset 0 -2px 0 0 var(--color-encre);
+  }
+
+  .entete__logo {
+    display: flex;
+    justify-content: center;
+    color: var(--color-encre);
+  }
+
+  .entete__droite {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1.5rem;
+  }
+
+  .entete__panier {
+    position: relative;
+  }
+
+  /* Sur mobile, l'icône seule ; à partir du format tablette, le mot.
+     Le mot est plus clair, l'icône plus économe en largeur. */
+  .entete__icone { display: block; }
+  .entete__lien-bureau { display: none; }
+
+  @media (min-width: 48rem) {
+    .entete__lien-bureau { display: inline-flex; }
+    .entete__panier .entete__icone { display: none; }
+  }
+
+  @media (max-width: 47.999rem) {
+    .entete__menu .entete__libelle,
+    .entete__panier .entete__libelle {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  .entete__compteur {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding-inline: 0.3125rem;
+    border-radius: var(--radius-pilule);
+    background-color: var(--color-encre);
+    color: var(--color-fond);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+
+  @media (max-width: 47.999rem) {
+    .entete__compteur {
+      position: absolute;
+      top: 0.125rem;
+      inset-inline-end: -0.5rem;
+    }
+  }
+</style>
+
+<script>
+  import { lirePanier, nombreArticles, surChangementPanier } from "../../lib/panier";
+
+  function peindre(nombre: number) {
+    for (const compteur of document.querySelectorAll<HTMLElement>("[data-compteur-panier]")) {
+      compteur.textContent = String(nombre);
+      compteur.hidden = nombre === 0;
+    }
+  }
+
+  peindre(nombreArticles(lirePanier()));
+
+  surChangementPanier((articles) => {
+    const nombre = nombreArticles(articles);
+    peindre(nombre);
+
+    for (const annonce of document.querySelectorAll<HTMLElement>("[data-annonce-panier]")) {
+      annonce.textContent = nombre === 0 ? "" : `Panier : ${nombre}`;
+    }
+  });
+</script>

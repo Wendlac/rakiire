@@ -1,0 +1,1208 @@
+---
+/**
+ * Design system Rakiire — documentation vivante.
+ *
+ * Cette page n'est pas une maquette : elle importe les composants réels et les
+ * tokens réels. Si un token change, la page change. Elle sert donc autant de
+ * référence que de test de non-régression visuelle.
+ */
+import Base from "../layouts/Base.astro";
+import SectionDoc from "../components/doc/SectionDoc.astro";
+import Bloc from "../components/doc/Bloc.astro";
+
+import Logo from "../components/ui/Logo.astro";
+import Symbole from "../components/ui/Symbole.astro";
+import Bouton from "../components/ui/Bouton.astro";
+import Pastille from "../components/ui/Pastille.astro";
+import Champ from "../components/ui/Champ.astro";
+import SelecteurTaille from "../components/ui/SelecteurTaille.astro";
+import SelecteurCouleur from "../components/ui/SelecteurCouleur.astro";
+import Quantite from "../components/ui/Quantite.astro";
+import Alerte from "../components/ui/Alerte.astro";
+import Prix from "../components/ui/Prix.astro";
+import CarteProduit from "../components/ui/CarteProduit.astro";
+import Heros from "../components/ui/Heros.astro";
+import MarqueGeante from "../components/ui/MarqueGeante.astro";
+import GrilleProduits from "../components/ui/GrilleProduits.astro";
+import BarreFiltres from "../components/ui/BarreFiltres.astro";
+import SelecteurLangue from "../components/ui/SelecteurLangue.astro";
+
+import { composerMessage, NUMERO_AFFICHE } from "../lib/whatsapp";
+
+/* Nuancier produit d'exemple. Le noir et le blanc sont les deux seules couleurs
+   au catalogue ; les autres illustrent le comportement du compteur de dépassement. */
+const couleursDemo = [
+  { nom: "Noir", valeur: "#080F0F" },
+  { nom: "Blanc", valeur: "#FFFFFF" },
+  { nom: "Sauge", valeur: "#A4BAB7" },
+  { nom: "Citron", valeur: "#EFF2C0" },
+  { nom: "Orange", valeur: "#FD5200" },
+  { nom: "Encre claire", valeur: "#4D5252" },
+];
+
+/* -- Données de documentation ---------------------------------------------- */
+
+const couleursMarque = [
+  { nom: "encre", hex: "#080F0F", contraste: "16.67", role: "Texte, surfaces sombres, anneau de focus" },
+  { nom: "fond", hex: "#EEEEEE", contraste: "—", role: "Fond de toutes les pages" },
+  { nom: "sauge", hex: "#A4BAB7", contraste: "1.76", role: "Surface pleine uniquement, jamais un texte ni un filet" },
+  { nom: "orange", hex: "#FD5200", contraste: "2.84", role: "Surface d’action, avec texte encre par-dessus" },
+  { nom: "citron", hex: "#EFF2C0", contraste: "1.00", role: "Lavis de section, sans rôle hiérarchique" },
+];
+
+const rampe = [
+  { nom: "encre-08", hex: "#DCDCDC", contraste: "1.18", usage: "Filet décoratif" },
+  { nom: "encre-12", hex: "#D2D3D3", contraste: "1.29", usage: "Séparateur" },
+  { nom: "encre-16", hex: "#C9CACA", contraste: "1.41", usage: "Contour de carte" },
+  { nom: "encre-24", hex: "#B7B8B8", contraste: "1.71", usage: "Filet décoratif" },
+  { nom: "encre-32", hex: "#A4A7A7", contraste: "2.09", usage: "Filet décoratif" },
+  { nom: "encre-45", hex: "#878A8A", contraste: "3.02", usage: "Bordure et icône — seuil AA" },
+  { nom: "encre-55", hex: "#6F7373", contraste: "4.11", usage: "Bordure et icône" },
+  { nom: "encre-62", hex: "#5F6464", contraste: "5.19", usage: "Texte tertiaire — seuil AA" },
+  { nom: "encre-70", hex: "#4D5252", contraste: "6.85", usage: "Texte secondaire" },
+  { nom: "encre-80", hex: "#363C3C", contraste: "9.74", usage: "Texte AAA" },
+  { nom: "encre-90", hex: "#1F2525", contraste: "13.37", usage: "Texte AAA" },
+];
+
+const fonctionnelles = [
+  { nom: "erreur", hex: "#A32100", contraste: "6.52", usage: "Texte et surface d’erreur" },
+  { nom: "succes", hex: "#2F5D50", contraste: "6.46", usage: "Texte et surface de confirmation" },
+];
+
+const echelle = [
+  { jeton: "affiche", classe: "text-affiche", taille: "52 → 144 px", usage: "Titre de couverture, une fois par page au maximum" },
+  { jeton: "t1", classe: "text-t1", taille: "40 → 88 px", usage: "Titre de page" },
+  { jeton: "t2", classe: "text-t2", taille: "32 → 60 px", usage: "Titre de section" },
+  { jeton: "t3", classe: "text-t3", taille: "24 → 38 px", usage: "Sous-section" },
+  { jeton: "t4", classe: "text-t4", taille: "20 → 26 px", usage: "Titre de fiche" },
+  { jeton: "t5", classe: "text-t5", taille: "18 px", usage: "Nom de produit en grille" },
+];
+
+const echelleCorps = [
+  { jeton: "corps-l", classe: "text-corps-l", taille: "18 px", usage: "Chapeau éditorial" },
+  { jeton: "corps", classe: "text-corps", taille: "16 px", usage: "Texte courant" },
+  { jeton: "corps-s", classe: "text-corps-s", taille: "14 px", usage: "Aide, note, récapitulatif" },
+  { jeton: "legende", classe: "text-legende", taille: "12 px", usage: "Référence produit, mention légale" },
+  { jeton: "surtitre", classe: "text-surtitre", taille: "11 px", usage: "Étiquette de section, libellé de champ" },
+];
+
+const espacements = [
+  { jeton: "1", px: "4 px" },
+  { jeton: "2", px: "8 px" },
+  { jeton: "3", px: "12 px" },
+  { jeton: "4", px: "16 px" },
+  { jeton: "6", px: "24 px" },
+  { jeton: "8", px: "32 px" },
+  { jeton: "12", px: "48 px" },
+  { jeton: "16", px: "64 px" },
+  { jeton: "24", px: "96 px" },
+  { jeton: "32", px: "128 px" },
+];
+
+const mouvements = [
+  { jeton: "duree-rapide", valeur: "160 ms", usage: "Survol, changement d’état immédiat" },
+  { jeton: "duree-normale", valeur: "280 ms", usage: "Couleur, bordure, bascule de bouton" },
+  { jeton: "duree-lente", valeur: "480 ms", usage: "Échelle d’image, ouverture de panneau" },
+  { jeton: "duree-reveal", valeur: "900 ms", usage: "Apparition au défilement" },
+];
+
+/* Exemple réel de message de commande, généré par le même code que le site. */
+const messageExemple = composerMessage(
+  [
+    {
+      reference: "RKR-CLS-001-NR-L",
+      nom: "Tee-shirt Nasara",
+      couleur: "NR",
+      taille: "L",
+      prixUnitaire: 15000,
+      quantite: 2,
+    },
+    {
+      reference: "RKR-CLS-002-BL-M",
+      nom: "Tee-shirt Wendé",
+      couleur: "BL",
+      taille: "M",
+      prixUnitaire: 12000,
+      quantite: 1,
+    },
+  ],
+  { nom: "Aminata Sawadogo", ville: "Ouagadougou" },
+  "fr",
+);
+
+const sommaire = [
+  { id: "logo", label: "Logo" },
+  { id: "couleurs", label: "Couleurs" },
+  { id: "typographie", label: "Typographie" },
+  { id: "espace", label: "Espace et grille" },
+  { id: "matiere", label: "Matière et mouvement" },
+  { id: "composants", label: "Composants" },
+  { id: "motifs", label: "Motifs de page" },
+  { id: "commande", label: "Commande" },
+  { id: "accessibilite", label: "Accessibilité" },
+];
+---
+
+<Base titre="Design system — Rakiire" description="Fondations, composants et règles d’usage du site Rakiire.">
+  <header class="entete">
+    <div class="cadre entete__cadre">
+      <Logo hauteur="1.125rem" titre="Rakiire" />
+      <nav class="entete__nav" aria-label="Sommaire">
+        {sommaire.map((item) => <a class="entete__lien" href={`#${item.id}`}>{item.label}</a>)}
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu">
+    <!-- Couverture ------------------------------------------------------- -->
+    <div class="cadre">
+      <div class="couverture">
+        <p class="surtitre">Version 1.0 — Septembre 2026</p>
+        <h1 class="couverture__titre">Design&nbsp;system</h1>
+        <p class="couverture__chapeau mesure">
+          Les fondations visuelles du site Rakiire, dérivées de la charte de marque
+          et vérifiées une à une contre le niveau AA des règles d’accessibilité.
+          Cette page importe les composants réels : ce que vous voyez est ce que
+          le site produit.
+        </p>
+        <p class="couverture__principe">
+          L’interface se tait pour que le vêtement parle.
+        </p>
+      </div>
+    </div>
+
+    <div class="cadre">
+      <!-- 01 Logo -------------------------------------------------------- -->
+      <SectionDoc
+        numero="01"
+        id="logo"
+        titre="Logo"
+        chapeau="Le logotype est recadré sur son propre tracé. Il ne se dimensionne que par sa hauteur et hérite de la couleur du texte environnant, ce qui le rend utilisable sur fond clair comme sur fond encre sans fichier supplémentaire."
+      >
+        <Bloc titre="Logotype" note="Hauteur minimale à l’écran : 16 px. En dessous, les branches des deux i se referment et la marque devient illisible.">
+          <div class="rangee-logo">
+            <Logo hauteur="1rem" titre="" />
+            <Logo hauteur="1.5rem" titre="" />
+            <Logo hauteur="2.5rem" titre="" />
+            <Logo hauteur="4rem" titre="Rakiire" />
+          </div>
+        </Bloc>
+
+        <Bloc titre="Sur fond encre" inverse note="Aucune version alternative n’est nécessaire : le tracé suit la couleur du texte.">
+          <Logo hauteur="2.5rem" titre="" />
+        </Bloc>
+
+        <Bloc titre="Symbole" note="Les deux branches extraites du logotype. Réservé au favicon, à l’avatar social et au filigrane. Ne remplace jamais le logotype dans un en-tête.">
+          <div class="rangee-logo">
+            <Symbole hauteur="1.5rem" />
+            <Symbole hauteur="2.5rem" />
+            <Symbole hauteur="4rem" titre="Symbole Rakiire" />
+          </div>
+        </Bloc>
+      </SectionDoc>
+
+      <!-- 02 Couleurs ---------------------------------------------------- -->
+      <SectionDoc
+        numero="02"
+        id="couleurs"
+        titre="Couleurs"
+        chapeau="Cinq couleurs de marque, une rampe de neutres dérivée de l’encre, deux couleurs fonctionnelles. Chaque valeur porte son contraste mesuré sur le fond de marque, et l’usage que ce contraste autorise."
+      >
+        <Bloc titre="Couleurs de marque" note="Issues de la charte. Le chiffre est le contraste mesuré sur le fond #EEEEEE.">
+          <div class="nuancier">
+            {
+              couleursMarque.map((c) => (
+                <div class="nuance">
+                  <div class="nuance__aplat" style={`background-color:${c.hex}`} />
+                  <p class="nuance__nom">{c.nom}</p>
+                  <p class="nuance__hex chiffres-tabulaires">{c.hex}</p>
+                  <p class="nuance__ratio chiffres-tabulaires">{c.contraste}</p>
+                  <p class="nuance__role">{c.role}</p>
+                </div>
+              ))
+            }
+          </div>
+        </Bloc>
+
+        <Bloc titre="Rampe de neutres" note="Extension. Chaque valeur est un mélange d’encre sur le fond, donc strictement dans la teinte de la marque. Le seuil de 3.02 est le plancher d’une bordure, celui de 5.19 le plancher d’un texte.">
+          <div class="rampe">
+            {
+              rampe.map((c) => (
+                <div class="rampe__ligne">
+                  <span class="rampe__aplat" style={`background-color:${c.hex}`} />
+                  <span class="rampe__nom">{c.nom}</span>
+                  <span class="rampe__hex chiffres-tabulaires">{c.hex}</span>
+                  <span class="rampe__ratio chiffres-tabulaires">{c.contraste}</span>
+                  <span class="rampe__usage">{c.usage}</span>
+                </div>
+              ))
+            }
+          </div>
+        </Bloc>
+
+        <Bloc titre="Couleurs fonctionnelles" note="Extension. Absentes de la charte mais indispensables à la validation du formulaire de commande. Choisies comme parents sombres de l’orange et de la sauge.">
+          <div class="rampe">
+            {
+              fonctionnelles.map((c) => (
+                <div class="rampe__ligne">
+                  <span class="rampe__aplat" style={`background-color:${c.hex}`} />
+                  <span class="rampe__nom">{c.nom}</span>
+                  <span class="rampe__hex chiffres-tabulaires">{c.hex}</span>
+                  <span class="rampe__ratio chiffres-tabulaires">{c.contraste}</span>
+                  <span class="rampe__usage">{c.usage}</span>
+                </div>
+              ))
+            }
+          </div>
+        </Bloc>
+
+        <Bloc titre="Trois interdits" note="Ils ne relèvent pas du goût mais de la mesure.">
+          <ul class="interdits">
+            <li class="interdit">
+              <span class="interdit__demo interdit__demo--a">Texte sauge</span>
+              <p>Sauge sur fond : <strong>1.76</strong>. Sous le seuil de 3.0 exigé pour un simple filet. La sauge ne peut être qu’une surface pleine, avec de l’encre par-dessus.</p>
+            </li>
+            <li class="interdit">
+              <span class="interdit__demo interdit__demo--b">Blanc sur orange</span>
+              <p>Blanc sur orange : <strong>3.29</strong>. Insuffisant pour un texte courant. Sur l’orange, le texte est toujours encre, mesuré à 5.88.</p>
+            </li>
+            <li class="interdit">
+              <span class="interdit__demo interdit__demo--c">Focus orange</span>
+              <p>Orange sur fond : <strong>2.84</strong>. Il manque 0.16 pour un anneau de focus conforme. Le focus est donc encre, à 16.67.</p>
+            </li>
+          </ul>
+        </Bloc>
+      </SectionDoc>
+
+      <!-- 03 Typographie -------------------------------------------------- -->
+      <SectionDoc
+        numero="03"
+        id="typographie"
+        titre="Typographie"
+        chapeau="Goudy Bookletter 1911 pour les titres, Satoshi pour le contenu. La serif n’existe qu’en un seul poids romain : la hiérarchie se joue sur la taille, l’interlettrage et le blanc, jamais sur la graisse."
+      >
+        <Bloc titre="Les deux familles">
+          <div class="familles">
+            <div class="famille">
+              <p class="surtitre">Titres</p>
+              <p class="famille__specimen famille__specimen--titre">Le choix d’être soi</p>
+              <p class="famille__meta">Goudy Bookletter 1911 — 400 romain, poids unique</p>
+            </div>
+            <div class="famille">
+              <p class="surtitre">Contenu</p>
+              <p class="famille__specimen famille__specimen--corps">Le choix d’être soi</p>
+              <p class="famille__meta">Satoshi — 300 à 900, auto-hébergée</p>
+            </div>
+          </div>
+        </Bloc>
+
+        <Bloc titre="Échelle des titres" note="Fluide entre 375 et 1440 px de large. Un seul « affiche » par page.">
+          <div class="echelle">
+            {
+              echelle.map((e) => (
+                <div class="echelle__ligne">
+                  <div class="echelle__meta">
+                    <span class="echelle__jeton">{e.jeton}</span>
+                    <span class="echelle__taille chiffres-tabulaires">{e.taille}</span>
+                    <span class="echelle__usage">{e.usage}</span>
+                  </div>
+                  <p class={`echelle__specimen ${e.classe}`}>Rakiire</p>
+                </div>
+              ))
+            }
+          </div>
+        </Bloc>
+
+        <Bloc titre="Échelle de contenu">
+          <div class="echelle">
+            {
+              echelleCorps.map((e) => (
+                <div class="echelle__ligne">
+                  <div class="echelle__meta">
+                    <span class="echelle__jeton">{e.jeton}</span>
+                    <span class="echelle__taille chiffres-tabulaires">{e.taille}</span>
+                    <span class="echelle__usage">{e.usage}</span>
+                  </div>
+                  <p class={`echelle__specimen echelle__specimen--corps ${e.classe}`}>
+                    Des vêtements pour celles et ceux qui choisissent d’être eux-mêmes.
+                  </p>
+                </div>
+              ))
+            }
+          </div>
+        </Bloc>
+
+        <Bloc titre="Mesure de lecture" note="Un paragraphe ne dépasse jamais 38 rem, soit environ 68 signes. Au-delà, l’œil perd la ligne suivante au retour chariot.">
+          <p class="mesure demo-mesure">
+            Rakiire naît d’une idée simple : un vêtement ne dit pas d’où l’on vient,
+            il dit qui l’on choisit d’être. Chaque pièce est pensée pour durer une
+            saison de plus que la mode qui l’a vue naître.
+          </p>
+        </Bloc>
+      </SectionDoc>
+
+      <!-- 04 Espace ------------------------------------------------------- -->
+      <SectionDoc
+        numero="04"
+        id="espace"
+        titre="Espace et grille"
+        chapeau="Base de 4 px. Les respirations de section sont fluides : elles s’ouvrent avec la largeur de l’écran, parce que le vide est la matière première du luxe silencieux."
+      >
+        <Bloc titre="Échelle d’espacement">
+          <div class="espaces">
+            {
+              espacements.map((e) => (
+                <div class="espace">
+                  <span class="espace__barre" style={`width:calc(var(--spacing) * ${e.jeton})`} />
+                  <span class="espace__jeton chiffres-tabulaires">{e.jeton}</span>
+                  <span class="espace__px chiffres-tabulaires">{e.px}</span>
+                </div>
+              ))
+            }
+          </div>
+        </Bloc>
+
+        <Bloc titre="Respirations fluides" note="Ces trois valeurs portent tout le rythme vertical du site.">
+          <dl class="fluides">
+            <div class="fluide">
+              <dt>section</dt>
+              <dd>80 → 176 px</dd>
+              <dd class="fluide__note">Entre deux sections majeures</dd>
+            </div>
+            <div class="fluide">
+              <dt>section-serrée</dt>
+              <dd>48 → 96 px</dd>
+              <dd class="fluide__note">Entre deux blocs d’une même section</dd>
+            </div>
+            <div class="fluide">
+              <dt>gouttière</dt>
+              <dd>20 → 56 px</dd>
+              <dd class="fluide__note">Marge latérale de toute page</dd>
+            </div>
+          </dl>
+        </Bloc>
+
+        <Bloc titre="Largeurs" note="Le cadre plafonne à 1440 px. La mesure de lecture est indépendante et bien plus étroite.">
+          <dl class="fluides">
+            <div class="fluide"><dt>cadre</dt><dd>1440 px</dd><dd class="fluide__note">Largeur maximale du site</dd></div>
+            <div class="fluide"><dt>étroit</dt><dd>832 px</dd><dd class="fluide__note">Page éditoriale</dd></div>
+            <div class="fluide"><dt>lecture</dt><dd>608 px</dd><dd class="fluide__note">Paragraphe courant</dd></div>
+          </dl>
+        </Bloc>
+      </SectionDoc>
+
+      <!-- 05 Matière ------------------------------------------------------ -->
+      <SectionDoc
+        numero="05"
+        id="matiere"
+        titre="Matière et mouvement"
+        chapeau="Angles vifs, ombres rares, décélérations franches. Une ombre est un aveu de faiblesse hiérarchique : on préfère le filet et le vide."
+      >
+        <Bloc titre="Rayons" note="Zéro est la règle. Le rayon pilule est réservé au compteur du panier.">
+          <div class="rayons">
+            <div class="rayon"><span class="rayon__forme" style="border-radius:0" /><span>nul — 0 px</span></div>
+            <div class="rayon"><span class="rayon__forme" style="border-radius:2px" /><span>xs — 2 px</span></div>
+            <div class="rayon"><span class="rayon__forme" style="border-radius:4px" /><span>sm — 4 px</span></div>
+            <div class="rayon"><span class="rayon__forme" style="border-radius:999px" /><span>pilule</span></div>
+          </div>
+        </Bloc>
+
+        <Bloc titre="Ombres" note="Deux seulement, pour les couches réellement flottantes : le panneau du panier et la fenêtre de repli WhatsApp.">
+          <div class="ombres">
+            <div class="ombre" style="box-shadow:var(--shadow-tenue)">ténue</div>
+            <div class="ombre" style="box-shadow:var(--shadow-flottante)">flottante</div>
+          </div>
+        </Bloc>
+
+        <Bloc titre="Durées" note="Toutes les transitions sont neutralisées si le système signale une préférence de mouvement réduit.">
+          <div class="rampe">
+            {
+              mouvements.map((m) => (
+                <div class="rampe__ligne">
+                  <span class="rampe__nom">{m.jeton}</span>
+                  <span class="rampe__hex chiffres-tabulaires">{m.valeur}</span>
+                  <span class="rampe__usage">{m.usage}</span>
+                </div>
+              ))
+            }
+          </div>
+        </Bloc>
+      </SectionDoc>
+
+      <!-- 06 Composants --------------------------------------------------- -->
+      <SectionDoc
+        numero="06"
+        id="composants"
+        titre="Composants"
+        chapeau="Chaque composant est rendu ici dans ses états réels, y compris ceux qu’on oublie de maquetter : désactivé, épuisé, en erreur."
+      >
+        <Bloc titre="Boutons — variantes">
+          <Bouton variante="primaire">Ajouter au panier</Bouton>
+          <Bouton variante="accent">Commander sur WhatsApp</Bouton>
+          <Bouton variante="contour">Voir la collection</Bouton>
+          <Bouton variante="discret">Guide des tailles</Bouton>
+        </Bloc>
+
+        <Bloc titre="Boutons — tailles" note="Plancher de 44 px en hauteur, y compris en taille petite : la clientèle est massivement mobile.">
+          <Bouton variante="primaire" taille="s">Petit</Bouton>
+          <Bouton variante="primaire" taille="m">Moyen</Bouton>
+          <Bouton variante="primaire" taille="l">Grand</Bouton>
+        </Bloc>
+
+        <Bloc titre="Boutons — désactivé">
+          <Bouton variante="primaire" desactive>Indisponible</Bouton>
+          <Bouton variante="accent" desactive>Panier vide</Bouton>
+          <Bouton variante="contour" desactive>Bientôt</Bouton>
+        </Bloc>
+
+        <Bloc titre="Boutons sur aire sombre" inverse note="L’aire porte la classe .sur-sombre : les boutons s’inversent seuls. Aucune variante supplémentaire, aucune propriété à passer, donc aucun oubli possible dans un pied de page encre.">
+          <Bouton variante="primaire">Ajouter au panier</Bouton>
+          <Bouton variante="accent">Commander</Bouton>
+          <Bouton variante="contour">Voir la collection</Bouton>
+          <Bouton variante="discret">Guide des tailles</Bouton>
+        </Bloc>
+
+        <Bloc titre="Pastilles">
+          <Pastille variante="neutre">Ethnic Classic</Pastille>
+          <Pastille variante="inverse">Nouveau</Pastille>
+          <Pastille variante="accent">Dernière pièce</Pastille>
+          <Pastille variante="epuise">Épuisé</Pastille>
+          <Pastille variante="inverse" forme="pilule">3</Pastille>
+        </Bloc>
+
+        <Bloc titre="Champs de formulaire" note="Le libellé reste toujours visible. Aucun texte indicatif ne sert d’étiquette.">
+          <div class="colonne-formulaire">
+            <Champ id="doc-nom" nom="nom" libelle="Nom complet" requis autocomplete="name" placeholder="Aminata Sawadogo" />
+            <Champ id="doc-ville" nom="ville" libelle="Ville de livraison" aide="Ouagadougou, Bobo-Dioulasso, Abidjan…" requis />
+            <Champ id="doc-err" nom="err" libelle="Ville de livraison" erreur="Merci d’indiquer votre ville pour estimer la livraison." requis />
+          </div>
+        </Bloc>
+
+        <Bloc titre="Sélecteur de couleur" note="Le nom de la couleur est écrit à côté des pastilles : l’information ne repose jamais sur la seule couleur.">
+          <SelecteurCouleur nom="doc-couleur" couleurs={["NR", "BL"]} valeur="NR" />
+        </Bloc>
+
+        <Bloc titre="Sélecteur de taille" note="Une taille épuisée reste affichée et barrée. La faire disparaître laisserait croire qu’elle n’existe pas.">
+          <SelecteurTaille nom="doc-taille" disponibles={["S", "M", "L", "XL"]} valeur="L" />
+        </Bloc>
+
+        <Bloc titre="Quantité" note="Le champ central reste saisissable au clavier : passer de 1 à 12 ne doit pas demander onze appuis.">
+          <Quantite id="doc-qte" nom="quantite" valeur={2} max={12} />
+        </Bloc>
+
+        <Bloc titre="Prix" note="Chiffres tabulaires, espace fine insécable entre les milliers, unité jamais séparée du nombre.">
+          <div class="colonne-prix">
+            <Prix montant={10000} taille="s" />
+            <Prix montant={15000} taille="m" />
+            <Prix montant={75000} taille="l" />
+          </div>
+        </Bloc>
+
+        <Bloc titre="Alertes" note="Filet, mot d’en-tête et couleur agissent ensemble. Aucun des trois n’est indispensable à la compréhension.">
+          <div class="colonne-alertes">
+            <Alerte variante="erreur">Votre panier est vide. Ajoutez au moins un article avant de commander.</Alerte>
+            <Alerte variante="succes">Votre commande a été transmise. Nous vous répondons sur WhatsApp.</Alerte>
+            <Alerte variante="information">La livraison est assurée au Burkina Faso et en Côte d’Ivoire.</Alerte>
+          </div>
+        </Bloc>
+
+        <Bloc titre="Carte produit" note="Pas de bouton d’ajout sur la vignette : l’achat se décide sur la fiche, pas dans la grille.">
+          <div class="grille-cartes">
+            <CarteProduit href="#" nom="Tee-shirt Nasara" reference="RKR-CLS-001" collection="CLS" prix={15000} nouveau />
+            <CarteProduit href="#" nom="Tee-shirt Wendé" reference="RKR-CLS-002" collection="CLS" prix={12000} />
+            <CarteProduit href="#" nom="Tee-shirt Sida" reference="RKR-JEA-001" collection="JEA" prix={18000} epuise />
+          </div>
+        </Bloc>
+      </SectionDoc>
+
+      <!-- 07 Motifs de page ------------------------------------------------ -->
+      <SectionDoc
+        numero="07"
+        id="motifs"
+        titre="Motifs de page"
+        chapeau="Les assemblages récurrents, dérivés des références de la marque : Merz b. Schwanen, Denim Tears, Fear of God, Zara, BonneGueule. Chacun est ici réduit à sa règle, pas à son apparence."
+      >
+        <Bloc titre="Texte sur photographie" note="C'est le seul endroit du système où le contraste n'est pas calculable à l'avance : une photo peut être blanche sous le mot. Les voiles ci-dessous sont donc calés sur ce pire cas.">
+          <div class="voiles">
+            <div class="voile">
+              <div class="voile__demo voile__demo--leger"><span>Grand titre</span></div>
+              <p><b>0.52</b> — grand texte uniquement, à partir de 18,66 px ou 14 px gras. Mesuré à 3.4 sur photo blanche.</p>
+            </div>
+            <div class="voile">
+              <div class="voile__demo voile__demo--plein"><span>Texte courant</span></div>
+              <p><b>0.66</b> — texte courant. Mesuré à 5.4 sur photo blanche. C'est le voile par défaut d'un contenu centré.</p>
+            </div>
+            <div class="voile">
+              <div class="voile__demo voile__demo--bas"><span>Dégradé</span></div>
+              <p><b>0.78 → 0</b> — le dégradé tient 0.68 sur la zone de texte puis s'efface. La photographie reste lisible au-dessus.</p>
+            </div>
+          </div>
+        </Bloc>
+
+        <Bloc plein titre="Héros plein cadre" note="La hauteur ne vaut jamais 100 % de la fenêtre : un héros pleine hauteur chasse le reste de la page hors du premier écran. On plafonne à 82 svh, ce qui laisse deviner la suite et invite au défilement.">
+          <div class="demo-pleine">
+            <Heros
+              niveau="h2"
+              surtitre="Ethnic Rakiire Classic"
+              titre="Le choix d’être soi"
+              texte="Une première série, en noir et blanc, tirée à peu d’exemplaires."
+              hauteur="moyen"
+            >
+              <Bouton variante="primaire">Voir la collection</Bouton>
+              <Bouton variante="contour">Le lookbook</Bouton>
+            </Heros>
+          </div>
+        </Bloc>
+
+        <Bloc plein titre="Logotype surdimensionné" note="Emprunté à Denim Tears : le nom agrandi jusqu'à déborder des deux côtés, lu sans être vu en entier. Une fois par page au maximum — deux fois, il devient un motif de fond et perd sa force. Marqué décoratif : le vrai titre reste dans le contenu.">
+          <div class="demo-pleine demo-geante">
+            <MarqueGeante ampleur={122} ancrage="centre" />
+          </div>
+        </Bloc>
+
+        <Bloc plein titre="Barre de filtres collante" note="La référence laissait la barre flotter sur les images avec un simple dégradé, et le texte devenait illisible dès qu'une photo claire passait dessous. Ici elle porte un fond plein et un filet : le contraste tient quelle que soit l'image.">
+          <div class="demo-pleine">
+            <BarreFiltres
+              decalage="0rem"
+              liens={[
+                { href: "#motifs", libelle: "Tout", actif: true },
+                { href: "#motifs", libelle: "Homme" },
+                { href: "#motifs", libelle: "Femme" },
+                { href: "#motifs", libelle: "Ethnic Classic" },
+                { href: "#motifs", libelle: "Ethnic Jean" },
+                { href: "#motifs", libelle: "Lookbook" },
+              ]}
+            />
+          </div>
+        </Bloc>
+
+        <Bloc plein titre="Grille éditoriale" note="Celle de Fear of God : trois colonnes, un filet d'un pixel entre les images. Le vêtement prend toute la surface. Bonne pour une page de collection dont les photos se répondent.">
+          <div class="demo-pleine">
+            <GrilleProduits densite="editoriale">
+              <CarteProduit href="#" nom="Tee-shirt Nasara" reference="RKR-CLS-001" collection="CLS" prix={15000} ratio="4 / 5" nouveau />
+              <CarteProduit href="#" nom="Tee-shirt Wendé" reference="RKR-CLS-002" collection="CLS" prix={12000} ratio="4 / 5" />
+              <CarteProduit href="#" nom="Tee-shirt Sida" reference="RKR-JEA-001" collection="JEA" prix={18000} ratio="4 / 5" epuise />
+            </GrilleProduits>
+          </div>
+        </Bloc>
+
+        <Bloc plein titre="Grille de boutique" note="Celle de BonneGueule : quatre colonnes espacées, prix aligné à droite du nom, ligne de composition et pastilles de couleur avec compteur de dépassement. C'est la grille de travail du catalogue.">
+          <div class="demo-pleine">
+            <GrilleProduits densite="confortable">
+              <CarteProduit
+                href="#" nom="Tee-shirt Nasara" reference="RKR-CLS-001" collection="CLS" prix={15000}
+                meta="ligne" matiere="Jersey de coton peigné, 220 g" couleurs={couleursDemo}
+                taillesRapides={["S", "M", "L", "XL"]} nouveau
+              />
+              <CarteProduit
+                href="#" nom="Tee-shirt Wendé" reference="RKR-CLS-002" collection="CLS" prix={12000}
+                meta="ligne" matiere="Jersey de coton peigné, 180 g"
+                couleurs={couleursDemo.slice(0, 2)} taillesRapides={["M", "L"]}
+              />
+              <CarteProduit
+                href="#" nom="Tee-shirt Sida" reference="RKR-JEA-001" collection="JEA" prix={18000}
+                meta="ligne" matiere="Jersey épais, coupe boîte" couleurs={couleursDemo.slice(0, 3)} epuise
+              />
+              <CarteProduit
+                href="#" nom="Tee-shirt Kadi" reference="RKR-CLS-003" collection="CLS" prix={14000}
+                meta="ligne" matiere="Jersey de coton peigné, 200 g" couleurs={couleursDemo.slice(0, 2)}
+                taillesRapides={["S", "M", "L"]}
+              />
+            </GrilleProduits>
+          </div>
+        </Bloc>
+
+        <Bloc titre="Ajout rapide — un arbitrage, pas une évidence">
+          <ol class="regles">
+            <li><b>BonneGueule le fait, Fear of God non.</b> Le premier ouvre au survol un panneau de tailles sur la vignette ; le second réserve l'achat à la fiche produit. Les deux se défendent.</li>
+            <li><b>Le survol n'existe pas sur mobile</b>, et la clientèle de Rakiire est massivement mobile. Le panneau est donc éteint sous <code>hover: none</code> : un motif de poste fixe ne doit pas dicter le dessin de la carte.</li>
+            <li><b>Ajouter sans avoir vu la fiche augmente les retours</b>, ce qui coûte cher quand chaque commande se règle à la main sur WhatsApp.</li>
+            <li><b>Recommandation :</b> éteint sur l'accueil, allumé sur la boutique, où l'acheteur compare des articles qu'il connaît déjà. Survolez une carte de la grille ci-dessus pour le voir.</li>
+          </ol>
+        </Bloc>
+
+        <Bloc titre="Sélecteur de langue" note="Denim Tears affiche « XOF / Fr ». Ici la devise ne change jamais — tout est en francs CFA — mais elle reste affichée : un visiteur ivoirien doit voir dans quelle monnaie il commande sans avoir à le déduire.">
+          <SelecteurLangue langue="fr" chemin="/design-system" />
+        </Bloc>
+
+        <Bloc titre="Menu plein écran et pied de page" note="Le menu de Zara — grandes entrées dans la serif, sous-entrées en capitales — est construit sur un élément dialog natif : le piégeage du focus, la fermeture par Échap et l'inertie de la page viennent du navigateur. Le pied de page reprend les colonnes courtes de Denim Tears, avec le numéro WhatsApp en lien composable d'un appui.">
+          <p class="renvoi">Ces deux motifs se jugent en pleine page : ils sont montés directement sur les écrans, à l'étape suivante.</p>
+        </Bloc>
+      </SectionDoc>
+
+      <!-- 08 Commande ----------------------------------------------------- -->
+      <SectionDoc
+        numero="08"
+        id="commande"
+        titre="Commande"
+        chapeau="Le site ne prend aucun paiement. Il compose un message, l’encode, et rend la main à la conversation. Un message mal formé est une commande perdue : le format ci-dessous est généré par le même code que le site."
+      >
+        <Bloc titre="Message généré" note={`Destinataire : ${NUMERO_AFFICHE}. La référence occupe sa propre ligne pour être copiable d’un appui long. Aucun caractère de mise en forme WhatsApp n’est employé.`}>
+          <pre class="message">{messageExemple}</pre>
+        </Bloc>
+
+        <Bloc titre="Trois règles du message">
+          <ol class="regles">
+            <li><strong>Une référence par ligne.</strong> Elle doit se sélectionner seule, sans emporter le prix ni la taille.</li>
+            <li><strong>Aucun caractère de formatage.</strong> Un nom de produit contenant une astérisque casserait le rendu WhatsApp.</li>
+            <li><strong>Le total répété en clair.</strong> Seul sur sa ligne, pour lever toute ambiguïté à la confirmation.</li>
+          </ol>
+        </Bloc>
+      </SectionDoc>
+
+      <!-- 09 Accessibilité ------------------------------------------------ -->
+      <SectionDoc
+        numero="09"
+        id="accessibilite"
+        titre="Accessibilité"
+        chapeau="Niveau AA, vérifié par la mesure et non par l’intention. Les règles ci-dessous sont contraignantes : elles ont déjà modifié la charte à trois endroits."
+      >
+        <Bloc titre="Règles opposables">
+          <ol class="regles">
+            <li><strong>Cible tactile de 44 px minimum</strong> sur tout élément interactif, sans exception de taille.</li>
+            <li><strong>Anneau de focus encre</strong>, 2 px, décalé de 3 px. Jamais supprimé, jamais remplacé par l’orange.</li>
+            <li><strong>Jamais de sens porté par la seule couleur.</strong> Toute couleur est doublée d’un texte, d’une forme ou d’un attribut.</li>
+            <li><strong>Mouvement toujours désactivable.</strong> Sous prefers-reduced-motion, le contenu révélé reste visible : on supprime le déplacement, jamais l’information.</li>
+            <li><strong>Aucun contenu masqué par défaut en attendant le script.</strong> Les classes d’animation sont posées par JavaScript, jamais dans le HTML.</li>
+            <li><strong>Lien d’évitement</strong> en premier élément focalisable de chaque page.</li>
+          </ol>
+        </Bloc>
+
+        <Bloc titre="Ce que la mesure a changé dans la charte">
+          <ol class="regles">
+            <li>La <strong>sauge</strong> perd son rôle annoncé de « gris pour le contraste » : à 1.76, elle ne peut porter ni texte ni filet. Elle devient une surface.</li>
+            <li>L’<strong>orange</strong> perd le rôle d’anneau de focus, à 0.16 point du seuil. Il reste la couleur d’action.</li>
+            <li>Le <strong>citron</strong> a exactement la même clarté que le fond. Il ne peut créer aucune hiérarchie, seulement un changement de teinte.</li>
+          </ol>
+        </Bloc>
+      </SectionDoc>
+    </div>
+
+    <footer class="pied sur-sombre">
+      <div class="cadre pied__cadre">
+        <Symbole hauteur="1.5rem" />
+        <p>Design system Rakiire — version 1.0</p>
+      </div>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  /* -- En-tête -------------------------------------------------------------- */
+  .entete {
+    position: sticky;
+    top: 0;
+    z-index: var(--plan-entete);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-bordure-tenue);
+  }
+
+  .entete__cadre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    min-height: 4rem;
+  }
+
+  .entete__nav {
+    display: none;
+    gap: 1.5rem;
+    overflow-x: auto;
+  }
+
+  @media (min-width: 64rem) {
+    .entete__nav {
+      display: flex;
+    }
+  }
+
+  .entete__lien {
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-secondaire);
+    white-space: nowrap;
+    transition: color var(--duree-rapide) var(--ease-doux);
+  }
+
+  .entete__lien:hover {
+    color: var(--color-texte);
+  }
+
+  /* -- Couverture ----------------------------------------------------------- */
+  .couverture {
+    padding-block: var(--spacing-section) var(--spacing-section-serree);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .couverture__titre {
+    font-size: var(--text-affiche);
+  }
+
+  .couverture__chapeau {
+    font-size: var(--text-corps-l);
+    color: var(--color-texte-secondaire);
+  }
+
+  .couverture__principe {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-bordure-forte);
+    font-family: var(--font-titre);
+    font-size: var(--text-t3);
+    max-width: 24ch;
+  }
+
+  /* -- Logo ----------------------------------------------------------------- */
+  .rangee-logo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 2.5rem;
+  }
+
+  /* -- Nuancier ------------------------------------------------------------- */
+  .nuancier {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+  }
+
+  .nuance__aplat {
+    height: 6rem;
+    border: 1px solid var(--color-bordure-forte);
+    margin-bottom: 0.75rem;
+  }
+
+  .nuance__nom {
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+  }
+
+  .nuance__hex,
+  .nuance__ratio {
+    font-size: var(--text-legende);
+    color: var(--color-texte-tertiaire);
+  }
+
+  .nuance__ratio::before {
+    content: "contraste ";
+  }
+
+  .nuance__role {
+    margin-top: 0.5rem;
+    font-size: var(--text-legende);
+    line-height: 1.45;
+    color: var(--color-texte-secondaire);
+  }
+
+  /* -- Rampe ---------------------------------------------------------------- */
+  .rampe {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .rampe__ligne {
+    display: grid;
+    grid-template-columns: 2.5rem 7rem 6rem 4rem 1fr;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 0.625rem;
+    border-bottom: 1px solid var(--color-bordure-tenue);
+    font-size: var(--text-corps-s);
+  }
+
+  @media (max-width: 48rem) {
+    .rampe__ligne {
+      grid-template-columns: 2rem 1fr 1fr;
+      row-gap: 0.25rem;
+    }
+    .rampe__usage {
+      grid-column: 2 / -1;
+      color: var(--color-texte-tertiaire);
+      font-size: var(--text-legende);
+    }
+  }
+
+  .rampe__aplat {
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--color-bordure-forte);
+  }
+
+  .rampe__nom {
+    font-weight: 500;
+  }
+
+  .rampe__hex,
+  .rampe__ratio,
+  .rampe__usage {
+    color: var(--color-texte-secondaire);
+  }
+
+  /* -- Interdits ------------------------------------------------------------ */
+  .interdits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .interdit {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+  }
+
+  .interdit__demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 4rem;
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    letter-spacing: var(--tracking-large);
+    text-transform: uppercase;
+    border: 1px solid var(--color-bordure-tenue);
+  }
+
+  .interdit__demo--a { color: var(--color-sauge); background-color: var(--color-fond); }
+  .interdit__demo--b { color: var(--color-blanc); background-color: var(--color-orange); }
+  .interdit__demo--c { color: var(--color-encre); background-color: var(--color-fond); outline: 2px solid var(--color-orange); outline-offset: -6px; }
+
+  /* -- Typographie ---------------------------------------------------------- */
+  .familles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 2.5rem;
+    width: 100%;
+  }
+
+  .famille {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .famille__specimen {
+    font-size: var(--text-t2);
+    line-height: 1.1;
+  }
+
+  .famille__specimen--titre { font-family: var(--font-titre); }
+  .famille__specimen--corps { font-family: var(--font-corps); font-weight: 400; }
+
+  .famille__meta {
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-tertiaire);
+  }
+
+  .echelle {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .echelle__ligne {
+    padding-block: 1.5rem;
+    border-bottom: 1px solid var(--color-bordure-tenue);
+  }
+
+  .echelle__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: var(--text-legende);
+  }
+
+  .echelle__jeton {
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .echelle__taille,
+  .echelle__usage {
+    color: var(--color-texte-tertiaire);
+  }
+
+  .echelle__specimen {
+    font-family: var(--font-titre);
+  }
+
+  .echelle__specimen--corps {
+    font-family: var(--font-corps);
+    max-width: var(--container-lecture);
+  }
+
+  .demo-mesure {
+    font-size: var(--text-corps-l);
+    color: var(--color-texte-secondaire);
+  }
+
+  /* -- Espace --------------------------------------------------------------- */
+  .espaces {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .espace {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: var(--text-legende);
+  }
+
+  .espace__barre {
+    display: block;
+    height: 1rem;
+    background-color: var(--color-encre);
+    flex-shrink: 0;
+  }
+
+  .espace__jeton {
+    font-weight: 500;
+    min-width: 2rem;
+  }
+
+  .espace__px { color: var(--color-texte-tertiaire); }
+
+  .fluides {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    margin: 0;
+  }
+
+  .fluide dt {
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.375rem;
+  }
+
+  .fluide dd {
+    margin: 0;
+    font-size: var(--text-corps-s);
+  }
+
+  .fluide__note {
+    color: var(--color-texte-tertiaire);
+    font-size: var(--text-legende);
+    margin-top: 0.25rem;
+  }
+
+  /* -- Matière -------------------------------------------------------------- */
+  .rayons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .rayon {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: var(--text-legende);
+    color: var(--color-texte-secondaire);
+  }
+
+  .rayon__forme {
+    display: block;
+    width: 4rem;
+    height: 4rem;
+    border: 1px solid var(--color-encre);
+  }
+
+  .ombres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+
+  .ombre {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 9rem;
+    height: 5rem;
+    background-color: var(--color-blanc);
+    font-size: var(--text-legende);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-texte-secondaire);
+  }
+
+  /* -- Composants ----------------------------------------------------------- */
+  .colonne-formulaire {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+    max-width: 24rem;
+  }
+
+  .colonne-prix,
+  .colonne-alertes {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .colonne-alertes { max-width: 32rem; }
+
+  .grille-cartes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 2rem;
+    width: 100%;
+  }
+
+  /* -- Motifs de page ------------------------------------------------------- */
+  .demo-pleine { width: 100%; }
+
+  .demo-geante {
+    padding-block: clamp(1.5rem, 1rem + 2vw, 3rem);
+    color: var(--color-encre);
+  }
+
+  .voiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1.75rem;
+    width: 100%;
+  }
+
+  .voile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+  }
+
+  .voile b {
+    color: var(--color-texte);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* La « photographie » de démonstration est volontairement blanche : c'est le
+     pire cas contre lequel les voiles ont été calculés. */
+  .voile__demo {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    height: 8rem;
+    padding: 0.875rem;
+    background-color: var(--color-blanc);
+    border: 1px solid var(--color-bordure-tenue);
+    isolation: isolate;
+  }
+
+  .voile__demo::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .voile__demo > span {
+    color: var(--color-fond);
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    letter-spacing: var(--tracking-large);
+    text-transform: uppercase;
+  }
+
+  .voile__demo--leger::before { background: var(--voile-leger); }
+  .voile__demo--plein::before { background: var(--voile-plein); }
+  .voile__demo--bas::before { background: var(--voile-bas); }
+
+  .renvoi {
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+    max-width: var(--container-lecture);
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--color-texte);
+  }
+
+  /* -- Message -------------------------------------------------------------- */
+  .message {
+    width: 100%;
+    margin: 0;
+    padding: 1.5rem;
+    background-color: var(--color-fond);
+    border-left: 3px solid var(--color-succes);
+    font-family: var(--font-mono);
+    font-size: var(--text-corps-s);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-x: auto;
+  }
+
+  .regles {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    counter-reset: regle;
+    max-width: var(--container-etroit);
+    font-size: var(--text-corps-s);
+    line-height: var(--leading-normal);
+    color: var(--color-texte-secondaire);
+  }
+
+  .regles li {
+    counter-increment: regle;
+    padding-left: 2.25rem;
+    position: relative;
+  }
+
+  .regles li::before {
+    content: counter(regle, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 0.1em;
+    font-size: var(--text-legende);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--color-texte-tertiaire);
+  }
+
+  .regles strong {
+    color: var(--color-texte);
+    font-weight: 500;
+  }
+
+  /* -- Pied ----------------------------------------------------------------- */
+  .pied {
+    margin-top: var(--spacing-section);
+    padding-block: 3rem;
+  }
+
+  .pied__cadre {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    font-size: var(--text-corps-s);
+  }
+</style>

@@ -1,0 +1,319 @@
+---
+/**
+ * Boutique — Rakiire
+ *
+ * Barre de filtres collante, puis la grille. Le filtrage se fait côté client sur
+ * un catalogue déjà entièrement rendu : avec une dizaine d'articles, charger la
+ * page une fois et masquer des cartes coûte infiniment moins qu'un aller-retour
+ * réseau par filtre. Conséquence directe : la boutique reste utilisable sur une
+ * connexion qui vacille.
+ *
+ * Deux mécanismes coexistent volontairement :
+ *
+ * - La CATÉGORIE passe par l'ancre de l'adresse (`#CLS`, `#H`). Elle est donc
+ *   partageable telle quelle dans une conversation WhatsApp — le canal de vente
+ *   de la marque — et survit à un rechargement.
+ * - Le TRI et les filtres couleur/taille vivent dans le panneau et ne touchent
+ *   pas l'adresse : ce sont des réglages de confort, pas des pages. Les mettre
+ *   dans l'URL produirait des liens illisibles à coller dans un message.
+ *
+ * L'ajout rapide est allumé ici, contrairement à l'accueil : l'acheteur compare
+ * des articles qu'il a déjà vus.
+ */
+import Page from "../layouts/Page.astro";
+import BarreFiltres from "../components/ui/BarreFiltres.astro";
+import GrilleProduits from "../components/ui/GrilleProduits.astro";
+import CarteProduit from "../components/ui/CarteProduit.astro";
+import Alerte from "../components/ui/Alerte.astro";
+
+import type { Langue } from "../lib/catalogue";
+import { COLLECTIONS, COULEURS, TAILLES, taillesDisponibles, estDisponible } from "../lib/catalogue";
+import { traduire, lienBoutique, lienProduit } from "../lib/i18n";
+import { produits } from "../data/produits";
+
+interface Props {
+  langue: Langue;
+  chemin: string;
+}
+
+const { langue, chemin } = Astro.props;
+const t = traduire(langue);
+const base = lienBoutique(langue);
+
+const filtres = [
+  { href: `${base}#tout`, libelle: t("tout") },
+  { href: `${base}#H`, libelle: t("homme") },
+  { href: `${base}#F`, libelle: t("femme") },
+  { href: `${base}#CLS`, libelle: COLLECTIONS.CLS },
+  { href: `${base}#JEA`, libelle: COLLECTIONS.JEA },
+];
+
+/** Couleurs réellement présentes au catalogue, pour le panneau de filtres. */
+const couleursCatalogue = [...new Set(produits.flatMap((p) => p.variantes.map((v) => v.couleur)))].map(
+  (code) => ({ code, nom: COULEURS[code].nom[langue], valeur: COULEURS[code].valeur }),
+);
+
+function couleursDe(produit: (typeof produits)[number]) {
+  const codes = [...new Set(produit.variantes.map((v) => v.couleur))];
+  return codes.map((code) => ({ nom: COULEURS[code].nom[langue], valeur: COULEURS[code].valeur }));
+}
+
+/**
+ * Couples couleur:taille reellement commandables, serialises pour le filtrage.
+ *
+ * Deux listes separees — les couleurs d un cote, les tailles de l autre — se
+ * croiseraient a faux : un article existant en blanc et en 3XL, mais pas en
+ * blanc 3XL, ressortirait sur la recherche « blanc + 3XL ». On garde donc les
+ * couples, et le filtre teste la variante, pas l article.
+ */
+function variantesDisponibles(produit: (typeof produits)[number]) {
+  return produit.variantes
+    .filter((v) => v.disponible)
+    .map((v) => `${v.couleur}:${v.taille}`);
+}
+
+/** Tailles proposées à l'ajout rapide : celles disponibles en première couleur. */
+function taillesRapides(produit: (typeof produits)[number]) {
+  const premiere = produit.variantes.find((v) => v.disponible)?.couleur;
+  return premiere ? taillesDisponibles(produit, premiere).slice(0, 5) : [];
+}
+---
+
+<Page
+  titre={`${t("boutique")} — Rakiire`}
+  description={langue === "fr"
+    ? "Tous les tee-shirts Rakiire. Commande sur WhatsApp."
+    : "All Rakiire T-shirts. Order on WhatsApp."}
+  langue={langue}
+  chemin={chemin}
+>
+  <div class="cadre entete-boutique">
+    <h1 class="titre-boutique">{t("boutique")}</h1>
+    <p class="compte chiffres-tabulaires" data-compte data-mot={langue === "fr" ? "pièces" : "pieces"}>
+      {produits.length} {langue === "fr" ? "pièces" : "pieces"}
+    </p>
+  </div>
+
+  <BarreFiltres
+    liens={filtres.map((f, i) => ({ ...f, actif: i === 0 }))}
+    decalage="4rem"
+    couleurs={couleursCatalogue}
+    tailles={TAILLES}
+    libelles={{
+      ouvrir: t("filtrerTrier"),
+      trier: t("trier"),
+      couleur: t("couleur"),
+      taille: t("taille"),
+      nouveautes: t("nouveautes"),
+      prixCroissant: t("prixCroissant"),
+      prixDecroissant: t("prixDecroissant"),
+      effacer: t("effacerFiltres"),
+      fermer: t("voirResultats"),
+    }}
+  />
+
+  <div class="cadre zone-grille">
+    <GrilleProduits densite="confortable" class="grille-boutique">
+      {
+        produits.map((produit, index) => (
+          <div
+            class="cellule"
+            data-produit
+            data-rang={index}
+            data-coupe={produit.coupe}
+            data-collection={produit.collection}
+            data-prix={produit.prix}
+            data-variantes={variantesDisponibles(produit).join(",")}
+          >
+            <CarteProduit
+              langue={langue}
+              href={lienProduit(langue, produit.reference)}
+              nom={produit.nom[langue]}
+              reference={produit.reference}
+              collection={produit.collection}
+              prix={produit.prix}
+              matiere={produit.composition[langue]}
+              couleurs={couleursDe(produit)}
+              taillesRapides={taillesRapides(produit)}
+              meta="ligne"
+              epuise={!estDisponible(produit)}
+            />
+          </div>
+        ))
+      }
+    </GrilleProduits>
+
+    <div class="vide" data-vide hidden>
+      <Alerte variante="information">{t("aucunProduit")}</Alerte>
+    </div>
+  </div>
+</Page>
+
+<style>
+  .entete-boutique {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: clamp(2rem, 1.5rem + 3vw, 4rem) clamp(1.25rem, 1rem + 1vw, 2rem);
+  }
+
+  .titre-boutique {
+    font-size: var(--text-t1);
+  }
+
+  .compte {
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-tertiaire);
+    white-space: nowrap;
+  }
+
+  .zone-grille {
+    padding-block: clamp(1.5rem, 1rem + 2vw, 3rem) var(--spacing-section);
+  }
+
+  /* La cellule est elle-meme l'element de grille — et non `display: contents`
+     comme auparavant. Le tri repose sur la propriete `order`, qui ne s'applique
+     qu'a un vrai element de grille : un conteneur transparent ne peut pas etre
+     ordonne. */
+  .cellule {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .cellule[hidden] { display: none; }
+
+  .vide {
+    padding-block: 3rem;
+    max-width: 32rem;
+  }
+</style>
+
+<script>
+  import { ajouterAuPanier } from "../lib/panier";
+  import { produits } from "../data/produits";
+  import { referenceVariante, type CodeCouleur, type Taille } from "../lib/catalogue";
+
+  const cellules = [...document.querySelectorAll<HTMLElement>("[data-produit]")];
+  const vide = document.querySelector<HTMLElement>("[data-vide]");
+  const compte = document.querySelector<HTMLElement>("[data-compte]");
+  const liens = [...document.querySelectorAll<HTMLAnchorElement>(".filtres__lien")];
+
+  /** Réglages du panneau. La catégorie vient de l'ancre, pas d'ici. */
+  let reglages: { tri: string; couleurs: string[]; tailles: string[] } = {
+    tri: "defaut",
+    couleurs: [],
+    tailles: [],
+  };
+
+  const listeDe = (cellule: HTMLElement, cle: string) =>
+    (cellule.dataset[cle] ?? "").split(",").filter(Boolean);
+
+  function appliquer() {
+    const categorie = decodeURIComponent(location.hash.replace("#", "")) || "tout";
+    let visibles = 0;
+
+    for (const cellule of cellules) {
+      const bonneCategorie =
+        categorie === "tout" ||
+        cellule.dataset.coupe === categorie ||
+        cellule.dataset.collection === categorie;
+
+      /* Le filtre porte sur la VARIANTE, pas sur l article : il faut qu un
+         meme couple couleur/taille satisfasse les deux criteres a la fois.
+         A l interieur d un critere on accepte n importe laquelle des valeurs
+         cochees — demander noir ET blanc sur une meme variante ne renverrait
+         jamais rien. Un critere vide n exclut personne. */
+      const variantes = listeDe(cellule, "variantes");
+      const sansFiltre = reglages.couleurs.length === 0 && reglages.tailles.length === 0;
+
+      /* Sans filtre, tout s affiche — y compris un article entierement epuise,
+         qui n a aucune variante commandable et disparaitrait sinon. C est la
+         regle posee des le depart : un epuise reste visible et barre, parce que
+         le voir manquer informe, tandis que le faire disparaitre laisse croire
+         qu il n a jamais existe. */
+      const correspond =
+        sansFiltre ||
+        variantes.some((couple) => {
+          const [couleur, taille] = couple.split(":");
+          const couleurOk = reglages.couleurs.length === 0 || reglages.couleurs.includes(couleur);
+          const tailleOk = reglages.tailles.length === 0 || reglages.tailles.includes(taille);
+          return couleurOk && tailleOk;
+        });
+
+      const garde = bonneCategorie && correspond;
+      cellule.hidden = !garde;
+      if (garde) visibles++;
+    }
+
+    /* Tri : on ne deplace rien dans le document, on pose un ordre. Le DOM reste
+       dans l'ordre du catalogue, donc lisible et stable pour les lecteurs
+       d'ecran, qui suivent l'ordre visuel de la grille. */
+    const rang = (cellule: HTMLElement) => Number(cellule.dataset.rang ?? 0);
+    const prix = (cellule: HTMLElement) => Number(cellule.dataset.prix ?? 0);
+
+    const ordonnees = [...cellules].sort((a, b) => {
+      if (reglages.tri === "prix-asc") return prix(a) - prix(b) || rang(a) - rang(b);
+      if (reglages.tri === "prix-desc") return prix(b) - prix(a) || rang(a) - rang(b);
+      return rang(a) - rang(b);
+    });
+
+    ordonnees.forEach((cellule, position) => {
+      cellule.style.order = String(position);
+    });
+
+    for (const lien of liens) {
+      const actif = (lien.hash.replace("#", "") || "tout") === categorie;
+      lien.classList.toggle("est-actif", actif);
+      if (actif) lien.setAttribute("aria-current", "page");
+      else lien.removeAttribute("aria-current");
+    }
+
+    if (vide) vide.hidden = visibles > 0;
+    if (compte) compte.textContent = `${visibles} ${compte.dataset.mot ?? ""}`.trim();
+  }
+
+  appliquer();
+  window.addEventListener("hashchange", appliquer);
+
+  document.addEventListener("rakiire:filtres", (evenement) => {
+    reglages = (evenement as CustomEvent<typeof reglages>).detail;
+    appliquer();
+  });
+
+  /* -- Ajout rapide --------------------------------------------------------- */
+  document.addEventListener("click", (evenement) => {
+    const bouton = (evenement.target as HTMLElement)?.closest<HTMLButtonElement>(".carte__taille");
+    if (!bouton) return;
+
+    evenement.preventDefault();
+
+    const modele = bouton.dataset.reference;
+    const taille = bouton.dataset.taille as Taille | undefined;
+    const produit = produits.find((p) => p.reference === modele);
+    if (!produit || !taille) return;
+
+    const couleur = produit.variantes.find((v) => v.disponible)?.couleur as CodeCouleur | undefined;
+    if (!couleur) return;
+
+    ajouterAuPanier({
+      reference: referenceVariante(produit, couleur, taille),
+      modele: produit.reference,
+      nom: produit.nom[document.documentElement.lang === "en" ? "en" : "fr"],
+      couleur,
+      taille,
+      prixUnitaire: produit.prix,
+    });
+
+    // Retour visuel immédiat : sans lui, rien ne distingue un clic pris d'un
+    // clic perdu, et le visiteur appuie deux fois.
+    const memoire = bouton.textContent;
+    bouton.textContent = "✓";
+    bouton.disabled = true;
+    setTimeout(() => {
+      bouton.textContent = memoire;
+      bouton.disabled = false;
+    }, 1200);
+  });
+</script>

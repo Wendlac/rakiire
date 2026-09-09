@@ -1,0 +1,174 @@
+---
+/**
+ * Héros plein cadre — Rakiire
+ *
+ * Motif commun aux références Merz b. Schwanen et Denim Tears : une photographie
+ * occupe tout le cadre, le texte se cale dans un angle, rien ne flotte au milieu.
+ *
+ * Trois décisions portent ce composant :
+ *
+ * 1. La hauteur ne vaut jamais 100 % de la fenêtre. Un héros pleine hauteur
+ *    chasse le reste de la page hors du premier écran et donne l'impression
+ *    d'un site vide. On plafonne à 82 svh, ce qui laisse voir l'amorce de la
+ *    section suivante et invite au défilement.
+ *
+ * 2. Le voile n'est pas une opinion. Sur une photo entièrement blanche, il faut
+ *    0,50 d'opacité d'encre pour qu'un grand titre passe en AA et 0,62 pour du
+ *    texte courant. Le dégradé retenu tient 0,68 sur toute la zone de texte.
+ *
+ * 3. `svh` plutôt que `vh` : sur mobile, la barre d'adresse fait varier `vh` et
+ *    coupe le bas du héros au chargement.
+ */
+interface Props {
+  image?: { src: string; alt: string };
+  surtitre?: string;
+  titre: string;
+  texte?: string;
+  /** Hauteur du cadre. « plein » pour une bannière de collection. */
+  hauteur?: "moyen" | "plein";
+  /** Position du bloc de texte. */
+  ancrage?: "bas-gauche" | "bas-centre" | "centre";
+  /**
+   * Niveau du titre. `h1` par defaut : sur une page reelle, le heros EST le
+   * titre de la page. A abaisser quand un titre plus haut existe deja, pour ne
+   * pas creer deux h1 dans un meme document.
+   */
+  niveau?: "h1" | "h2" | "p";
+  class?: string;
+}
+
+const {
+  image,
+  surtitre,
+  titre,
+  texte,
+  hauteur = "moyen",
+  ancrage = "bas-gauche",
+  niveau: Titre = "h1",
+  class: classe = "",
+} = Astro.props;
+
+const centre = ancrage === "centre";
+---
+
+<section class={`heros heros--${hauteur} heros--${ancrage} sur-image ${classe}`}>
+  <div class="heros__image reserve-image">
+    {
+      image ? (
+        <img src={image.src} alt={image.alt} fetchpriority="high" decoding="async" />
+      ) : (
+        <span class="heros__attente" aria-hidden="true">Visuel à venir</span>
+      )
+    }
+  </div>
+
+  <div class={`heros__voile ${centre ? "heros__voile--plein" : ""}`} aria-hidden="true"></div>
+
+  <div class="cadre heros__cadre">
+    <div class="heros__contenu">
+      {surtitre && <p class="surtitre">{surtitre}</p>}
+      <Titre class="heros__titre">{titre}</Titre>
+      {texte && <p class="heros__texte">{texte}</p>}
+      <div class="heros__actions"><slot /></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .heros {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /* Jamais 100 svh : le premier écran doit laisser deviner la suite. */
+  .heros--moyen { min-height: min(82svh, 46rem); }
+  .heros--plein { min-height: min(92svh, 56rem); }
+
+  .heros--centre { align-items: center; }
+
+  .heros__image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-color: var(--color-encre-80);
+  }
+
+  .heros__image > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .heros__attente {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-legende);
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-encre-45);
+  }
+
+  .heros__voile {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--voile-bas);
+  }
+
+  .heros__voile--plein {
+    background: var(--voile-plein);
+  }
+
+  .heros__cadre {
+    width: 100%;
+    padding-block: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  }
+
+  .heros__contenu {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    max-width: 34rem;
+  }
+
+  .heros--bas-centre .heros__contenu,
+  .heros--centre .heros__contenu {
+    align-items: center;
+    text-align: center;
+    max-width: 42rem;
+    margin-inline: auto;
+  }
+
+  /* Le titre garde la serif meme quand il est rendu en <p> : le niveau change
+     la semantique, jamais le dessin. */
+  .heros__titre {
+    margin: 0;
+    font-family: var(--font-titre);
+    font-weight: 400;
+    font-size: var(--text-t1);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .heros__texte {
+    font-size: var(--text-corps-l);
+    max-width: 30rem;
+  }
+
+  .heros__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .heros__actions:empty { display: none; }
+</style>

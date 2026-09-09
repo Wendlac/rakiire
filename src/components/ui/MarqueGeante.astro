@@ -1,0 +1,68 @@
+---
+/**
+ * Logotype surdimensionné — Rakiire
+ *
+ * Motif emprunté à Denim Tears : le nom de la marque agrandi jusqu'à déborder
+ * des deux côtés du cadre, si bien qu'on le lit sans le voir en entier. Il ne
+ * fonctionne que sur un mot court — celui de Rakiire en fait sept lettres, ce
+ * qui est exactement la bonne longueur.
+ *
+ * Ce n'est pas un titre. Le logotype n'a pas de niveau hiérarchique : il est
+ * marqué `aria-hidden` et le vrai titre reste dans le contenu, sans quoi un
+ * lecteur d'écran entendrait le nom de la marque deux fois par page.
+ *
+ * Employé une fois par page au maximum. Deux fois, il devient un motif de fond
+ * et perd sa force.
+ */
+interface Props {
+  /** Part de la largeur du conteneur occupée par le tracé. > 100 pour déborder. */
+  ampleur?: number;
+  /** Ancrage vertical : le mot est souvent rogné en haut ou en bas du cadre. */
+  ancrage?: "haut" | "centre" | "bas";
+  class?: string;
+}
+
+const { ampleur = 118, ancrage = "haut", class: classe = "" } = Astro.props;
+---
+
+<div class={`geante geante--${ancrage} ${classe}`} aria-hidden="true">
+  <svg
+    class="geante__trace"
+    viewBox="137 451 805.31 179"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    style={`width:${ampleur}%`}
+    preserveAspectRatio="xMidYMid meet"
+    focusable="false"
+  >
+    <path d="M942.307 630H835.057V451H942.057V467.5H853.057V532H933.807V548.25H853.057V613.5H942.307V630Z" fill="currentColor"/>
+    <path d="M703.145 630H685.145V451H751.895C788.145 451 810.145 471 810.145 502.75C810.145 528.5 796.645 546.5 773.645 552.75L811.895 630H791.895L755.395 555.75H703.145V630ZM703.145 467.25V539.5H752.395C777.145 539.5 791.645 526 791.645 503.25C791.645 480 776.395 467.25 751.895 467.25H703.145Z" fill="currentColor"/>
+    <path d="M662.227 451L649.727 630H634.098V451H662.227Z" fill="currentColor"/>
+    <path d="M615.098 451V630H589.25L599.75 451H615.098Z" fill="currentColor"/>
+    <path d="M456.045 451V558.75L542.295 451H563.795L503.045 526.75L564.795 630H543.795L491.295 541.75L456.045 585.5V630H438.045V451H456.045Z" fill="currentColor"/>
+    <path d="M286.912 630H268.662L334.412 451H356.662L423.162 630H404.412L386.912 582.5H304.412L286.912 630ZM343.162 476.25L309.912 566.75H381.162L347.662 476.25C346.912 473.75 345.662 470.75 345.412 469C345.162 470.5 344.162 473.75 343.162 476.25Z" fill="currentColor"/>
+    <path d="M155 630H137V451H203.75C240 451 262 471 262 502.75C262 528.5 248.5 546.5 225.5 552.75L263.75 630H243.75L207.25 555.75H155V630ZM155 467.25V539.5H204.25C229 539.5 243.5 526 243.5 503.25C243.5 480 228.25 467.25 203.75 467.25H155Z" fill="currentColor"/>
+  </svg>
+</div>
+
+<style>
+  .geante {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    color: currentColor;
+  }
+
+  .geante__trace {
+    flex-shrink: 0;
+    height: auto;
+    display: block;
+  }
+
+  /* Le rognage vertical fait la moitié de l'effet : un mot posé bord à bord
+     reste sage, un mot coupé donne l'échelle. */
+  .geante--haut .geante__trace { margin-top: -12%; }
+  .geante--bas .geante__trace { margin-bottom: -14%; }
+</style>

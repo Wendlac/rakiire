@@ -1,0 +1,72 @@
+---
+/**
+ * Pastille — Rakiire
+ *
+ * Etiquette courte : statut de stock, mention de collection, nouveaute.
+ * Rectangulaire par defaut, comme tout le systeme. La variante « pilule » est
+ * reservee aux compteurs (nombre d'articles au panier).
+ *
+ * La bordure utilise encre-45, seule valeur de la rampe a franchir le seuil
+ * de 3.0 exige pour un element non textuel.
+ */
+interface Props {
+  variante?: "neutre" | "inverse" | "accent" | "epuise";
+  forme?: "rectangle" | "pilule";
+  class?: string;
+}
+
+const { variante = "neutre", forme = "rectangle", class: classe = "" } = Astro.props;
+---
+
+<span class={`pastille pastille--${variante} pastille--${forme} ${classe}`}>
+  <slot />
+</span>
+
+<style>
+  .pastille {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.625rem;
+    font-family: var(--font-corps);
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .pastille--rectangle {
+    border-radius: var(--radius-nul);
+  }
+
+  .pastille--pilule {
+    border-radius: var(--radius-pilule);
+    min-width: 1.375rem;
+    padding: 0.25rem 0.5rem;
+    letter-spacing: 0;
+  }
+
+  .pastille--neutre {
+    border: 1px solid var(--color-bordure-forte);
+    color: var(--color-texte-secondaire);
+  }
+
+  .pastille--inverse {
+    background-color: var(--color-encre);
+    color: var(--color-fond);
+  }
+
+  .pastille--accent {
+    background-color: var(--color-orange);
+    color: var(--color-texte-sur-accent);
+  }
+
+  .pastille--epuise {
+    border: 1px solid var(--color-bordure-forte);
+    color: var(--color-texte-tertiaire);
+    background-color: transparent;
+  }
+</style>

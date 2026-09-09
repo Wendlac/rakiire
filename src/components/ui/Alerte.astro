@@ -1,0 +1,71 @@
+---
+/**
+ * Alerte — Rakiire
+ *
+ * Message d'etat de formulaire ou de commande.
+ *
+ * Le sens ne repose jamais sur la seule couleur : un filet epais a gauche donne
+ * la position, un mot d'entete donne la nature, la couleur ne fait que
+ * confirmer. Un utilisateur daltonien lit la meme information.
+ *
+ * `role="alert"` n'est pose que sur l'erreur : il interrompt le lecteur
+ * d'ecran. En abuser pour une confirmation anodine rend l'interface bavarde.
+ */
+interface Props {
+  variante?: "erreur" | "succes" | "information";
+  titre?: string;
+  class?: string;
+}
+
+const { variante = "information", titre, class: classe = "" } = Astro.props;
+
+const entetes = {
+  erreur: "Erreur",
+  succes: "Confirmé",
+  information: "Information",
+} as const;
+
+const entete = titre ?? entetes[variante];
+---
+
+<div
+  class={`alerte alerte--${variante} ${classe}`}
+  role={variante === "erreur" ? "alert" : "status"}
+>
+  <p class="alerte__entete">{entete}</p>
+  <div class="alerte__corps"><slot /></div>
+</div>
+
+<style>
+  .alerte {
+    border-left: 3px solid currentColor;
+    padding: 1rem 1.25rem;
+    background-color: var(--color-surface-haute);
+  }
+
+  .alerte__entete {
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    margin-bottom: 0.375rem;
+  }
+
+  .alerte__corps {
+    font-size: var(--text-corps-s);
+    line-height: var(--leading-normal);
+    color: var(--color-texte);
+  }
+
+  .alerte--erreur {
+    color: var(--color-erreur);
+  }
+
+  .alerte--succes {
+    color: var(--color-succes);
+  }
+
+  .alerte--information {
+    color: var(--color-encre-70);
+  }
+</style>

@@ -1,0 +1,551 @@
+---
+/**
+ * Panier — Rakiire
+ *
+ * Le point de bascule du site. Tout ce qui précède sert à arriver ici avec le
+ * bon message.
+ *
+ * La page est rendue vide par le serveur puis remplie par le script : le site est
+ * statique et ne peut pas connaître un panier qui vit dans le navigateur. L'état
+ * vide est donc le premier écran légitime, pas un pis-aller — il est écrit et
+ * dessiné comme tel.
+ *
+ * Le repli WhatsApp est un `<details>` toujours présent plutôt qu'une fenêtre
+ * déclenchée par une minuterie. Deviner si l'application s'est ouverte est
+ * impossible depuis une page web : autant offrir franchement les solutions de
+ * rechange et laisser le visiteur juger.
+ */
+import Page from "../layouts/Page.astro";
+import Bouton from "../components/ui/Bouton.astro";
+import Champ from "../components/ui/Champ.astro";
+import Alerte from "../components/ui/Alerte.astro";
+
+import type { Langue } from "../lib/catalogue";
+import { traduire, lienBoutique } from "../lib/i18n";
+import { NUMERO_AFFICHE, NUMERO_WHATSAPP } from "../lib/whatsapp";
+
+interface Props {
+  langue: Langue;
+  chemin: string;
+}
+
+const { langue, chemin } = Astro.props;
+const t = traduire(langue);
+---
+
+<Page
+  titre={`${t("panier")} — Rakiire`}
+  description={langue === "fr"
+    ? "Votre commande Rakiire, à finaliser sur WhatsApp."
+    : "Your Rakiire order, to complete on WhatsApp."}
+  langue={langue}
+  chemin={chemin}
+>
+  <div class="cadre panier" data-panier data-langue={langue}>
+    <h1 class="panier__titre">{t("panier")}</h1>
+
+    <!-- État vide : premier écran légitime -->
+    <div class="panier__vide" data-vide>
+      <p class="panier__vide-titre">{t("panierVide")}</p>
+      <p class="panier__vide-texte">{t("panierVideSuite")}</p>
+      <Bouton variante="primaire" href={lienBoutique(langue)}>{t("boutique")}</Bouton>
+    </div>
+
+    <!-- Panier garni -->
+    <div class="panier__corps" data-corps hidden>
+      <section class="panier__articles" aria-label={t("panier")}>
+        <ul class="lignes" data-lignes></ul>
+
+        <div class="panier__total">
+          <span class="panier__total-mot">{t("total")}</span>
+          <span class="panier__total-valeur chiffres-tabulaires" data-total></span>
+        </div>
+
+        <div class="panier__reprise">
+          <Bouton variante="discret" href={lienBoutique(langue)}>{t("continuer")}</Bouton>
+          <button class="panier__vider" type="button" data-vider>{t("viderPanier")}</button>
+        </div>
+      </section>
+
+      <aside class="panier__commande" aria-label={t("finaliser")}>
+        <h2 class="panier__sous-titre">{t("vosCoordonnees")}</h2>
+
+        <form class="panier__form" data-form novalidate>
+          <Champ
+            id="panier-nom"
+            nom="nom"
+            libelle={t("nomComplet")}
+            autocomplete="name"
+            requis
+          />
+          <Champ
+            id="panier-ville"
+            nom="ville"
+            libelle={t("ville")}
+            aide={t("villeAide")}
+            autocomplete="address-level2"
+            requis
+          />
+
+          <div data-erreurs hidden>
+            <Alerte variante="erreur"><span data-texte-erreurs></span></Alerte>
+          </div>
+
+          <div class="panier__apercu">
+            <p class="surtitre">{t("apercuMessage")}</p>
+            <pre class="panier__message" data-apercu></pre>
+          </div>
+
+          <a class="bouton bouton--accent bouton--plein" data-envoyer href="#" target="_blank" rel="noopener">
+            <span class="bouton__texte">{t("commander")}</span>
+          </a>
+
+          <details class="repli">
+            <summary class="repli__resume">{t("repliTitre")}</summary>
+            <div class="repli__corps">
+              <p class="repli__texte">{t("repliTexte")}</p>
+              <div class="repli__actions">
+                <button class="repli__bouton" type="button" data-copier>{t("copierMessage")}</button>
+                <a class="repli__bouton" href={`https://web.whatsapp.com/send?phone=${NUMERO_WHATSAPP}`} target="_blank" rel="noopener">
+                  {t("ouvrirWeb")}
+                </a>
+              </div>
+              <p class="repli__numero">
+                {t("notreNumero")} : <a class="lien" href={`tel:${NUMERO_WHATSAPP}`}>{NUMERO_AFFICHE}</a>
+              </p>
+              <p class="repli__confirme" data-copie hidden>{t("messageCopie")}</p>
+            </div>
+          </details>
+        </form>
+      </aside>
+    </div>
+  </div>
+</Page>
+
+<style>
+  .panier {
+    padding-block: clamp(2rem, 1.5rem + 3vw, 4rem) var(--spacing-section);
+  }
+
+  .panier__titre {
+    font-size: var(--text-t1);
+    margin-bottom: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+
+  /* -- État vide ------------------------------------------------------------ */
+  .panier__vide {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding-block: clamp(2rem, 1.5rem + 3vw, 4rem);
+    border-top: 1px solid var(--color-bordure-tenue);
+    max-width: 32rem;
+  }
+
+  .panier__vide-titre {
+    font-family: var(--font-titre);
+    font-size: var(--text-t3);
+  }
+
+  .panier__vide-texte {
+    color: var(--color-texte-secondaire);
+    margin-bottom: 0.75rem;
+  }
+
+  /* -- Corps ---------------------------------------------------------------- */
+  .panier__corps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+  }
+
+  @media (min-width: 64rem) {
+    .panier__corps {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .lignes {
+    border-top: 1px solid var(--color-bordure-forte);
+  }
+
+  .panier__total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--color-bordure-forte);
+  }
+
+  .panier__total-mot {
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+  }
+
+  .panier__total-valeur {
+    font-family: var(--font-titre);
+    font-size: var(--text-t4);
+  }
+
+  .panier__reprise {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .panier__vider {
+    min-height: 2.75rem;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-tertiaire);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .panier__vider:hover { color: var(--color-texte-erreur); }
+
+  /* -- Commande -------------------------------------------------------------- */
+  .panier__commande {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+    background-color: var(--color-surface-haute);
+    border: 1px solid var(--color-bordure-tenue);
+  }
+
+  @media (min-width: 64rem) {
+    .panier__commande {
+      position: sticky;
+      top: 5.5rem;
+    }
+  }
+
+  .panier__sous-titre {
+    font-size: var(--text-t4);
+  }
+
+  .panier__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .panier__apercu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .panier__message {
+    margin: 0;
+    padding: 1rem;
+    max-height: 14rem;
+    overflow-y: auto;
+    background-color: var(--color-surface);
+    border-left: 3px solid var(--color-succes);
+    font-family: var(--font-mono);
+    font-size: var(--text-corps-s);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* -- Repli ---------------------------------------------------------------- */
+  .repli__resume {
+    min-height: 2.75rem;
+    display: flex;
+    align-items: center;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .repli__corps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding-top: 1rem;
+  }
+
+  .repli__texte,
+  .repli__numero,
+  .repli__confirme {
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+  }
+
+  .repli__confirme { color: var(--color-texte-succes); }
+
+  .repli__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+  }
+
+  .repli__bouton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding-inline: 1.125rem;
+    border: 1px solid var(--color-bordure-forte);
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte);
+    transition: background-color var(--duree-rapide) var(--ease-doux), color var(--duree-rapide) var(--ease-doux);
+  }
+
+  .repli__bouton:hover {
+    background-color: var(--color-encre);
+    border-color: var(--color-encre);
+    color: var(--color-fond);
+  }
+
+  /* -- Lignes de panier ------------------------------------------------------ */
+  .lignes :global(.ligne) {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem 1rem;
+    padding-block: 1.25rem;
+    border-bottom: 1px solid var(--color-bordure-tenue);
+  }
+
+  .lignes :global(.ligne__nom) {
+    font-family: var(--font-titre);
+    font-size: var(--text-t5);
+  }
+
+  .lignes :global(.ligne__variante) {
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+  }
+
+  .lignes :global(.ligne__reference) {
+    font-size: var(--text-legende);
+    letter-spacing: 0.06em;
+    color: var(--color-texte-tertiaire);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lignes :global(.ligne__prix) {
+    text-align: end;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .lignes :global(.ligne__bas) {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .lignes :global(.ligne__retirer) {
+    min-height: 2.75rem;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-tertiaire);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .lignes :global(.ligne__retirer:hover) { color: var(--color-texte-erreur); }
+</style>
+
+<script>
+  import {
+    lirePanier,
+    changerQuantite,
+    retirerDuPanier,
+    viderPanier,
+    totalPanier,
+    surChangementPanier,
+    type ArticlePanier,
+  } from "../lib/panier";
+  import { formaterPrix } from "../lib/prix";
+  import { COULEURS } from "../lib/catalogue";
+  import { composerMessage, lienWhatsApp, urlTropLongue } from "../lib/whatsapp";
+
+  const racine = document.querySelector<HTMLElement>("[data-panier]");
+  if (racine) {
+    const langue = racine.dataset.langue === "en" ? "en" : "fr";
+
+    const vide = racine.querySelector<HTMLElement>("[data-vide]")!;
+    const corps = racine.querySelector<HTMLElement>("[data-corps]")!;
+    const lignes = racine.querySelector<HTMLElement>("[data-lignes]")!;
+    const total = racine.querySelector<HTMLElement>("[data-total]")!;
+    const apercu = racine.querySelector<HTMLElement>("[data-apercu]")!;
+    const envoyer = racine.querySelector<HTMLAnchorElement>("[data-envoyer]")!;
+    const form = racine.querySelector<HTMLFormElement>("[data-form]")!;
+    const champNom = racine.querySelector<HTMLInputElement>("#panier-nom")!;
+    const champVille = racine.querySelector<HTMLInputElement>("#panier-ville")!;
+    const zoneErreurs = racine.querySelector<HTMLElement>("[data-erreurs]")!;
+    const texteErreurs = racine.querySelector<HTMLElement>("[data-texte-erreurs]")!;
+
+    const mots = {
+      fr: { retirer: "Retirer", taille: "Taille", quantite: "Quantité", requis: "Merci d’indiquer votre nom et votre ville avant de commander.", trop: "Votre commande est trop longue pour un lien. Copiez le message et collez-le dans WhatsApp." },
+      en: { retirer: "Remove", taille: "Size", quantite: "Quantity", requis: "Please give your name and city before ordering.", trop: "Your order is too long for a link. Copy the message and paste it into WhatsApp." },
+    }[langue];
+
+    /* -- Coordonnées mémorisées : on ne redemande pas deux fois la même chose -- */
+    const CLE_COORD = "rakiire.coordonnees.v1";
+    try {
+      const gardees = JSON.parse(localStorage.getItem(CLE_COORD) ?? "{}");
+      if (typeof gardees.nom === "string") champNom.value = gardees.nom;
+      if (typeof gardees.ville === "string") champVille.value = gardees.ville;
+    } catch { /* stockage indisponible : champs vides */ }
+
+    function memoriser() {
+      try {
+        localStorage.setItem(
+          CLE_COORD,
+          JSON.stringify({ nom: champNom.value, ville: champVille.value }),
+        );
+      } catch { /* sans effet */ }
+    }
+
+    /* -- Rendu ------------------------------------------------------------- */
+    function ligneHTML(article: ArticlePanier): string {
+      const couleur = COULEURS[article.couleur].nom[langue];
+      return `
+        <li class="ligne">
+          <div>
+            <p class="ligne__nom">${article.nom}</p>
+            <p class="ligne__variante">${couleur} · ${mots.taille} ${article.taille}</p>
+            <p class="ligne__reference">${article.reference}</p>
+          </div>
+          <p class="ligne__prix">${formaterPrix(article.prixUnitaire * article.quantite)}</p>
+          <div class="ligne__bas">
+            <div class="quantite" data-quantite data-min="1" data-max="20">
+              <button class="quantite__bouton" type="button" data-action="retirer" aria-label="−">−</button>
+              <label class="visuellement-cache" for="q-${article.reference}">${mots.quantite}</label>
+              <input class="quantite__valeur chiffres-tabulaires" id="q-${article.reference}"
+                     type="number" inputmode="numeric" value="${article.quantite}" min="1" max="20" step="1"
+                     data-reference="${article.reference}">
+              <button class="quantite__bouton" type="button" data-action="ajouter" aria-label="+">+</button>
+            </div>
+            <button class="ligne__retirer" type="button" data-retirer="${article.reference}">${mots.retirer}</button>
+          </div>
+        </li>`;
+    }
+
+    function messageCourant(articles: ArticlePanier[]): string {
+      return composerMessage(
+        articles.map((a) => ({
+          reference: a.reference,
+          nom: a.nom,
+          couleur: a.couleur,
+          taille: a.taille,
+          prixUnitaire: a.prixUnitaire,
+          quantite: a.quantite,
+        })),
+        { nom: champNom.value, ville: champVille.value },
+        langue,
+      );
+    }
+
+    function peindre(articles: ArticlePanier[] = lirePanier()) {
+      const garni = articles.length > 0;
+      vide.hidden = garni;
+      corps.hidden = !garni;
+      if (!garni) return;
+
+      lignes.innerHTML = articles.map(ligneHTML).join("");
+      total.textContent = formaterPrix(totalPanier(articles));
+
+      const message = messageCourant(articles);
+      apercu.textContent = message;
+      envoyer.href = lienWhatsApp(message);
+
+      if (urlTropLongue(message)) {
+        zoneErreurs.hidden = false;
+        texteErreurs.textContent = mots.trop;
+      }
+    }
+
+    peindre();
+    surChangementPanier(peindre);
+
+    /* -- Interactions ------------------------------------------------------ */
+    lignes.addEventListener("change", (evenement) => {
+      const champ = evenement.target as HTMLInputElement;
+      if (!champ.dataset.reference) return;
+      changerQuantite(champ.dataset.reference, Number(champ.value));
+    });
+
+    racine.addEventListener("click", (evenement) => {
+      const cible = evenement.target as HTMLElement;
+
+      const retirer = cible.closest<HTMLElement>("[data-retirer]");
+      if (retirer?.dataset.retirer) {
+        retirerDuPanier(retirer.dataset.retirer);
+        return;
+      }
+
+      if (cible.closest("[data-vider]")) {
+        viderPanier();
+        return;
+      }
+    });
+
+    for (const champ of [champNom, champVille]) {
+      champ.addEventListener("input", () => {
+        memoriser();
+        peindre();
+        zoneErreurs.hidden = true;
+      });
+    }
+
+    /* Le bouton est un lien : on n'empêche la navigation que si les
+       coordonnées manquent. Un lien qui part sans nom donne une commande
+       anonyme, impossible à préparer. */
+    envoyer.addEventListener("click", (evenement) => {
+      if (champNom.value.trim() && champVille.value.trim()) {
+        memoriser();
+        return;
+      }
+
+      evenement.preventDefault();
+      zoneErreurs.hidden = false;
+      texteErreurs.textContent = mots.requis;
+      (champNom.value.trim() ? champVille : champNom).focus();
+    });
+
+    form.addEventListener("submit", (evenement) => evenement.preventDefault());
+
+    /* -- Copie du message -------------------------------------------------- */
+    const boutonCopier = racine.querySelector<HTMLButtonElement>("[data-copier]");
+    const confirmeCopie = racine.querySelector<HTMLElement>("[data-copie]");
+    boutonCopier?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(messageCourant(lirePanier()));
+        if (confirmeCopie) {
+          confirmeCopie.hidden = false;
+          setTimeout(() => { confirmeCopie.hidden = true; }, 2400);
+        }
+      } catch {
+        // Presse-papiers refusé : on sélectionne le texte pour une copie manuelle.
+        const plage = document.createRange();
+        plage.selectNodeContents(apercu);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(plage);
+      }
+    });
+  }
+</script>

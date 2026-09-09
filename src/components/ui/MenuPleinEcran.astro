@@ -1,0 +1,189 @@
+---
+/**
+ * Menu plein écran — Rakiire
+ *
+ * Motif de Zara : la navigation prend tout l'écran, les grandes entrées sont
+ * composées dans la serif de titrage, les sous-entrées dans la sans en capitales.
+ * Le contraste d'échelle entre les deux colonnes fait tout le travail — aucune
+ * couleur n'est nécessaire pour hiérarchiser.
+ *
+ * Construit sur `<dialog>` plutôt que sur une div à bascule : le navigateur
+ * fournit alors gratuitement le piégeage du focus, la fermeture par Échap et
+ * l'inertie du reste de la page pour les lecteurs d'écran. Réécrire tout cela
+ * à la main, c'est le rater.
+ */
+interface Props {
+  id?: string;
+  rubriques: {
+    libelle: string;
+    href: string;
+    entrees?: { libelle: string; href: string }[];
+  }[];
+  class?: string;
+}
+
+const { id = "menu", rubriques, class: classe = "" } = Astro.props;
+---
+
+<dialog class={`menu ${classe}`} id={id} aria-label="Navigation principale">
+  <div class="menu__barre cadre">
+    <button class="menu__fermer" type="button" data-fermer-menu aria-label="Fermer le menu">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+        <path d="M4 4 L20 20 M20 4 L4 20" stroke="currentColor" stroke-width="1.5" />
+      </svg>
+    </button>
+    <slot name="entete" />
+  </div>
+
+  <div class="menu__corps cadre">
+    <nav class="menu__colonnes">
+      <ul class="menu__rubriques">
+        {
+          rubriques.map((rubrique) => (
+            <li>
+              <a class="menu__rubrique" href={rubrique.href}>{rubrique.libelle}</a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <ul class="menu__entrees">
+        {
+          rubriques
+            .flatMap((r) => r.entrees ?? [])
+            .map((entree) => (
+              <li>
+                <a class="menu__entree lien" href={entree.href}>{entree.libelle}</a>
+              </li>
+            ))
+        }
+      </ul>
+    </nav>
+
+    <div class="menu__pied"><slot name="pied" /></div>
+  </div>
+</dialog>
+
+<style>
+  .menu {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background-color: var(--color-surface);
+    color: var(--color-texte);
+    overflow-y: auto;
+  }
+
+  .menu::backdrop {
+    background-color: rgb(8 15 15 / 0.4);
+  }
+
+  .menu__barre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 4rem;
+  }
+
+  .menu__fermer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-inline-start: -0.75rem;
+    color: var(--color-texte);
+  }
+
+  .menu__corps {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 3rem;
+    padding-block: clamp(2rem, 1rem + 4vw, 4.5rem) 3rem;
+    min-height: calc(100% - 4rem);
+  }
+
+  .menu__colonnes {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .menu__colonnes {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(2rem, 6vw, 6rem);
+    }
+  }
+
+  .menu__rubriques {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  /* La serif de titrage, en grand. C'est l'échelle qui hiérarchise, pas la
+     graisse — Goudy n'en a qu'une. */
+  .menu__rubrique {
+    display: inline-block;
+    font-family: var(--font-titre);
+    font-size: var(--text-t2);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    padding-block: 0.125rem;
+    transition: opacity var(--duree-rapide) var(--ease-doux);
+  }
+
+  .menu__rubrique:hover { opacity: 0.55; }
+
+  .menu__entrees {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding-top: 0.75rem;
+  }
+
+  .menu__entree {
+    font-size: var(--text-corps-s);
+    font-weight: 500;
+    letter-spacing: var(--tracking-large);
+    text-transform: uppercase;
+    color: var(--color-texte-secondaire);
+  }
+
+  .menu__entree:hover { color: var(--color-texte); }
+
+  .menu__pied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .menu__pied:empty { display: none; }
+</style>
+
+<script>
+  // Ouverture par tout élément portant data-ouvrir-menu="<id>", fermeture par
+  // data-fermer-menu. Délégation unique : un seul écouteur pour toute la page.
+  document.addEventListener("click", (evenement) => {
+    const cible = evenement.target as HTMLElement;
+
+    const declencheur = cible?.closest<HTMLElement>("[data-ouvrir-menu]");
+    if (declencheur) {
+      const menu = document.getElementById(declencheur.dataset.ouvrirMenu ?? "menu");
+      if (menu instanceof HTMLDialogElement) menu.showModal();
+      return;
+    }
+
+    if (cible?.closest("[data-fermer-menu]")) {
+      cible.closest("dialog")?.close();
+    }
+  });
+</script>

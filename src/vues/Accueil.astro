@@ -1,0 +1,246 @@
+---
+/**
+ * Accueil — Rakiire
+ *
+ * Trois temps : le héros, la sélection, le récit. Rien de plus.
+ *
+ * L'ajout rapide est volontairement éteint sur cette page. Un visiteur qui
+ * arrive sur l'accueil ne connaît pas encore les articles : lui proposer
+ * d'acheter avant d'avoir vu la fiche produit augmente les retours, et chaque
+ * retour se règle à la main sur WhatsApp. Il est allumé sur la boutique.
+ */
+import Page from "../layouts/Page.astro";
+import Heros from "../components/ui/Heros.astro";
+import MarqueGeante from "../components/ui/MarqueGeante.astro";
+import GrilleProduits from "../components/ui/GrilleProduits.astro";
+import CarteProduit from "../components/ui/CarteProduit.astro";
+import Bouton from "../components/ui/Bouton.astro";
+import Revele from "../components/ui/Revele.astro";
+
+import type { Langue } from "../lib/catalogue";
+import { COLLECTIONS, COULEURS } from "../lib/catalogue";
+import { traduire, lienBoutique, lienProduit, lien, lienPage } from "../lib/i18n";
+import { produits, misEnAvant } from "../data/produits";
+
+interface Props {
+  langue: Langue;
+  chemin: string;
+}
+
+const { langue, chemin } = Astro.props;
+const t = traduire(langue);
+
+const selection = misEnAvant
+  .map((reference) => produits.find((p) => p.reference === reference))
+  .filter((p): p is NonNullable<typeof p> => Boolean(p));
+
+/** Pastilles de couleur d'un article, dans l'ordre du catalogue. */
+function couleursDe(produit: (typeof produits)[number]) {
+  const codes = [...new Set(produit.variantes.map((v) => v.couleur))];
+  return codes.map((code) => ({
+    nom: COULEURS[code].nom[langue],
+    valeur: COULEURS[code].valeur,
+  }));
+}
+---
+
+<Page
+  titre="Rakiire"
+  description={langue === "fr"
+    ? "Des vêtements premium pour celles et ceux qui choisissent d’être eux-mêmes. Commande sur WhatsApp, livraison au Burkina Faso et en Côte d’Ivoire."
+    : "Premium clothing for those who choose to be themselves. Order on WhatsApp, delivery in Burkina Faso and Côte d’Ivoire."}
+  langue={langue}
+  chemin={chemin}
+>
+  <Heros
+    surtitre={COLLECTIONS.CLS}
+    titre={langue === "fr" ? "Le choix d’être soi" : "The choice to be yourself"}
+    texte={langue === "fr"
+      ? "Une première série, en noir et blanc, tirée à peu d’exemplaires."
+      : "A first series, in black and white, made in small numbers."}
+    hauteur="moyen"
+  >
+    <Bouton variante="primaire" href={lienBoutique(langue)}>{t("voirLaCollection")}</Bouton>
+    <Bouton variante="contour" href={lienPage(langue, "lookbook")}>{t("lookbook")}</Bouton>
+  </Heros>
+
+  <!-- Sélection ---------------------------------------------------------- -->
+  <section class="cadre bloc-section">
+    <Revele class="entete-section">
+      <p class="surtitre">{langue === "fr" ? "La sélection" : "The selection"}</p>
+      <h2 class="titre-section">
+        {langue === "fr" ? "Quatre pièces pour commencer" : "Four pieces to start with"}
+      </h2>
+    </Revele>
+
+    <GrilleProduits densite="confortable">
+      {
+        selection.map((produit) => (
+          <CarteProduit
+            langue={langue}
+            href={lienProduit(langue, produit.reference)}
+            nom={produit.nom[langue]}
+            reference={produit.reference}
+            collection={produit.collection}
+            prix={produit.prix}
+            matiere={produit.composition[langue]}
+            couleurs={couleursDe(produit)}
+            meta="ligne"
+            epuise={!produit.variantes.some((v) => v.disponible)}
+          />
+        ))
+      }
+    </GrilleProduits>
+
+    <div class="fin-section">
+      <Bouton variante="contour" href={lienBoutique(langue)}>{t("voirTout")}</Bouton>
+    </div>
+  </section>
+
+  <!-- Récit --------------------------------------------------------------- -->
+  <section class="recit sur-sombre">
+    <div class="cadre recit__cadre">
+      <Revele>
+        <p class="surtitre">Rakiire</p>
+        <p class="recit__texte">
+          {
+            langue === "fr"
+              ? "Un vêtement ne dit pas d’où l’on vient. Il dit qui l’on choisit d’être."
+              : "Clothing does not say where you come from. It says who you choose to be."
+          }
+        </p>
+        <Bouton variante="contour" href={lienPage(langue, "histoire")}>
+          {t("histoire")}
+        </Bouton>
+      </Revele>
+    </div>
+
+    <MarqueGeante ampleur={124} ancrage="bas" class="recit__marque" />
+  </section>
+
+  <!-- Collections --------------------------------------------------------- -->
+  <section class="cadre bloc-section">
+    <Revele class="entete-section">
+      <p class="surtitre">{t("collections")}</p>
+      <h2 class="titre-section">
+        {langue === "fr" ? "Deux familles" : "Two families"}
+      </h2>
+    </Revele>
+
+    <Revele cascade balise="ul" class="collections">
+      {
+        (Object.keys(COLLECTIONS) as (keyof typeof COLLECTIONS)[]).map((code) => (
+          <li class="collection">
+            <a class="collection__lien" href={`${lienBoutique(langue)}#${code}`}>
+              <span class="collection__visuel reserve-image" />
+              <span class="collection__nom">{COLLECTIONS[code]}</span>
+              <span class="collection__nombre chiffres-tabulaires">
+                {produits.filter((p) => p.collection === code).length}
+                {" "}
+                {langue === "fr" ? "pièces" : "pieces"}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </Revele>
+  </section>
+</Page>
+
+<style>
+  .bloc-section {
+    padding-block: var(--spacing-section);
+  }
+
+  .entete-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  }
+
+  .titre-section {
+    font-size: var(--text-t2);
+  }
+
+  .fin-section {
+    display: flex;
+    justify-content: center;
+    margin-top: clamp(2.5rem, 2rem + 2vw, 4rem);
+  }
+
+  /* -- Récit ---------------------------------------------------------------- */
+  .recit {
+    position: relative;
+    overflow: hidden;
+    padding-top: var(--spacing-section);
+  }
+
+  .recit__cadre {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .recit__cadre :global(> *) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 34rem;
+  }
+
+  .recit__texte {
+    font-family: var(--font-titre);
+    font-size: var(--text-t3);
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  /* Le logotype géant sert de socle à la section : il est rogné par le bas et
+     tient lieu de fin de page. Décoratif, donc invisible aux lecteurs d'écran. */
+  .recit__marque {
+    margin-top: clamp(2.5rem, 2rem + 3vw, 5rem);
+    color: var(--color-encre-80);
+  }
+
+  /* -- Collections ---------------------------------------------------------- */
+  .collections {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+  }
+
+  @media (min-width: 48rem) {
+    .collections { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .collection__lien {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .collection__visuel {
+    display: block;
+    aspect-ratio: 16 / 10;
+    background-color: var(--color-encre-08);
+  }
+
+  .collection__nom {
+    font-family: var(--font-titre);
+    font-size: var(--text-t4);
+  }
+
+  .collection__nombre {
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-tertiaire);
+  }
+
+  .collection__lien:hover .collection__nom {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+</style>

@@ -1,0 +1,28 @@
+/* =============================================================================
+   RAKIIRE — Chargement typographique
+
+   Goudy Bookletter 1911  : Google Fonts, 400 romain UNIQUEMENT.
+                            Charge via <link> dans le gabarit, avec preconnect.
+   Satoshi                : absente de Google Fonts. Distribuee par Fontshare
+                            (licence commerciale incluse), en auto-hebergement.
+                            Deposer les fichiers dans /public/fonts/.
+
+   Tant que les fichiers Satoshi ne sont pas presents, la pile de repli de
+   --font-corps prend le relais sans casser la mise en page.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Variable.woff2") format("woff2-variations");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-VariableItalic.woff2") format("woff2-variations");
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}

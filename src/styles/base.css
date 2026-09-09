@@ -1,0 +1,407 @@
+/* =============================================================================
+   RAKIIRE — Socle
+   Styles d'element, etats d'interaction, primitives de mouvement.
+   Aucune couleur brute ici : uniquement des roles semantiques.
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-surface);
+    color: var(--color-texte);
+    font-family: var(--font-corps);
+    font-size: var(--text-corps);
+    line-height: var(--leading-lecture);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Les titres portent la serif. Une seule graisse existe : ne jamais
+     ecrire font-weight: bold sur un titre, cela declencherait une fausse
+     graisse synthetique et abimerait le dessin des lettres. */
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+    font-family: var(--font-titre);
+    font-weight: 400;
+    color: var(--color-texte);
+    text-wrap: balance;
+  }
+
+  p, ul, ol, dl, figure, blockquote {
+    margin: 0;
+  }
+
+  /* Une ligne de texte courante ne depasse jamais la mesure de lecture. */
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  ul, ol {
+    padding: 0;
+    list-style: none;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--color-bordure-tenue);
+    margin: 0;
+  }
+
+  ::selection {
+    background-color: var(--color-encre);
+    color: var(--color-fond);
+  }
+
+  /* Anneau de focus unique pour tout le site.
+     L'orange de la charte plafonne a 2.84 sur le fond, sous le seuil de 3.0 :
+     il est donc ecarte de ce role au profit de l'encre, mesuree a 16.67. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+    border-radius: var(--radius-xs);
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+}
+
+@layer components {
+  /* ---------------------------------------------------------------------------
+     Cadre : la gouttiere unique du site. Tout contenu de page passe par la.
+     ------------------------------------------------------------------------ */
+  .cadre {
+    width: 100%;
+    max-width: var(--container-cadre);
+    margin-inline: auto;
+    padding-inline: var(--spacing-gouttiere);
+  }
+
+  .mesure {
+    max-width: var(--container-lecture);
+  }
+
+  /* ---------------------------------------------------------------------------
+     Surtitre : petites capitales espacees. Sert d'etiquette de section.
+     ------------------------------------------------------------------------ */
+  .surtitre {
+    font-family: var(--font-corps);
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-tertiaire);
+  }
+
+  /* ---------------------------------------------------------------------------
+     Lien editorial : le soulignement se construit au survol, il ne disparait
+     pas. Un mouvement qui ajoute, jamais qui retire.
+     ------------------------------------------------------------------------ */
+  .lien {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size var(--duree-normale) var(--ease-sortie);
+    padding-bottom: 0.1em;
+  }
+
+  .lien:hover,
+  .lien:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Reveal au defilement.
+     L'element part legerement bas et opaque a zero, puis se pose.
+     La classe .est-visible est posee par le script d'observation.
+     ------------------------------------------------------------------------ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition:
+      opacity var(--duree-reveal) var(--ease-sortie),
+      transform var(--duree-reveal) var(--ease-sortie);
+  }
+
+  .reveal.est-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Retard en cascade pour les listes. Pose sur le parent. */
+  .reveal-cascade > * {
+    opacity: 0;
+    transform: translateY(1.5rem);
+    transition:
+      opacity var(--duree-reveal) var(--ease-sortie),
+      transform var(--duree-reveal) var(--ease-sortie);
+  }
+
+  .reveal-cascade.est-visible > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  .reveal-cascade.est-visible > *:nth-child(1) { transition-delay: 0ms; }
+  .reveal-cascade.est-visible > *:nth-child(2) { transition-delay: 80ms; }
+  .reveal-cascade.est-visible > *:nth-child(3) { transition-delay: 160ms; }
+  .reveal-cascade.est-visible > *:nth-child(4) { transition-delay: 240ms; }
+  .reveal-cascade.est-visible > *:nth-child(5) { transition-delay: 320ms; }
+  .reveal-cascade.est-visible > *:nth-child(6) { transition-delay: 400ms; }
+
+  /* ---------------------------------------------------------------------------
+     Reserve d'image : evite tout decalage de mise en page au chargement.
+     ------------------------------------------------------------------------ */
+  .reserve-image {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-encre-08);
+  }
+
+  .reserve-image > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Aire sombre.
+     Poser cette classe sur toute zone au fond encre : pied de page, bandeau
+     editorial, panneau de commande. Les composants qui savent s'inverser le
+     font d'eux-memes en lisant cet ancetre. Une seule classe a ne pas oublier,
+     au lieu d'une variante a passer a chaque composant.
+     ------------------------------------------------------------------------ */
+  .sur-sombre {
+    background-color: var(--color-surface-inverse);
+    color: var(--color-texte-inverse);
+  }
+
+  /* .sur-image se comporte comme .sur-sombre pour les composants, mais ne pose
+     aucun fond : le voile est porte par le conteneur d'image lui-meme. */
+  .sur-image {
+    color: var(--color-texte-sur-image);
+  }
+
+  :is(.sur-sombre, .sur-image) :is(h1, h2, h3, h4, h5, h6) {
+    color: inherit;
+  }
+
+  /* La sauge mesure 9.48 sur l'encre : elle porte un surtitre sans difficulte.
+     Sur image en revanche, le fond n'est pas garanti — on garde la couleur
+     pleine du texte. */
+  .sur-sombre .surtitre {
+    color: var(--color-sauge);
+  }
+
+  .sur-image .surtitre {
+    color: inherit;
+    opacity: 0.85;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Prose editoriale.
+     Employee sur Notre histoire, la FAQ, le contact et les mentions legales.
+     La mesure de lecture est imposee ici et non page par page : c'est la seule
+     facon qu'elle soit tenue partout.
+     ------------------------------------------------------------------------ */
+  .prose {
+    max-width: var(--container-lecture);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    color: var(--color-texte-secondaire);
+  }
+
+  .prose > :is(h2, h3) {
+    color: var(--color-texte);
+    margin-top: 1.5rem;
+  }
+
+  .prose > h2 { font-size: var(--text-t3); }
+  .prose > h3 { font-size: var(--text-t4); }
+
+  .prose > :first-child { margin-top: 0; }
+
+  .prose strong {
+    color: var(--color-texte);
+    font-weight: 500;
+  }
+
+  .prose ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .prose ul > li {
+    position: relative;
+    padding-inline-start: 1.25rem;
+  }
+
+  /* Puce dessinee en pseudo-element : un tiret cadratin, plus editorial qu'un
+     rond, et qui s'aligne sur la premiere ligne quel que soit le corps. */
+  .prose ul > li::before {
+    content: "—";
+    position: absolute;
+    inset-inline-start: 0;
+    color: var(--color-texte-tertiaire);
+  }
+
+  .prose a:not(.bouton) {
+    color: var(--color-texte);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+
+  /* ---------------------------------------------------------------------------
+     Depliant de question.
+     Construit sur <details> : ouverture, fermeture, clavier et lecteurs d'ecran
+     sont pris en charge par le navigateur. Un accordeon maison coute cent lignes
+     et en oublie toujours une.
+     ------------------------------------------------------------------------ */
+  .question {
+    border-bottom: 1px solid var(--color-bordure-tenue);
+  }
+
+  .question__titre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 3.75rem;
+    padding-block: 1rem;
+    font-family: var(--font-corps);
+    font-size: var(--text-corps);
+    font-weight: 500;
+    color: var(--color-texte);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .question__titre::-webkit-details-marker { display: none; }
+
+  .question__titre::after {
+    content: "+";
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--color-texte-tertiaire);
+  }
+
+  .question[open] > .question__titre::after { content: "\2212"; }
+
+  .question__reponse {
+    padding-bottom: 1.5rem;
+    max-width: var(--container-lecture);
+    font-size: var(--text-corps-s);
+    line-height: var(--leading-lecture);
+    color: var(--color-texte-secondaire);
+  }
+
+  .question__reponse > * + * { margin-top: 0.75rem; }
+
+  /* ---------------------------------------------------------------------------
+     Lien d'evitement : premier element focalisable de chaque page.
+     ------------------------------------------------------------------------ */
+  .evitement {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: var(--plan-notification);
+    background-color: var(--color-encre);
+    color: var(--color-fond);
+    padding: 0.75rem 1.25rem;
+    font-size: var(--text-corps-s);
+  }
+
+  .evitement:focus {
+    left: 1rem;
+    top: 1rem;
+  }
+}
+
+@layer utilities {
+  .visuellement-cache {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Chiffres alignes en colonne : indispensable pour les prix et les totaux. */
+  .chiffres-tabulaires {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+/* =============================================================================
+   Respect de la preference systeme de mouvement reduit.
+   Exigence WCAG AA. Le contenu revele reste visible : on supprime le
+   deplacement, jamais l'information.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal,
+  .reveal-cascade > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

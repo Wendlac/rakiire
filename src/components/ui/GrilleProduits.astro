@@ -1,0 +1,87 @@
+---
+/**
+ * Grille de produits — Rakiire
+ *
+ * Trois densités, tirées des références et chacune bonne à un endroit précis :
+ *
+ * - `editoriale` — trois colonnes, filets d'un pixel entre les images, qui se
+ *   touchent presque. C'est la grille de Fear of God : elle donne au vêtement
+ *   toute la surface et convient à une page de collection soignée, avec des
+ *   photos qui se répondent.
+ *
+ * - `confortable` — quatre colonnes espacées, celle de BonneGueule. C'est la
+ *   grille de travail d'une boutique : elle laisse la place aux pastilles de
+ *   couleur et à la ligne de matière sous chaque produit.
+ *
+ * - `dense` — deux colonnes serrées sur mobile, pour un catalogue court où l'on
+ *   veut montrer beaucoup en un écran.
+ *
+ * Sur mobile, aucune ne descend en dessous de deux colonnes : une colonne
+ * unique transforme une boutique de dix articles en dix écrans de défilement.
+ */
+interface Props {
+  densite?: "editoriale" | "confortable" | "dense";
+  balise?: "div" | "ul" | "section";
+  class?: string;
+}
+
+const { densite = "confortable", balise: Balise = "div", class: classe = "" } = Astro.props;
+---
+
+<Balise class={`grille grille--${densite} ${classe}`}>
+  <slot />
+</Balise>
+
+<style>
+  .grille {
+    display: grid;
+    width: 100%;
+  }
+
+  /* -- Éditoriale : les images se touchent, le filet est la seule séparation -- */
+  .grille--editoriale {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background-color: var(--color-bordure-tenue);
+    border-block: 1px solid var(--color-bordure-tenue);
+  }
+
+  /* Chaque cellule reprend le fond de page : c'est le fond de la grille qui
+     transparaît dans l'interstice et dessine le filet. */
+  .grille--editoriale > :global(*) {
+    background-color: var(--color-surface);
+    padding-bottom: 1.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .grille--editoriale { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* -- Confortable ---------------------------------------------------------- */
+  .grille--confortable {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1rem, 0.5rem + 1.6vw, 2.25rem) clamp(0.75rem, 0.25rem + 1.4vw, 1.75rem);
+  }
+
+  @media (min-width: 48rem) {
+    .grille--confortable { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (min-width: 64rem) {
+    .grille--confortable { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  /* -- Dense ---------------------------------------------------------------- */
+  .grille--dense {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 0.75rem;
+  }
+
+  @media (min-width: 48rem) {
+    .grille--dense { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  @media (min-width: 80rem) {
+    .grille--dense { grid-template-columns: repeat(5, 1fr); }
+  }
+</style>

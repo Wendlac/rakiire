@@ -1,0 +1,216 @@
+---
+/**
+ * Contact — Rakiire
+ *
+ * WhatsApp d'abord, et presque uniquement. C'est le canal par lequel la marque
+ * vend : le mettre au même rang qu'un formulaire brouillerait le message.
+ *
+ * PAS DE FORMULAIRE — décision, pas oubli
+ * Un formulaire de contact demande un service qui reçoive les messages et une
+ * adresse qui les relève. Ni l'un ni l'autre n'existe aujourd'hui, et un
+ * formulaire dont l'envoi se perd est pire que pas de formulaire. Il pourra
+ * s'ajouter le jour où une adresse de marque sera ouverte.
+ *
+ * Les réseaux sociaux ne s'affichent que si leur adresse est renseignée dans
+ * `src/data/reseaux.ts`. Aucun lien mort n'est publié.
+ */
+import Page from "../layouts/Page.astro";
+import EnteteEditoriale from "../components/ui/EnteteEditoriale.astro";
+import Bouton from "../components/ui/Bouton.astro";
+
+import type { Langue } from "../lib/catalogue";
+import { traduire, lienPage } from "../lib/i18n";
+import { NUMERO_AFFICHE, NUMERO_WHATSAPP } from "../lib/whatsapp";
+import { reseauxActifs } from "../data/reseaux";
+
+interface Props {
+  langue: Langue;
+  chemin: string;
+}
+
+const { langue, chemin } = Astro.props;
+const t = traduire(langue);
+const fr = langue === "fr";
+const sociaux = reseauxActifs();
+---
+
+<Page
+  titre={`${t("contact")} — Rakiire`}
+  description={fr
+    ? "Écrivez-nous sur WhatsApp : commandes, tailles, livraison."
+    : "Write to us on WhatsApp: orders, sizes, delivery."}
+  langue={langue}
+  chemin={chemin}
+>
+  <EnteteEditoriale
+    titre={t("contact")}
+    chapeau={fr
+      ? "Une seule adresse, une vraie personne au bout. Nous répondons aux commandes comme aux questions."
+      : "One address, a real person at the other end. We answer orders and questions alike."}
+  />
+
+  <div class="cadre grille-contact">
+    <!-- WhatsApp ------------------------------------------------------- -->
+    <section class="carte-contact carte-contact--principale">
+      <p class="surtitre">{fr ? "Le plus direct" : "The most direct"}</p>
+      <h2 class="carte-contact__titre">WhatsApp</h2>
+      <p class="carte-contact__texte">
+        {
+          fr
+            ? "Pour commander, demander une taille, ou savoir quand une pièce épuisée revient."
+            : "To order, ask about a size, or find out when a sold-out piece returns."
+        }
+      </p>
+      <p class="numero chiffres-tabulaires">{NUMERO_AFFICHE}</p>
+      <Bouton variante="accent" href={`https://wa.me/${NUMERO_WHATSAPP}`}>
+        {fr ? "Ouvrir la conversation" : "Open the conversation"}
+      </Bouton>
+    </section>
+
+    <!-- Informations pratiques ------------------------------------------ -->
+    <section class="carte-contact">
+      <p class="surtitre">{fr ? "En pratique" : "Practical"}</p>
+      <dl class="pratique">
+        <div>
+          <dt>{fr ? "Basés à" : "Based in"}</dt>
+          <dd>Ouagadougou, Burkina&nbsp;Faso</dd>
+        </div>
+        <div>
+          <dt>{fr ? "Livraison" : "Delivery"}</dt>
+          <dd>Burkina&nbsp;Faso, Côte&nbsp;d’Ivoire</dd>
+        </div>
+        <div>
+          <dt>{fr ? "Paiement" : "Payment"}</dt>
+          <dd>{fr ? "Mobile money" : "Mobile money"}</dd>
+        </div>
+        <div>
+          <dt>{fr ? "Langues" : "Languages"}</dt>
+          <dd>{fr ? "Français, anglais" : "French, English"}</dd>
+        </div>
+      </dl>
+
+      {
+        sociaux.length > 0 && (
+          <div class="reseaux">
+            <p class="surtitre">{fr ? "Nous suivre" : "Follow us"}</p>
+            <ul class="reseaux__liste">
+              {sociaux.map((reseau) => (
+                <li>
+                  <a class="lien" href={reseau.url} target="_blank" rel="noopener">
+                    {reseau.nom}
+                    {reseau.poignee && <span class="reseaux__poignee"> {reseau.poignee}</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </section>
+  </div>
+
+  <div class="cadre renvoi">
+    <p>
+      {fr ? "Votre question est peut-être déjà traitée dans les " : "Your question may already be answered in the "}
+      <a class="lien" href={lienPage(langue, "faq")}>{fr ? "questions fréquentes" : "frequently asked questions"}</a>.
+    </p>
+  </div>
+</Page>
+
+<style>
+  .grille-contact {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+    padding-bottom: clamp(2rem, 1.5rem + 2vw, 3rem);
+  }
+
+  @media (min-width: 48rem) {
+    .grille-contact {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .carte-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    border: 1px solid var(--color-bordure-tenue);
+    background-color: var(--color-surface-haute);
+  }
+
+  /* La carte WhatsApp est la seule sur fond encre : sur cette page, une seule
+     action compte, et le contraste de surface la désigne sans un mot de plus. */
+  .carte-contact--principale {
+    background-color: var(--color-surface-inverse);
+    border-color: var(--color-encre);
+    color: var(--color-texte-inverse);
+  }
+
+  .carte-contact--principale .surtitre { color: var(--color-sauge); }
+
+  .carte-contact__titre {
+    font-size: var(--text-t2);
+  }
+
+  .carte-contact__texte {
+    max-width: 26rem;
+  }
+
+  .numero {
+    font-family: var(--font-titre);
+    font-size: var(--text-t4);
+    margin-top: 0.25rem;
+  }
+
+  .pratique {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin: 0;
+    width: 100%;
+  }
+
+  .pratique dt {
+    font-size: var(--text-surtitre);
+    font-weight: 500;
+    letter-spacing: var(--tracking-surtitre);
+    text-transform: uppercase;
+    color: var(--color-texte-tertiaire);
+    margin-bottom: 0.25rem;
+  }
+
+  .pratique dd {
+    margin: 0;
+    font-size: var(--text-corps-s);
+    color: var(--color-texte);
+  }
+
+  .reseaux {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-bordure-tenue);
+  }
+
+  .reseaux__liste {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    font-size: var(--text-corps-s);
+  }
+
+  .reseaux__poignee { color: var(--color-texte-tertiaire); }
+
+  .renvoi {
+    padding-bottom: var(--spacing-section);
+    font-size: var(--text-corps-s);
+    color: var(--color-texte-secondaire);
+  }
+</style>

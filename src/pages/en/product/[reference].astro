@@ -1,0 +1,22 @@
+---
+/**
+ * Product page, English. Mirrors the French route under /en/product/.
+ */
+import FicheProduit from "../../../vues/FicheProduit.astro";
+import { produits } from "../../../data/produits";
+
+export function getStaticPaths() {
+  return produits.map((produit) => ({
+    params: { reference: produit.reference.toLowerCase() },
+    props: { produit },
+  }));
+}
+
+const { produit } = Astro.props;
+---
+
+<FicheProduit
+  produit={produit}
+  langue="en"
+  chemin={`/en/product/${produit.reference.toLowerCase()}`}
+/>

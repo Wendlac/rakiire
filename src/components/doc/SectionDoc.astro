@@ -1,0 +1,60 @@
+---
+/**
+ * Section de documentation — Rakiire
+ * Numerotee, ancrable, avec une intention en chapeau.
+ */
+interface Props {
+  numero: string;
+  titre: string;
+  id: string;
+  chapeau?: string;
+}
+
+const { numero, titre, id, chapeau } = Astro.props;
+---
+
+<section class="section-doc" id={id}>
+  <header class="section-doc__entete">
+    <p class="surtitre section-doc__numero">{numero}</p>
+    <h2 class="section-doc__titre">{titre}</h2>
+    {chapeau && <p class="section-doc__chapeau mesure">{chapeau}</p>}
+  </header>
+  <div class="section-doc__corps">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .section-doc {
+    padding-block: var(--spacing-section-serree);
+    border-top: 1px solid var(--color-bordure-tenue);
+    scroll-margin-top: 5rem;
+  }
+
+  .section-doc__entete {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 3rem;
+  }
+
+  .section-doc__numero {
+    color: var(--color-texte-tertiaire);
+  }
+
+  .section-doc__titre {
+    font-size: var(--text-t2);
+  }
+
+  .section-doc__chapeau {
+    font-size: var(--text-corps-l);
+    color: var(--color-texte-secondaire);
+    margin-top: 0.5rem;
+  }
+
+  .section-doc__corps {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+</style>

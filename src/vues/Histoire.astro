@@ -1,0 +1,160 @@
+---
+/**
+ * Notre histoire — Rakiire
+ *
+ * ⚠ TEXTE PROVISOIRE. Le récit ci-dessous est une proposition d'écriture, pas
+ * la parole de la marque. À relire et à réécrire par le propriétaire avant mise
+ * en ligne : une page « à propos » qui ne sonne pas juste se remarque plus vite
+ * que n'importe quel défaut de mise en page.
+ *
+ * CONTRAINTE TENUE — ne pas la lever sans décision explicite
+ * Aucune phrase de cette page n'affirme où les vêtements sont fabriqués, ni de
+ * quel coton ils sont faits. Les tee-shirts sont importés ; tant que la chaîne
+ * n'est pas maîtrisée, le récit porte sur l'identité et le style, jamais sur
+ * l'atelier. Une promesse d'origine se paie cher le jour où un client la vérifie.
+ *
+ * Le nom « Rakiire » n'est pas explicité ici non plus : c'est la décision de
+ * cadrage. Le cousinage à plaisanterie reste un socle interne.
+ */
+import Page from "../layouts/Page.astro";
+import EnteteEditoriale from "../components/ui/EnteteEditoriale.astro";
+import MarqueGeante from "../components/ui/MarqueGeante.astro";
+import Bouton from "../components/ui/Bouton.astro";
+import Revele from "../components/ui/Revele.astro";
+
+import type { Langue } from "../lib/catalogue";
+import { traduire, lienBoutique } from "../lib/i18n";
+
+interface Props {
+  langue: Langue;
+  chemin: string;
+}
+
+const { langue, chemin } = Astro.props;
+const t = traduire(langue);
+const fr = langue === "fr";
+---
+
+<Page
+  titre={`${t("histoire")} — Rakiire`}
+  description={fr
+    ? "Rakiire habille celles et ceux qui veulent se distinguer sans avoir à s’expliquer."
+    : "Rakiire dresses those who want to stand out without having to explain themselves."}
+  langue={langue}
+  chemin={chemin}
+>
+  <EnteteEditoriale
+    surtitre="Rakiire"
+    titre={fr ? "Le choix d’être soi" : "The choice to be yourself"}
+    chapeau={fr
+      ? "Une marque de vêtements née à Ouagadougou, pour une jeunesse qui n’attend plus qu’on lui dise comment s’habiller."
+      : "A clothing brand born in Ouagadougou, for a generation that no longer waits to be told how to dress."}
+  />
+
+  <div class="cadre">
+    <section class="prose bloc">
+      <p>
+        {
+          fr
+            ? "Rakiire est parti d’une observation simple : dans la sous-région, s’habiller bien coûte soit très cher, soit son identité. D’un côté des marques importées qui ne parlent de personne d’ici. De l’autre, des vêtements bon marché qui ne tiennent pas deux saisons."
+            : "Rakiire began with a simple observation: in the region, dressing well costs either a great deal of money or your identity. On one side, imported brands that speak of no one from here. On the other, cheap clothes that do not survive two seasons."
+        }
+      </p>
+      <p>
+        {
+          fr
+            ? "Entre les deux, il manquait quelque chose. Un vêtement qu’on choisit parce qu’il nous ressemble, pas parce qu’il fait envie sur quelqu’un d’autre."
+            : "Something was missing in between. Clothing you choose because it resembles you, not because it looked good on someone else."
+        }
+      </p>
+
+      <h2>{fr ? "Ce que nous faisons" : "What we do"}</h2>
+      <p>
+        {
+          fr
+            ? "Des séries courtes. Chaque pièce est pensée pour se porter souvent et longtemps, dans une palette qui ne se démode pas : le noir, le blanc, et rien qui crie."
+            : "Short runs. Each piece is made to be worn often and for a long time, in a palette that does not date: black, white, and nothing that shouts."
+        }
+      </p>
+      <p>
+        {
+          fr
+            ? "Nous ne cherchons pas à habiller tout le monde. Nous cherchons à habiller ceux qui savent déjà ce qu’ils veulent."
+            : "We are not trying to dress everyone. We are trying to dress those who already know what they want."
+        }
+      </p>
+
+      <h2>{fr ? "Comment nous vendons" : "How we sell"}</h2>
+      <p>
+        {
+          fr
+            ? "Sur WhatsApp. Pas par défaut, mais par choix : une commande se prépare dans une conversation, avec une personne qui répond. Vous composez votre panier ici, le message part rempli, et nous convenons ensemble de la livraison et du règlement."
+            : "On WhatsApp. Not by default, but by choice: an order is prepared in a conversation, with a person who answers. You build your cart here, the message arrives complete, and we agree together on delivery and payment."
+        }
+      </p>
+      <p>
+        {
+          fr
+            ? "Nous livrons au Burkina Faso et en Côte d’Ivoire. Le règlement se fait par mobile money."
+            : "We deliver in Burkina Faso and Côte d’Ivoire. Payment is by mobile money."
+        }
+      </p>
+    </section>
+  </div>
+
+  <section class="signature sur-sombre">
+    <div class="cadre">
+      <Revele class="signature__contenu">
+        <p class="surtitre">Rakiire</p>
+        <p class="signature__phrase">
+          {
+            fr
+              ? "Un vêtement ne dit pas d’où l’on vient. Il dit qui l’on choisit d’être."
+              : "Clothing does not say where you come from. It says who you choose to be."
+          }
+        </p>
+        <Bouton variante="contour" href={lienBoutique(langue)}>{t("voirLaCollection")}</Bouton>
+      </Revele>
+    </div>
+
+    <MarqueGeante ampleur={124} ancrage="bas" class="signature__marque" />
+  </section>
+</Page>
+
+<style>
+  .bloc {
+    padding-bottom: var(--spacing-section);
+  }
+
+  /* La signature et le pied de page sont tous deux sur fond encre : sans ce
+     retrait bas, ils se touchent exactement et le logotype geant, deja rogne,
+     bute dans le pied. Les 56 px donnent un sol a la section. */
+  .signature {
+    position: relative;
+    overflow: hidden;
+    padding-top: var(--spacing-section);
+    padding-bottom: 3.5rem;
+  }
+
+  .signature__contenu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 34rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .signature__phrase {
+    font-family: var(--font-titre);
+    font-size: var(--text-t3);
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  .signature__marque {
+    margin-top: clamp(2.5rem, 2rem + 3vw, 5rem);
+    color: var(--color-encre-80);
+  }
+</style>

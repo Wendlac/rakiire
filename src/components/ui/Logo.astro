@@ -1,0 +1,58 @@
+---
+/**
+ * Logotype Rakiire.
+ *
+ * Le fichier source livre un canevas de 1080x1080 dont le trace n'occupe que
+ * 805 x 179, centre verticalement. Le viewBox est donc recadre sur le trace :
+ * le logo se cale desormais sur sa propre boite, sans marge fantome, et se
+ * dimensionne uniquement par sa hauteur.
+ *
+ * La couleur n'est pas figee : le trace herite de `currentColor`, ce qui rend
+ * le logo utilisable tel quel sur fond clair comme sur fond encre.
+ */
+interface Props {
+  /** Hauteur du logotype. Toute unite CSS. */
+  hauteur?: string;
+  /** Texte alternatif. Mettre a "" si un titre adjacent porte deja le nom. */
+  titre?: string;
+  class?: string;
+}
+
+const { hauteur = "1.5rem", titre = "Rakiire", class: classe = "" } = Astro.props;
+const decoratif = titre === "";
+
+/**
+ * Largeur calculee plutot que `width: auto`.
+ *
+ * Une image SVG dont la largeur vaut `auto` est etiree par un conteneur flex en
+ * colonne ou par une grille : l'alignement par defaut est `stretch`, qui ne
+ * s'applique qu'a une taille automatique. Le trace se retrouve alors centre
+ * dans une boite pleine largeur, et le logo parait mal aligne — c'est
+ * exactement ce qui arrivait dans le pied de page.
+ *
+ * Une largeur explicite ferme la porte a l'etirement partout, sans dependre de
+ * l'alignement du parent. Le rapport vient du viewBox : 805.31 / 179.
+ */
+const RAPPORT = 4.4989;
+const dimensions = `height:${hauteur};width:calc(${hauteur} * ${RAPPORT});flex:none`;
+---
+
+<svg
+  viewBox="137 451 805.31 179"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  style={dimensions}
+  class={classe}
+  role={decoratif ? "presentation" : "img"}
+  aria-hidden={decoratif ? "true" : undefined}
+  aria-label={decoratif ? undefined : titre}
+>
+  {!decoratif && <title>{titre}</title>}
+  <path d="M942.307 630H835.057V451H942.057V467.5H853.057V532H933.807V548.25H853.057V613.5H942.307V630Z" fill="currentColor"/>
+  <path d="M703.145 630H685.145V451H751.895C788.145 451 810.145 471 810.145 502.75C810.145 528.5 796.645 546.5 773.645 552.75L811.895 630H791.895L755.395 555.75H703.145V630ZM703.145 467.25V539.5H752.395C777.145 539.5 791.645 526 791.645 503.25C791.645 480 776.395 467.25 751.895 467.25H703.145Z" fill="currentColor"/>
+  <path d="M662.227 451L649.727 630H634.098V451H662.227Z" fill="currentColor"/>
+  <path d="M615.098 451V630H589.25L599.75 451H615.098Z" fill="currentColor"/>
+  <path d="M456.045 451V558.75L542.295 451H563.795L503.045 526.75L564.795 630H543.795L491.295 541.75L456.045 585.5V630H438.045V451H456.045Z" fill="currentColor"/>
+  <path d="M286.912 630H268.662L334.412 451H356.662L423.162 630H404.412L386.912 582.5H304.412L286.912 630ZM343.162 476.25L309.912 566.75H381.162L347.662 476.25C346.912 473.75 345.662 470.75 345.412 469C345.162 470.5 344.162 473.75 343.162 476.25Z" fill="currentColor"/>
+  <path d="M155 630H137V451H203.75C240 451 262 471 262 502.75C262 528.5 248.5 546.5 225.5 552.75L263.75 630H243.75L207.25 555.75H155V630ZM155 467.25V539.5H204.25C229 539.5 243.5 526 243.5 503.25C243.5 480 228.25 467.25 203.75 467.25H155Z" fill="currentColor"/>
+</svg>
