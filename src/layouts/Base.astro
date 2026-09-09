@@ -8,10 +8,21 @@
  */
 import "../styles/global.css";
 
-/* L'adresse finale de la fonte, empreinte et racine de publication comprises,
+/* L'adresse finale des fontes, empreinte et racine de publication comprises,
    n'est connue qu'a la construction. On la demande a Vite plutot que de
-   l'ecrire en dur : un chemin en dur casserait sous /rakiire/. */
+   l'ecrire en dur : un chemin en dur casserait sous /rakiire/.
+   Les deux fontes sont prechargees : elles portent tout le texte de la page,
+   et les decouvrir apres la feuille de style provoquerait un rechargement
+   visible du texte. L'italique de Satoshi n'est pas prechargee — elle ne se
+   telecharge que si une page l'emploie. */
 import satoshi from "../fonts/Satoshi-Variable.woff2?url";
+import goudy from "../fonts/GoudyBookletter1911-Regular.woff2?url";
+
+import { scriptAudience } from "../data/audience";
+
+/* Aucune balise n'est ecrite tant que la mesure d'audience n'est pas
+   configuree : voir src/data/audience.ts. */
+const audience = scriptAudience();
 
 interface Props {
   titre: string;
@@ -39,13 +50,13 @@ const {
         premiere peinture se fasse deja dans la bonne fonte. L'italique n'est
         pas prechargee — elle ne se telecharge que si une page l'emploie. */}
     <link rel="preload" href={satoshi} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={goudy} as="font" type="font/woff2" crossorigin />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Goudy+Bookletter+1911&display=swap"
-    />
+    {
+      audience && (
+        <script is:inline defer src={audience.src} {...audience.attributs} />
+      )
+    }
   </head>
 
   <body>

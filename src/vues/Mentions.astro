@@ -20,6 +20,7 @@ import type { Langue } from "../lib/catalogue";
 import { traduire, lienPage } from "../lib/i18n";
 import { NUMERO_AFFICHE, NUMERO_WHATSAPP } from "../lib/whatsapp";
 import { identite, identiteIncomplete, hebergeur, derniereRevision } from "../data/mentions";
+import { audienceActive, nomFournisseur } from "../data/audience";
 
 interface Props {
   langue: Langue;
@@ -30,6 +31,11 @@ const { langue, chemin } = Astro.props;
 const t = traduire(langue);
 const fr = langue === "fr";
 const incomplet = identiteIncomplete();
+
+/* La page suit l'etat reel de la mesure d'audience : activer la mesure sans
+   reprendre ce texte le rendrait faux. */
+const mesureActive = audienceActive();
+const nomMesure = nomFournisseur();
 
 /** Champs d'identité, dans l'ordre d'affichage. */
 const champs = [
@@ -101,8 +107,20 @@ const champs = [
       <p>
         {
           fr
-            ? "Ce site ne comporte aucun compte client, aucun formulaire de paiement et aucune base de données. Il ne transmet aucune information à un serveur."
-            : "This site has no customer accounts, no payment form and no database. It sends no information to any server."
+            ? "Ce site ne comporte aucun compte client, aucun formulaire de paiement et aucune base de données."
+            : "This site has no customer accounts, no payment form and no database."
+        }
+        {" "}
+        {
+          /* Cette phrase suit l'etat reel de la mesure d'audience. Elle serait
+             fausse si l'on activait la mesure en laissant le texte inchange. */
+          mesureActive
+            ? fr
+              ? `Hormis la mesure d’audience décrite plus bas, il ne transmet aucune information à un serveur.`
+              : `Apart from the audience measurement described below, it sends no information to any server.`
+            : fr
+              ? "Il ne transmet aucune information à un serveur."
+              : "It sends no information to any server."
         }
       </p>
       <ul>
@@ -128,6 +146,21 @@ const champs = [
           }
         </li>
       </ul>
+
+      {
+        mesureActive && (
+          <>
+            <h2>{fr ? "Mesure d’audience" : "Audience measurement"}</h2>
+            <p>
+              {
+                fr
+                  ? `Nous comptons les pages consultées à l’aide de ${nomMesure}, un outil de mesure sans cookie. Il n’enregistre ni identifiant, ni profil, ni historique de navigation, et ne permet pas de vous reconnaître d’une visite à l’autre. Aucune donnée n’est revendue ni utilisée à des fins publicitaires.`
+                  : `We count page views using ${nomMesure}, a cookieless measurement tool. It records no identifier, no profile and no browsing history, and cannot recognise you from one visit to the next. No data is sold or used for advertising.`
+              }
+            </p>
+          </>
+        )
+      }
 
       <h2>{fr ? "Cookies" : "Cookies"}</h2>
       <p>

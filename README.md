@@ -46,7 +46,9 @@ src/
   styles/
     tokens.css      Tous les tokens de design. Le seul fichier à modifier
                     pour faire évoluer la charte.
-    fonts.css       Chargement de Satoshi (auto-hébergée)
+    fonts.css       Chargement des deux fontes, auto-hébergées : aucune
+                    requête vers un tiers, aucune adresse IP transmise
+  fonts/            Fichiers .woff2 et leurs licences (LICENCES.md)
     base.css        Socle : éléments, focus, mouvement, prose, utilitaires
     global.css      Point d'entrée unique
   lib/
@@ -58,6 +60,7 @@ src/
   data/
     produits.ts     LE CATALOGUE — contenu d'exemple à remplacer
     mentions.ts     Identité légale — VIDE, à compléter
+    audience.ts     Mesure d'audience — ÉTEINTE, prête à activer
     reseaux.ts      Comptes Facebook et TikTok — vides
   components/ui/    Composants du design system
   components/doc/   Composants de la documentation uniquement
@@ -116,13 +119,16 @@ fermes dès qu'elles existeront.
 
 - [ ] Comptes Facebook et TikTok dans `src/data/reseaux.ts`. Un réseau sans
       adresse n'est pas affiché du tout : aucun lien mort n'est publié.
-- [ ] Mesure d'audience sans cookie. **Attention** : l'installer oblige à
-      reprendre le paragraphe « Données personnelles » des mentions légales,
-      qui affirme aujourd'hui qu'aucune donnée ne quitte l'appareil du visiteur.
+- [ ] Activer la mesure d'audience — tout est câblé, il manque un compte.
+      Ouvrir `src/data/audience.ts`, choisir un fournisseur et coller
+      l'identifiant. Trois options y sont documentées : GoatCounter (gratuit),
+      Plausible (payant), Umami (gratuit ou auto-hébergé). Toutes mesurent sans
+      cookie.
+
+      Les mentions légales suivent automatiquement : la section « Mesure
+      d'audience » apparaît et la phrase affirmant qu'aucune donnée ne quitte
+      l'appareil se corrige d'elle-même. Rien à réécrire à la main.
 - [ ] Guide des tailles avec mesures en centimètres.
-- [ ] Auto-héberger Goudy Bookletter 1911 plutôt que de la servir depuis Google
-      Fonts : un aller-retour réseau en moins, et aucune adresse IP de visiteur
-      transmise à un tiers.
 - [ ] Relire la traduction anglaise des textes de marque.
 
 ## Faire évoluer la charte

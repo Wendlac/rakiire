@@ -1,10 +1,21 @@
 /* =============================================================================
    RAKIIRE — Chargement typographique
 
-   Goudy Bookletter 1911  : Google Fonts, 400 romain UNIQUEMENT.
-                            Charge via <link> dans le gabarit, avec preconnect.
+   Les DEUX fontes sont auto-hebergees. Trois raisons :
+
+   1. Un aller-retour reseau en moins. Servir une fonte depuis Google exige une
+      resolution DNS, une poignee de main TLS puis la requete elle-meme, vers un
+      domaine tiers — ce qui se paie cher sur un reseau mobile lent, cas
+      majoritaire au Burkina et en Cote d'Ivoire.
+   2. Aucune adresse IP de visiteur n'est transmise a un tiers. Le site ne
+      depose aucun cookie et n'envoyait deja rien a un serveur : garder une
+      requete vers Google contredisait cette promesse.
+   3. La fonte ne peut plus disparaitre ni changer sous nos pieds.
+
+   Goudy Bookletter 1911  : 400 romain UNIQUEMENT — ni graisse, ni italique.
+                            SIL Open Font License. Voir src/fonts/LICENCES.md.
    Satoshi                : absente de Google Fonts. Distribuee par Fontshare
-                            (licence commerciale incluse), en auto-hebergement.
+                            (licence commerciale incluse).
 
    Les fichiers vivent dans src/fonts/ et non dans public/, et sont references
    ici en chemin RELATIF. C'est volontaire : Vite reecrit alors ces adresses a
@@ -13,6 +24,20 @@
    developpement puis tomberait en 404 sur GitHub Pages, ou le site est servi
    sous /rakiire/ — la panne la plus courante d'un deploiement en sous-chemin.
    ========================================================================== */
+
+@font-face {
+  font-family: "Goudy Bookletter 1911";
+  src: url("../fonts/GoudyBookletter1911-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  /* Le sous-ensemble latin livre par Google. La marque n'emploie aucun
+     caractere hors de cette plage — voir la decision de cadrage sur les
+     caracteres speciaux. */
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 @font-face {
   font-family: "Satoshi";
