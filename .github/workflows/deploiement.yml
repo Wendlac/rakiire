@@ -57,6 +57,12 @@ jobs:
       - name: Construire
         run: npm run build
 
+      # Le site est publie sous un sous-chemin : une adresse ecrite en dur
+      # marcherait en local et renverrait une 404 en ligne. On refuse de
+      # publier plutot que de mettre en ligne des liens casses.
+      - name: Verifier les liens internes
+        run: npm run verifier:liens
+
       - name: Deposer le dossier produit
         uses: actions/upload-pages-artifact@v3
         with:
