@@ -25,11 +25,9 @@ import { produits, misEnAvant } from "../data/produits";
 /* Photographies de la marque. Le heros est le seul plan de groupe de la serie :
    il montre trois pieces a la fois, ce qu'aucune photo isolee ne fait.
 
-   Son fond blanc est le cas le plus defavorable pour un titre pose dessus.
-   Plutot que d'assombrir toute la photographie pour tenir le contraste — ce
-   qui revenait a choisir une image claire puis a la noircir — le texte est
-   pose sur un panneau d'encre opaque. La photographie garde sa clarte, et le
-   contraste cesse de dependre d'elle. */
+   Son fond blanc est le cas le plus defavorable pour le titre pose dessus,
+   d'ou `voile="clair"`. Ne pas y revenir au voile ordinaire sans remesurer :
+   sur cette image il descend a 2.33:1, pour un seuil de 3.0. */
 import { Image } from "astro:assets";
 import heros from "../images/lookbook/lookbook-04.jpg";
 import collectionCls from "../images/boutique/bissa-gurunsi.jpg";
@@ -74,7 +72,7 @@ function couleursDe(produit: (typeof produits)[number]) {
   <Heros
     image={{ fichier: heros, alt: langue === "fr" ? "Trois mannequins côte à côte portant trois tee-shirts de la collection, sur fond blanc" : "Three models side by side wearing three T-shirts from the collection, against a white background" }}
     cadrage="center 22%"
-    voile="panneau"
+    voile="clair"
     surtitre={COLLECTIONS.CLS}
     titre={langue === "fr" ? "Le choix d’être soi" : "The choice to be yourself"}
     texte={langue === "fr"

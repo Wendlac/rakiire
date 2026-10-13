@@ -39,21 +39,16 @@ interface Props {
    */
   cadrage?: string;
   /**
-   * Comment le texte tient sur la photographie.
+   * Densite du voile pose sous le texte.
    *
-   * `normal` — voile degrade. Suffisant sur une image sombre.
-   * `clair`  — voile renforce. Pour une image claire derriere le texte ; la
-   *            valeur par defaut n'y tient pas le contraste AA.
-   * `panneau` — aucun voile, le texte est pose sur un bloc d'encre opaque.
+   * `normal` — suffisant tant que la photographie est sombre derriere le texte.
+   * `clair`  — pour une photographie claire. La valeur par defaut n'y tient
+   *            pas le contraste AA.
    *
-   * Le panneau n'est pas qu'une variante de gout. Un voile rend le contraste
-   * dependant de la photographie : changer d'image oblige a remesurer, et
-   * rien n'avertit quand ca ne passe plus. Un panneau opaque le rend
-   * dependant de deux tokens — encre et texte-sur-image, 16.7:1 — donc
-   * constant quelle que soit l'image. En echange, la photographie garde
-   * toute sa clarte au lieu d'etre assombrie sur toute sa surface.
+   * Dans les deux cas le contraste depend de l'image : changer de photo
+   * oblige a remesurer, et rien n'avertit quand ca ne passe plus.
    */
-  voile?: "normal" | "clair" | "panneau";
+  voile?: "normal" | "clair";
   /**
    * Niveau du titre. `h1` par defaut : sur une page reelle, le heros EST le
    * titre de la page. A abaisser quand un titre plus haut existe deja, pour ne
@@ -77,12 +72,9 @@ const {
 } = Astro.props;
 
 const centre = ancrage === "centre";
-const panneau = voile === "panneau";
 ---
 
-<section
-  class={`heros heros--${hauteur} heros--${ancrage} ${panneau ? "heros--panneau" : ""} sur-image ${classe}`}
->
+<section class={`heros heros--${hauteur} heros--${ancrage} sur-image ${classe}`}>
   <div class="heros__image reserve-image" style={`--cadrage:${cadrage}`}>
     {
       image ? (
@@ -101,16 +93,11 @@ const panneau = voile === "panneau";
     }
   </div>
 
-  {
-    /* Aucun voile avec un panneau : c'est tout l'interet, la photographie
-       reste a sa clarte d'origine. */
-    !panneau && (
-      <div
-        class={`heros__voile ${centre ? "heros__voile--plein" : ""} ${voile === "clair" ? "heros__voile--clair" : ""}`}
-        aria-hidden="true"
-      />
-    )
-  }
+  <div
+    class={`heros__voile ${centre ? "heros__voile--plein" : ""} ${voile === "clair" ? "heros__voile--clair" : ""}`}
+    aria-hidden="true"
+  >
+  </div>
 
   <div class="cadre heros__cadre">
     <div class="heros__contenu">
@@ -192,32 +179,6 @@ const panneau = voile === "panneau";
     max-width: 34rem;
   }
 
-  /* Le panneau. Opaque, donc le contraste ne depend plus de la photographie :
-     texte-sur-image sur encre, 16.7:1, quelle que soit l'image placee derriere.
-     Le padding est plus genereux que l'interligne ne l'exige — c'est le blanc
-     autour du texte qui fait qu'un bloc pose sur une image se lit comme un
-     choix et non comme un accident. */
-  .heros--panneau .heros__contenu {
-    background-color: var(--color-encre);
-    padding: clamp(1.375rem, 1rem + 1.6vw, 2.25rem);
-  }
-
-  /* Sans voile, le bas de l'image n'est plus assombri : le panneau se decolle
-     du bord pour ne pas donner l'impression d'une bande collee au cadre. */
-  .heros--panneau .heros__cadre {
-    padding-block: clamp(1.25rem, 0.75rem + 2vw, 2.5rem);
-  }
-
-  /* Le panneau est plus haut qu'un bloc de texte voile — il a ses propres
-     marges interieures — et il masque donc une part plus grande du cadre.
-     Un heros a la hauteur ordinaire lui ferait couper les visages : le bandeau
-     est bien plus large que la photographie n'est haute, le recadrage mange
-     donc deja le tiers de l'image, et ce qui reste au-dessus du panneau ne
-     suffit plus. On lui donne de la hauteur pour que les visages passent
-     au-dessus. */
-  .heros--panneau.heros--moyen {
-    min-height: min(92svh, 52rem);
-  }
 
   .heros--bas-centre .heros__contenu,
   .heros--centre .heros__contenu {

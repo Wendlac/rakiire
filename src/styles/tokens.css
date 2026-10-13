@@ -225,19 +225,27 @@
   /* Meme voile, pour une photographie CLAIRE derriere le texte.
      Pourquoi il existe : un bloc de titre + accroche + boutons monte jusqu'a
      60 % de la hauteur du heros, la ou --voile-bas est retombe a 0.30. Sur une
-     image sombre cela passe ; sur un fond clair — studio en noir et blanc,
-     vetement blanc, ciel — le texte y tombe a 2.86:1, sous le seuil AA.
-     Celui-ci tient donc 0.62 jusqu'a 64 %, soit la valeur mesuree comme
-     necessaire pour du corps de texte sur une photographie entierement
-     blanche, avant de s'effacer plus haut. */
+     image sombre cela passe ; sur un fond clair — studio sur blanc, vetement
+     blanc, ciel — le texte y tombe a 2.33:1, sous le seuil AA.
+
+     Il tient donc 0.62 jusqu'a 63 %, valeur mesuree comme necessaire pour du
+     corps de texte sur une photographie entierement blanche.
+
+     Le reste de la courbe compte autant que ce palier. Une retombee lente
+     teinte toute l'image et finit par donner un heros gris, ce qui revient a
+     choisir une photographie claire puis a la noircir. Les arrets sont donc
+     resserres apres le texte : des 71 % le voile est tombe de moitie, a 79 %
+     il ne reste presque rien, et le dernier septieme de l'image — la ou se
+     trouvent les visages — n'est pas touche du tout. */
   --voile-bas-clair: linear-gradient(
     to top,
-    rgb(8 15 15 / 0.86) 0%,
-    rgb(8 15 15 / 0.80) 30%,
-    rgb(8 15 15 / 0.70) 55%,
-    rgb(8 15 15 / 0.62) 64%,
-    rgb(8 15 15 / 0.22) 82%,
-    rgb(8 15 15 / 0) 96%
+    rgb(8 15 15 / 0.82) 0%,
+    rgb(8 15 15 / 0.76) 34%,
+    rgb(8 15 15 / 0.68) 54%,
+    rgb(8 15 15 / 0.62) 63%,
+    rgb(8 15 15 / 0.30) 71%,
+    rgb(8 15 15 / 0.08) 79%,
+    rgb(8 15 15 / 0) 86%
   );
 
   /* Voile uniforme, pour un contenu centre. */
