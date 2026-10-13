@@ -23,9 +23,11 @@ import { traduire, lienBoutique, lienProduit, lienPage } from "../lib/i18n";
 import { produits, misEnAvant } from "../data/produits";
 
 /* Photographies de la marque. Le heros est le seul plan de groupe de la serie :
-   il montre trois pieces a la fois, ce qu'aucune photo isolee ne fait. Son
-   fond noir le detache du reste du site, ou l'orange domine, et donne au
-   titre une assise que l'orange ne donnait pas. */
+   il montre trois pieces a la fois, ce qu'aucune photo isolee ne fait.
+
+   Son fond blanc est le cas le plus defavorable pour le titre qui se pose
+   dessus : d'ou `voile="clair"`, dont le niveau a precisement ete calcule
+   pour une photographie entierement blanche. Ne pas l'enlever sans remesurer. */
 import { Image } from "astro:assets";
 import heros from "../images/lookbook/lookbook-04.jpg";
 import collectionCls from "../images/boutique/bissa-gurunsi.jpg";
@@ -68,7 +70,7 @@ function couleursDe(produit: (typeof produits)[number]) {
   chemin={chemin}
 >
   <Heros
-    image={{ fichier: heros, alt: langue === "fr" ? "Trois mannequins côte à côte portant trois tee-shirts de la collection, sur fond noir" : "Three models side by side wearing three T-shirts from the collection, against a black background" }}
+    image={{ fichier: heros, alt: langue === "fr" ? "Trois mannequins côte à côte portant trois tee-shirts de la collection, sur fond blanc" : "Three models side by side wearing three T-shirts from the collection, against a white background" }}
     cadrage="center 22%"
     voile="clair"
     surtitre={COLLECTIONS.CLS}

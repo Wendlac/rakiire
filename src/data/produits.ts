@@ -81,7 +81,7 @@ const V = {
   peulBobo: (): VisuelProduit =>
     visuel(peulBobo, "Tee-shirt bleu clair à l’empiècement de salopette peint, mannequin femme assise en tailleur, fond orange", "Light blue T-shirt with a painted dungaree yoke, female model sitting cross-legged, orange background"),
   solClair: (): VisuelProduit =>
-    visuel(lookbook01, "Mannequin femme assise au sol, en tee-shirt clair et jean, fond orange", "Female model seated on the floor in a light T-shirt and jeans, orange background"),
+    visuel(lookbook01, "Mannequin femme assise au sol, en tee-shirt blanc à empiècement de jean et jean large, fond blanc", "Female model seated on the floor in a white T-shirt with a denim yoke and wide jeans, white background"),
   pocheJean: (): VisuelProduit =>
     visuel(lookbook02, "Mannequin homme en tee-shirt noir à poches de jean, une main dans la poche, fond orange", "Male model in a black T-shirt with denim pockets, one hand in his pocket, orange background"),
   faceNoir: (): VisuelProduit =>
@@ -188,10 +188,7 @@ export const produits: Produit[] = [
     },
     prix: 10000,
     images: [V.pocheJean(), V.duo()],
-    variantes: [
-      ...toutesTailles("NR", TAILLES.slice()), // épuisé partout
-      ...toutesTailles("BL", TAILLES.slice()),
-    ],
+    variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["3XL"])],
   },
   {
     reference: "RKR-JEA-002",
