@@ -1,10 +1,17 @@
 /**
  * Catalogue — Rakiire
  *
- * ⚠ CONTENU PROVISOIRE À REMPLACER
- * Les noms, les descriptions, les prix et les compositions ci-dessous sont des
- * exemples destinés à monter et à éprouver les écrans. Rien ici ne vient du
- * client. À remplacer avant toute mise en ligne.
+ * CE QUI EST REEL, AU 13 OCTOBRE 2026
+ *   - Les photographies.
+ *   - Les noms de modèles, lus dans les noms de fichiers du dossier
+ *     `src/images/boutique`. Une seule exception, signalée sur place.
+ *   - Le prix : 10 000 F CFA, le même pour tous les tee-shirts aujourd'hui.
+ *
+ * ⚠ CE QUI RESTE PROVISOIRE
+ *   - Les descriptions et les compositions : inventées pour éprouver les
+ *     écrans, et à remplacer avant la mise en ligne. Les grammages notamment
+ *     ne viennent de nulle part.
+ *   - La répartition en deux collections et les tailles épuisées.
  *
  * Ce que ce fichier respecte en revanche, et qui doit le rester :
  *   - Aucune allégation d'origine de fabrication. La composition décrit la
@@ -27,19 +34,20 @@ import { TAILLES } from "../lib/catalogue";
  * montrés sont bien des pièces Rakiire — ce qui reste provisoire dans ce
  * fichier, ce sont les noms, les prix, les descriptions et les compositions.
  *
- * ⚠ L'affectation d'une photo à un article est donc, elle aussi, provisoire :
- * les noms de fichiers portent les vrais noms de modèles (bissa-gurunsi,
- * mossi-samo, gulmance-yadse, peul-bobo) tandis que les articles ci-dessous
- * portent encore des noms d'exemple. Les deux seront raccordés quand le
- * catalogue réel arrivera.
+ * Le nom de fichier porte le nom du modèle photographié. Seule la forme a été
+ * normalisée — espaces en traits d'union, extension en minuscules — parce
+ * qu'un espace dans un nom de fichier devient %20 dans une adresse. Les mots
+ * eux-mêmes sont ceux du dossier livré et ne doivent pas être « corrigés » :
+ * ce sont des noms propres.
  *
  * Les textes alternatifs décrivent ce que la photographie montre, jamais le
- * nom d'un article : annoncer « tee-shirt Nasara » à un lecteur d'écran sur
- * une image qui montre autre chose serait faux.
+ * nom d'un article. Un lecteur d'écran annonce donc « tee-shirt noir à
+ * panneaux de jean » : utile pour qui ne voit pas l'image, là où répéter le
+ * nom du modèle ne dirait rien de plus que le titre déjà lu juste avant.
  * ------------------------------------------------------------------------- */
 import bissaGurunsiFusion from "../images/boutique/bissa-gurunsi-fusion.jpg";
 import bissaGurunsi from "../images/boutique/bissa-gurunsi.jpg";
-import gulmanceYadse from "../images/boutique/gulmance-yadse.jpg";
+import gulmancheYadce from "../images/boutique/gulmanche-yadce.jpg";
 import mossiSamoBlack from "../images/boutique/mossi-samo-black.jpg";
 import mossiSamoClassic from "../images/boutique/mossi-samo-classic.jpg";
 import mossiSamoFusion from "../images/boutique/mossi-samo-fusion.jpg";
@@ -63,7 +71,7 @@ const V = {
   bissaBlanc: (): VisuelProduit =>
     visuel(bissaGurunsi, "Tee-shirt blanc à l’illustration de deux femmes, porté par une mannequin tenant une calebasse, devant des vanneries murales", "White T-shirt with an illustration of two women, worn by a female model holding a calabash, against woven wall baskets"),
   gulmance: (): VisuelProduit =>
-    visuel(gulmanceYadse, "Tee-shirt noir à poches de jean rapportées, mannequin homme assis sur une chaise, fond orange", "Black T-shirt with applied denim pockets, male model seated on a chair, orange background"),
+    visuel(gulmancheYadce, "Tee-shirt noir à poches de jean rapportées, mannequin homme assis sur une chaise, fond orange", "Black T-shirt with applied denim pockets, male model seated on a chair, orange background"),
   mossiNoir: (): VisuelProduit =>
     visuel(mossiSamoBlack, "Tee-shirt noir à panneaux de jean, mannequin femme en jean évasé, fond orange", "Black T-shirt with denim panels, female model in flared jeans, orange background"),
   mossiBlanc: (): VisuelProduit =>
@@ -98,7 +106,7 @@ export const produits: Produit[] = [
     reference: "RKR-CLS-001",
     collection: "CLS",
     coupe: "H",
-    nom: { fr: "Tee-shirt Nasara", en: "Nasara T-shirt" },
+    nom: { fr: "Bissa Gurunsi", en: "Bissa Gurunsi" },
     description: {
       fr: "Une coupe droite, des épaules nettes, un col côtelé qui tient sa forme au lavage. La pièce de départ du vestiaire Rakiire.",
       en: "A straight cut, clean shoulders, a ribbed collar that holds its shape through washing. The starting piece of the Rakiire wardrobe.",
@@ -107,7 +115,7 @@ export const produits: Produit[] = [
       fr: "Jersey de coton peigné, 220 g/m²",
       en: "Combed cotton jersey, 220 gsm",
     },
-    prix: 15000,
+    prix: 10000,
     images: [V.bissaNoir(), V.bissaBlanc()],
     variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["3XL"])],
   },
@@ -115,7 +123,7 @@ export const produits: Produit[] = [
     reference: "RKR-CLS-002",
     collection: "CLS",
     coupe: "F",
-    nom: { fr: "Tee-shirt Wendé", en: "Wendé T-shirt" },
+    nom: { fr: "Mossi Samo", en: "Mossi Samo" },
     description: {
       fr: "Une manche courte montée haut et une longueur légèrement raccourcie. Se porte seul ou sous une chemise ouverte.",
       en: "A high-set short sleeve and a slightly cropped length. Worn alone or under an open shirt.",
@@ -124,7 +132,7 @@ export const produits: Produit[] = [
       fr: "Jersey de coton peigné, 180 g/m²",
       en: "Combed cotton jersey, 180 gsm",
     },
-    prix: 12000,
+    prix: 10000,
     images: [V.mossiBlanc(), V.mossiNoir()],
     variantes: [...toutesTailles("NR", ["3XL"]), ...toutesTailles("BL")],
   },
@@ -132,7 +140,7 @@ export const produits: Produit[] = [
     reference: "RKR-CLS-003",
     collection: "CLS",
     coupe: "H",
-    nom: { fr: "Tee-shirt Kadi", en: "Kadi T-shirt" },
+    nom: { fr: "Gulmanche Yadce", en: "Gulmanche Yadce" },
     description: {
       fr: "Un tombé plus lourd, une coupe boîte assumée. Le volume vient du tissu, pas de la taille au-dessus.",
       en: "A heavier drape, a deliberate boxy cut. The volume comes from the fabric, not from sizing up.",
@@ -141,7 +149,7 @@ export const produits: Produit[] = [
       fr: "Jersey de coton peigné, 240 g/m²",
       en: "Combed cotton jersey, 240 gsm",
     },
-    prix: 18000,
+    prix: 10000,
     images: [V.gulmance(), V.faceNoir()],
     variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["S", "3XL"])],
   },
@@ -149,16 +157,16 @@ export const produits: Produit[] = [
     reference: "RKR-CLS-004",
     collection: "CLS",
     coupe: "F",
-    nom: { fr: "Tee-shirt Salam", en: "Salam T-shirt" },
+    nom: { fr: "Peul Bobo", en: "Peul Bobo" },
     description: {
-      fr: "Manches longues, poignets côtelés. La pièce des saisons intermédiaires et des soirées d’harmattan.",
-      en: "Long sleeves, ribbed cuffs. The piece for in-between seasons and harmattan evenings.",
+      fr: "Un empiècement de jean peint sur fond clair, et l’illustration posée au centre. La version la plus douce de la série.",
+      en: "A painted denim yoke on a light ground, with the illustration set at the centre. The softest version in the series.",
     },
     composition: {
       fr: "Jersey de coton peigné, 200 g/m²",
       en: "Combed cotton jersey, 200 gsm",
     },
-    prix: 21000,
+    prix: 10000,
     images: [V.peulBobo(), V.solClair()],
     variantes: [...toutesTailles("NR", ["2XL", "3XL"]), ...toutesTailles("BL", ["2XL", "3XL"])],
   },
@@ -166,7 +174,10 @@ export const produits: Produit[] = [
     reference: "RKR-JEA-001",
     collection: "JEA",
     coupe: "H",
-    nom: { fr: "Tee-shirt Sida", en: "Sida T-shirt" },
+    /* ⚠ Seul nom que je n'ai pas lu dans un nom de fichier : il est tire du
+       lettrage peint sur le tee-shirt central de la photographie de groupe.
+       A confirmer. */
+    nom: { fr: "Gourounsi Bissa", en: "Gourounsi Bissa" },
     description: {
       fr: "Le tee-shirt pensé pour vivre sous une veste en jean : épaules un peu plus larges, corps plus long.",
       en: "The T-shirt made to live under a denim jacket: slightly wider shoulders, a longer body.",
@@ -175,7 +186,7 @@ export const produits: Produit[] = [
       fr: "Jersey de coton peigné, 240 g/m²",
       en: "Combed cotton jersey, 240 gsm",
     },
-    prix: 19000,
+    prix: 10000,
     images: [V.pocheJean(), V.duo()],
     variantes: [
       ...toutesTailles("NR", TAILLES.slice()), // épuisé partout
@@ -186,7 +197,7 @@ export const produits: Produit[] = [
     reference: "RKR-JEA-002",
     collection: "JEA",
     coupe: "F",
-    nom: { fr: "Tee-shirt Awa", en: "Awa T-shirt" },
+    nom: { fr: "Mossi Samo Fusion", en: "Mossi Samo Fusion" },
     description: {
       fr: "Une encolure dégagée et une taille marquée sans être ajustée. Pensée pour se porter dans un pantalon.",
       en: "An open neckline and a defined waist without being fitted. Made to be tucked in.",
@@ -195,7 +206,7 @@ export const produits: Produit[] = [
       fr: "Jersey de coton peigné, 190 g/m²",
       en: "Combed cotton jersey, 190 gsm",
     },
-    prix: 14000,
+    prix: 10000,
     images: [V.mossiFusion(), V.femmeNoir()],
     variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["XL", "2XL", "3XL"])],
   },
