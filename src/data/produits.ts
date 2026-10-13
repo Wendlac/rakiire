@@ -22,22 +22,33 @@
 import type { Produit, Variante, VisuelProduit } from "../lib/catalogue";
 import { TAILLES } from "../lib/catalogue";
 
-/* -- Visuels d'exemple ------------------------------------------------------
- * ⚠ CES PHOTOGRAPHIES NE SONT PAS CELLES DE LA MARQUE.
- * Ce sont des images de banque, versees pour que le prototype se presente avec
- * de vrais visuels plutot qu'avec des rectangles gris. Aucun vetement montre
- * n'est un produit Rakiire. A remplacer integralement apres la seance photo.
+/* -- Visuels ----------------------------------------------------------------
+ * Photographies de la marque, livrées le 13 octobre 2026. Les vêtements
+ * montrés sont bien des pièces Rakiire — ce qui reste provisoire dans ce
+ * fichier, ce sont les noms, les prix, les descriptions et les compositions.
  *
- * Les textes alternatifs decrivent donc ce que l'image montre reellement, et
- * non un produit du catalogue : ecrire « tee-shirt Nasara en noir » sur une
- * photo qui montre autre chose serait faux pour qui navigue au lecteur d'ecran.
+ * ⚠ L'affectation d'une photo à un article est donc, elle aussi, provisoire :
+ * les noms de fichiers portent les vrais noms de modèles (bissa-gurunsi,
+ * mossi-samo, gulmance-yadse, peul-bobo) tandis que les articles ci-dessous
+ * portent encore des noms d'exemple. Les deux seront raccordés quand le
+ * catalogue réel arrivera.
+ *
+ * Les textes alternatifs décrivent ce que la photographie montre, jamais le
+ * nom d'un article : annoncer « tee-shirt Nasara » à un lecteur d'écran sur
+ * une image qui montre autre chose serait faux.
  * ------------------------------------------------------------------------- */
-import portrait01 from "../images/portrait-01.jpg";
-import portrait02 from "../images/portrait-02.jpg";
-import portrait03 from "../images/portrait-03.jpg";
-import portrait04 from "../images/portrait-04.jpg";
-import portrait05 from "../images/portrait-05.jpg";
-import portrait06 from "../images/portrait-06.jpg";
+import bissaGurunsiFusion from "../images/boutique/bissa-gurunsi-fusion.jpg";
+import bissaGurunsi from "../images/boutique/bissa-gurunsi.jpg";
+import gulmanceYadse from "../images/boutique/gulmance-yadse.jpg";
+import mossiSamoBlack from "../images/boutique/mossi-samo-black.jpg";
+import mossiSamoClassic from "../images/boutique/mossi-samo-classic.jpg";
+import mossiSamoFusion from "../images/boutique/mossi-samo-fusion.jpg";
+import peulBobo from "../images/boutique/peul-bobo.jpg";
+import lookbook01 from "../images/lookbook/lookbook-01.jpg";
+import lookbook02 from "../images/lookbook/lookbook-02.jpg";
+import lookbook03 from "../images/lookbook/lookbook-03.jpg";
+import lookbook05 from "../images/lookbook/lookbook-05.jpg";
+import lookbook06 from "../images/lookbook/lookbook-06.jpg";
 
 /** Raccourci de declaration d'un visuel bilingue. */
 const visuel = (fichier: ImageMetadata, fr: string, en: string): VisuelProduit => ({
@@ -45,21 +56,32 @@ const visuel = (fichier: ImageMetadata, fr: string, en: string): VisuelProduit =
   alt: { fr, en },
 });
 
-/* Descriptions honnetes de ce que chaque photographie montre. Elles seront
-   remplacees en meme temps que les images. */
+/* Description honnête de ce que chaque photographie montre. */
 const V = {
-  fauteuil: (): VisuelProduit =>
-    visuel(portrait01, "Mannequin assise dans un fauteuil, portrait en noir et blanc", "Model seated in an armchair, black and white portrait"),
-  rue: (): VisuelProduit =>
-    visuel(portrait02, "Mannequin en veste a motifs geometriques, dans la rue", "Model in a geometric-patterned jacket, in the street"),
-  ankara: (): VisuelProduit =>
-    visuel(portrait03, "Mannequin en ensemble a motifs, sur fond orange", "Model in a patterned outfit against an orange background"),
-  costume: (): VisuelProduit =>
-    visuel(portrait04, "Mannequin en costume, en exterieur", "Model in a suit, outdoors"),
-  denim: (): VisuelProduit =>
-    visuel(portrait05, "Mannequin en veste en jean, assise", "Model in a denim jacket, seated"),
-  miroir: (): VisuelProduit =>
-    visuel(portrait06, "Mannequin en ensemble blanc, devant un miroir pose sur des galets", "Model in a white outfit, before a mirror set on pebbles"),
+  bissaNoir: (): VisuelProduit =>
+    visuel(bissaGurunsiFusion, "Tee-shirt noir à panneaux de jean, illustration de deux femmes, porté par un mannequin homme sur fond orange", "Black T-shirt with denim panels and an illustration of two women, worn by a male model against an orange background"),
+  bissaBlanc: (): VisuelProduit =>
+    visuel(bissaGurunsi, "Tee-shirt blanc à l’illustration de deux femmes, porté par une mannequin tenant une calebasse, devant des vanneries murales", "White T-shirt with an illustration of two women, worn by a female model holding a calabash, against woven wall baskets"),
+  gulmance: (): VisuelProduit =>
+    visuel(gulmanceYadse, "Tee-shirt noir à poches de jean rapportées, mannequin homme assis sur une chaise, fond orange", "Black T-shirt with applied denim pockets, male model seated on a chair, orange background"),
+  mossiNoir: (): VisuelProduit =>
+    visuel(mossiSamoBlack, "Tee-shirt noir à panneaux de jean, mannequin femme en jean évasé, fond orange", "Black T-shirt with denim panels, female model in flared jeans, orange background"),
+  mossiBlanc: (): VisuelProduit =>
+    visuel(mossiSamoClassic, "Tee-shirt blanc à l’empiècement de jean peint, mannequin femme assise en tailleur, fond gris", "White T-shirt with a painted denim yoke, female model sitting cross-legged, grey background"),
+  mossiFusion: (): VisuelProduit =>
+    visuel(mossiSamoFusion, "Tee-shirt noir portant l’inscription « Fusion moderne, tradition fun », mannequin femme, fond orange", "Black T-shirt lettered “Fusion moderne, tradition fun”, female model, orange background"),
+  peulBobo: (): VisuelProduit =>
+    visuel(peulBobo, "Tee-shirt bleu clair à l’empiècement de salopette peint, mannequin femme assise en tailleur, fond orange", "Light blue T-shirt with a painted dungaree yoke, female model sitting cross-legged, orange background"),
+  solClair: (): VisuelProduit =>
+    visuel(lookbook01, "Mannequin femme assise au sol, en tee-shirt clair et jean, fond orange", "Female model seated on the floor in a light T-shirt and jeans, orange background"),
+  pocheJean: (): VisuelProduit =>
+    visuel(lookbook02, "Mannequin homme en tee-shirt noir à poches de jean, une main dans la poche, fond orange", "Male model in a black T-shirt with denim pockets, one hand in his pocket, orange background"),
+  faceNoir: (): VisuelProduit =>
+    visuel(lookbook03, "Mannequin homme de face en tee-shirt noir à panneaux de jean, fond orange", "Male model facing the camera in a black T-shirt with denim panels, orange background"),
+  femmeNoir: (): VisuelProduit =>
+    visuel(lookbook05, "Mannequin femme en tee-shirt noir à panneaux de jean et jean déchiré, fond orange", "Female model in a black T-shirt with denim panels and ripped jeans, orange background"),
+  duo: (): VisuelProduit =>
+    visuel(lookbook06, "Deux mannequins, femme et homme, en tee-shirts noirs de la collection, fond orange", "Two models, a woman and a man, in black T-shirts from the collection, orange background"),
 };
 
 /** Raccourci : toutes les tailles disponibles dans une couleur donnée. */
@@ -86,7 +108,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 220 gsm",
     },
     prix: 15000,
-    images: [V.ankara(), V.fauteuil()],
+    images: [V.bissaNoir(), V.bissaBlanc()],
     variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["3XL"])],
   },
   {
@@ -103,7 +125,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 180 gsm",
     },
     prix: 12000,
-    images: [V.rue(), V.miroir()],
+    images: [V.mossiBlanc(), V.mossiNoir()],
     variantes: [...toutesTailles("NR", ["3XL"]), ...toutesTailles("BL")],
   },
   {
@@ -120,7 +142,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 240 gsm",
     },
     prix: 18000,
-    images: [V.costume(), V.denim()],
+    images: [V.gulmance(), V.faceNoir()],
     variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["S", "3XL"])],
   },
   {
@@ -137,7 +159,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 200 gsm",
     },
     prix: 21000,
-    images: [V.fauteuil(), V.ankara()],
+    images: [V.peulBobo(), V.solClair()],
     variantes: [...toutesTailles("NR", ["2XL", "3XL"]), ...toutesTailles("BL", ["2XL", "3XL"])],
   },
   {
@@ -154,7 +176,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 240 gsm",
     },
     prix: 19000,
-    images: [V.denim(), V.costume()],
+    images: [V.pocheJean(), V.duo()],
     variantes: [
       ...toutesTailles("NR", TAILLES.slice()), // épuisé partout
       ...toutesTailles("BL", TAILLES.slice()),
@@ -174,7 +196,7 @@ export const produits: Produit[] = [
       en: "Combed cotton jersey, 190 gsm",
     },
     prix: 14000,
-    images: [V.miroir(), V.rue()],
+    images: [V.mossiFusion(), V.femmeNoir()],
     variantes: [...toutesTailles("NR"), ...toutesTailles("BL", ["XL", "2XL", "3XL"])],
   },
 ];

@@ -22,12 +22,12 @@ import { COLLECTIONS, COULEURS } from "../lib/catalogue";
 import { traduire, lienBoutique, lienProduit, lienPage } from "../lib/i18n";
 import { produits, misEnAvant } from "../data/produits";
 
-/* Visuels d'exemple. Voir l'avertissement en tete de src/data/produits.ts :
-   aucune de ces photographies ne montre un produit Rakiire. */
+/* Photographies de la marque. Le heros est le seul plan de groupe de la serie :
+   il montre trois pieces a la fois, ce qu'aucune photo isolee ne fait. */
 import { Image } from "astro:assets";
-import heros from "../images/paysage-05.jpg";
-import collectionCls from "../images/paysage-06.jpg";
-import collectionJea from "../images/paysage-03.jpg";
+import heros from "../images/lookbook/lookbook-04.webp";
+import collectionCls from "../images/boutique/bissa-gurunsi.jpg";
+import collectionJea from "../images/lookbook/lookbook-06.jpg";
 
 interface Props {
   langue: Langue;
@@ -66,7 +66,8 @@ function couleursDe(produit: (typeof produits)[number]) {
   chemin={chemin}
 >
   <Heros
-    image={{ fichier: heros, alt: langue === "fr" ? "Mannequin en costume, adosse a un mat, ciel degage" : "Model in a suit, leaning against a pole, clear sky" }}
+    image={{ fichier: heros, alt: langue === "fr" ? "Trois mannequins côte à côte portant trois tee-shirts de la collection, fond orange" : "Three models side by side wearing three T-shirts from the collection, orange background" }}
+    cadrage="center 22%"
     surtitre={COLLECTIONS.CLS}
     titre={langue === "fr" ? "Le choix d’être soi" : "The choice to be yourself"}
     texte={langue === "fr"
@@ -251,6 +252,13 @@ function couleursDe(produit: (typeof produits)[number]) {
     display: block;
     aspect-ratio: 16 / 10;
     background-color: var(--color-encre-08);
+  }
+
+  /* Les photographies sont des portraits studio : un cadrage centre sur un
+     bandeau 16/10 ne garderait que le ventre. On remonte la zone conservee
+     pour qu'elle tienne le visage et la piece imprimee. */
+  .collection__visuel :global(img) {
+    object-position: center 28%;
   }
 
   .collection__nom {

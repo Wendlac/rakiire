@@ -51,7 +51,9 @@ src/
     base.css        Socle : éléments, focus, mouvement, prose, utilitaires
     global.css      Point d'entrée unique
   fonts/            Fichiers .woff2 et leurs licences (LICENCES.md)
-  images/           Visuels d'exemple — à remplacer, voir plus bas
+  images/
+    boutique/       Photographies produit, nommées d'après le modèle
+    lookbook/       Plans de série et plans de groupe
   lib/
     catalogue.ts    Contrat de données produit, collections, tailles, couleurs
     i18n.ts         Dictionnaire bilingue et adresses traduites
@@ -85,21 +87,23 @@ docs/
       un avertissement rouge et signale chaque trou à sa place exacte.
 - [ ] **Catalogue réel.** `src/data/produits.ts` contient six articles
       d'exemple. Noms, descriptions, prix et compositions sont à remplacer.
-- [ ] **Photos produit.** `src/images/` contient douze photographies de banque,
-      versées pour que le prototype se présente avec de vraies images. **Aucun
-      vêtement montré n'est un produit Rakiire**, et l'une d'elles porte un
-      monogramme de marque reconnaissable. À remplacer intégralement.
 
-      Après la séance photo :
+      Les photographies, elles, sont les vraies (depuis le 13 octobre 2026), et
+      leurs noms de fichiers portent les vrais noms de modèles : `bissa-gurunsi`,
+      `gulmance-yadse`, `mossi-samo` (classic, black, fusion), `peul-bobo`.
+      **Le site affiche donc de vraies pièces sous des noms d'exemple.** C'est
+      la première incohérence à corriger, et la moins coûteuse : il suffit de
+      reprendre les six blocs `nom:` du catalogue.
 
-      1. `node scripts/preparer-images.mjs <dossier-des-photos>` — réduit à
-         1800 px et renomme selon l'orientation.
-      2. Mettre à jour les visuels et leurs textes alternatifs dans
-         `src/data/produits.ts`. Les `alt` décrivent ce que la photo montre,
-         jamais un article du catalogue : un lecteur d'écran ne doit pas
-         entendre « tee-shirt Nasara » devant une image qui montre autre chose.
+- [x] **Photos produit.** Livrées, réduites à 1800 px, métadonnées EXIF
+      effacées. 13 fichiers, 1,7 Mo au total.
 
-      Les cadrages attendus pour la séance sont décrits sur `/lookbook`.
+      Pour en ajouter : `node scripts/preparer-images.mjs <dossier-source>`,
+      puis déclarer le visuel dans `src/data/produits.ts`. Les `alt` décrivent
+      ce que la photo montre, jamais un article du catalogue : un lecteur
+      d'écran ne doit pas entendre « tee-shirt Nasara » devant une image qui
+      montre autre chose. C'est pourquoi les textes alternatifs actuels parlent
+      de « tee-shirt noir à panneaux de jean » et non d'un nom de modèle.
 - [ ] **Nom de domaine.** Le site est aujourd'hui servi sous le sous-chemin
       `/rakiire`, déclaré par `base` dans `astro.config.mjs`. Sur un domaine
       propre, cette ligne devient `base: "/"` et l'hébergeur doit être corrigé

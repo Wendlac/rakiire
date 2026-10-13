@@ -31,6 +31,14 @@ interface Props {
   /** Position du bloc de texte. */
   ancrage?: "bas-gauche" | "bas-centre" | "centre";
   /**
+   * Point d'ancrage du recadrage, passé tel quel à `object-position`.
+   *
+   * Le héros est large et la photographie ne l'est pas : `cover` rogne donc en
+   * hauteur, et un recadrage centré coupe les visages quand les modèles sont
+   * placés haut dans l'image. `center 22%` remonte la zone conservée.
+   */
+  cadrage?: string;
+  /**
    * Niveau du titre. `h1` par defaut : sur une page reelle, le heros EST le
    * titre de la page. A abaisser quand un titre plus haut existe deja, pour ne
    * pas creer deux h1 dans un meme document.
@@ -46,6 +54,7 @@ const {
   texte,
   hauteur = "moyen",
   ancrage = "bas-gauche",
+  cadrage = "center",
   niveau: Titre = "h1",
   class: classe = "",
 } = Astro.props;
@@ -54,7 +63,7 @@ const centre = ancrage === "centre";
 ---
 
 <section class={`heros heros--${hauteur} heros--${ancrage} sur-image ${classe}`}>
-  <div class="heros__image reserve-image">
+  <div class="heros__image reserve-image" style={`--cadrage:${cadrage}`}>
     {
       image ? (
         <Image
@@ -110,6 +119,7 @@ const centre = ancrage === "centre";
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: var(--cadrage, center);
   }
 
   .heros__attente {

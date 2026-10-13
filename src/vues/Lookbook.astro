@@ -22,14 +22,15 @@ import Revele from "../components/ui/Revele.astro";
 import type { Langue } from "../lib/catalogue";
 import { traduire, lienBoutique } from "../lib/i18n";
 
-/* Visuels d'exemple — voir l'avertissement en tete de src/data/produits.ts.
-   Aucune de ces photographies ne montre un produit Rakiire. */
+/* Photographies de la marque. Le `format` de chaque plan suit le rapport reel
+   du fichier : demander un 21/9 a un portrait studio reviendrait a decapiter
+   le mannequin pour tenir une maquette. */
 import { Image } from "astro:assets";
-import ouverture from "../images/paysage-04.jpg";
-import planNoir from "../images/portrait-03.jpg";
-import planBlanc from "../images/portrait-06.jpg";
-import detail from "../images/portrait-01.jpg";
-import cloture from "../images/paysage-02.jpg";
+import ouverture from "../images/lookbook/lookbook-01.jpg";
+import planNoir from "../images/boutique/bissa-gurunsi-fusion.jpg";
+import planBlanc from "../images/boutique/mossi-samo-classic.jpg";
+import detail from "../images/boutique/mossi-samo-fusion.jpg";
+import cloture from "../images/lookbook/lookbook-04.webp";
 
 interface Props {
   langue: Langue;
@@ -41,55 +42,61 @@ const t = traduire(langue);
 const fr = langue === "fr";
 
 /**
- * Plans du lookbook. `format` est le rapport de cadrage demandé au photographe,
+ * Plans du lookbook. `format` est le rapport de cadrage de la photographie,
  * `note` la légende éditoriale affichée sous l'image.
  */
 const plans = [
   {
     disposition: "large",
     fichier: ouverture,
-    alt: fr ? "Mannequin en haut de mousseline claire, bras leves" : "Model in a light chiffon top, arms raised",
-    format: "16 / 9",
+    alt: fr
+      ? "Mannequin femme assise au sol, en tee-shirt clair et jean, fond orange"
+      : "Female model seated on the floor in a light T-shirt and jeans, orange background",
+    format: "3 / 2",
     titre: fr ? "Ouverture" : "Opening",
-    note: fr
-      ? "Plan large, deux mannequins, lumière de fin de journée."
-      : "Wide shot, two models, late afternoon light.",
+    note: fr ? "Plan au sol, fond orange." : "Floor-level shot, orange background.",
   },
   {
     disposition: "paire",
     fichier: planNoir,
-    alt: fr ? "Mannequin en ensemble a motifs, sur fond orange" : "Model in a patterned outfit against an orange background",
-    format: "3 / 4",
-    titre: fr ? "Nasara, noir" : "Nasara, black",
-    note: fr ? "Plan taille, fond neutre." : "Waist-up, neutral background.",
+    alt: fr
+      ? "Tee-shirt noir à panneaux de jean, illustration de deux femmes, porté par un mannequin homme sur fond orange"
+      : "Black T-shirt with denim panels and an illustration of two women, worn by a male model against an orange background",
+    format: "2 / 3",
+    titre: fr ? "Le noir" : "The black" ,
+    note: fr ? "Plan taille, panneaux de jean apparents." : "Waist-up, denim panels in full view.",
   },
   {
     disposition: "paire",
     fichier: planBlanc,
-    alt: fr ? "Mannequin en ensemble blanc, devant un miroir pose sur des galets" : "Model in a white outfit, before a mirror set on pebbles",
-    format: "3 / 4",
-    titre: fr ? "Wendé, blanc" : "Wendé, white",
-    note: fr ? "Plan taille, même lumière." : "Waist-up, same light.",
+    alt: fr
+      ? "Tee-shirt blanc à l’empiècement de jean peint, mannequin femme assise en tailleur, fond gris"
+      : "White T-shirt with a painted denim yoke, female model sitting cross-legged, grey background",
+    format: "2 / 3",
+    titre: fr ? "Le blanc" : "The white",
+    note: fr ? "Assise, fond neutre." : "Seated, neutral background.",
   },
   {
     disposition: "decale",
     fichier: detail,
-    alt: fr ? "Mannequin assise dans un fauteuil, portrait en noir et blanc" : "Model seated in an armchair, black and white portrait",
-    format: "4 / 5",
-    titre: fr ? "Détail" : "Detail",
+    alt: fr
+      ? "Tee-shirt noir portant l’inscription « Fusion moderne, tradition fun », mannequin femme, fond orange"
+      : "Black T-shirt lettered “Fusion moderne, tradition fun”, female model, orange background",
+    format: "2 / 3",
+    titre: fr ? "L’inscription" : "The lettering",
     note: fr
-      ? "Col côtelé, couture d’épaule, à hauteur de regard."
-      : "Ribbed collar, shoulder seam, at eye level.",
+      ? "« Fusion moderne, tradition fun », peint sous l’illustration."
+      : "“Fusion moderne, tradition fun”, painted below the illustration.",
   },
   {
     disposition: "large",
     fichier: cloture,
-    alt: fr ? "Mannequin en veste et chapeau clair, en exterieur" : "Model in a jacket and light hat, outdoors",
-    format: "21 / 9",
+    alt: fr
+      ? "Trois mannequins côte à côte portant trois tee-shirts de la collection, fond orange"
+      : "Three models side by side wearing three T-shirts from the collection, orange background",
+    format: "4 / 3",
     titre: fr ? "Clôture" : "Closing",
-    note: fr
-      ? "Plan très large, silhouette de dos, extérieur."
-      : "Very wide shot, figure from behind, outdoors.",
+    note: fr ? "Les trois pièces réunies." : "The three pieces together.",
   },
 ] as const;
 ---
@@ -106,8 +113,8 @@ const plans = [
     surtitre="Ethnic Rakiire Classic"
     titre="Lookbook"
     chapeau={fr
-      ? "Les visuels de la première série. Séance photographique à venir : les cadrages ci-dessous font office de brief."
-      : "Visuals for the first series. Photo session pending: the framings below serve as the brief."}
+      ? "Les visuels de la première série, photographiés en studio sur fond orange."
+      : "Visuals for the first series, shot in studio against an orange background."}
   />
 
   <div class="cadre planches">

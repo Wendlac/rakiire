@@ -19,12 +19,24 @@ interface Props {
   cascade?: boolean;
   balise?: "div" | "section" | "ul" | "ol" | "article";
   class?: string;
+  /**
+   * Tout le reste est reporte tel quel sur l'element racine — et il le faut.
+   *
+   * Astro ne scope pas ses styles par la classe mais par un attribut
+   * `data-astro-cid-*` qu'il pose sur chaque balise du gabarit, composants
+   * compris. Un composant qui ne reporte pas ses props restantes avale cet
+   * attribut : la regle `.collections { display: grid }` ecrite dans la page
+   * ne trouve alors plus sa cible et ne s'applique jamais, sans la moindre
+   * erreur. C'est ce qui empechait les deux cartes de collection de se mettre
+   * en colonnes sur l'accueil.
+   */
+  [attribut: string]: unknown;
 }
 
-const { cascade = false, balise: Balise = "div", class: classe = "" } = Astro.props;
+const { cascade = false, balise: Balise = "div", class: classe = "", ...reste } = Astro.props;
 ---
 
-<Balise class={classe} data-revele={cascade ? "cascade" : "bloc"}>
+<Balise class={classe} data-revele={cascade ? "cascade" : "bloc"} {...reste}>
   <slot />
 </Balise>
 
