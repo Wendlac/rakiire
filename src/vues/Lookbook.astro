@@ -42,6 +42,20 @@ const t = traduire(langue);
 const fr = langue === "fr";
 
 /**
+ * Largeur réellement occupée par chaque disposition, déclarée au navigateur.
+ *
+ * Sans cela il télécharge la mauvaise taille : un `60vw` annoncé pour un plan
+ * qui occupe toute la largeur fait choisir une image deux fois trop petite,
+ * agrandie ensuite — c'est-à-dire floue, précisément sur les plans d'ouverture
+ * et de clôture, les plus grands de la page.
+ */
+const LARGEURS = {
+  large: "(min-width: 48rem) 92vw, 100vw",
+  paire: "(min-width: 48rem) 46vw, 100vw",
+  decale: "(min-width: 48rem) 30rem, 100vw",
+} as const;
+
+/**
  * Plans du lookbook. `format` est le rapport de cadrage de la photographie,
  * `note` la légende éditoriale affichée sous l'image.
  */
@@ -126,7 +140,7 @@ const plans = [
               src={plan.fichier}
               alt={plan.alt}
               widths={[480, 900, 1600]}
-              sizes="(min-width: 48rem) 60vw, 100vw"
+              sizes={LARGEURS[plan.disposition]}
               loading="lazy"
               decoding="async"
             />

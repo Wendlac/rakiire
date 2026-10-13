@@ -23,7 +23,12 @@ import { traduire, lienBoutique, lienProduit, lienPage } from "../lib/i18n";
 import { produits, misEnAvant } from "../data/produits";
 
 /* Photographies de la marque. Le heros est le seul plan de groupe de la serie :
-   il montre trois pieces a la fois, ce qu'aucune photo isolee ne fait. */
+   il montre trois pieces a la fois, ce qu'aucune photo isolee ne fait.
+
+   ⚠ BOUCHE-TROU — lookbook-04.webp n'est pas la photo d'origine mais une
+   derivee recuperee dans la sortie de construction, re-encodee une fois. Elle
+   fait la bonne taille (1280x960) et passe a l'ecran, mais elle attend la
+   version retravaillee. Voir le README. */
 import { Image } from "astro:assets";
 import heros from "../images/lookbook/lookbook-04.webp";
 import collectionCls from "../images/boutique/bissa-gurunsi.jpg";
