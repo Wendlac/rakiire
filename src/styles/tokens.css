@@ -211,14 +211,33 @@
        alpha 0.70 -> 6.33  confortable
      ------------------------------------------------------------------------ */
 
-  /* Voile degrade, pour un contenu cale en bas d'image. Il tient 0.68 sur toute
-     la zone de texte puis s'efface : la photographie reste lisible au-dessus. */
+  /* Voile degrade, pour un contenu cale en bas d'image. Il tient 0.68 jusqu'au
+     quart de la hauteur puis s'efface : la photographie reste lisible au-dessus.
+     Suffisant tant que la photographie est sombre derriere le texte. */
   --voile-bas: linear-gradient(
     to top,
     rgb(8 15 15 / 0.78) 0%,
     rgb(8 15 15 / 0.68) 26%,
     rgb(8 15 15 / 0.30) 55%,
     rgb(8 15 15 / 0) 80%
+  );
+
+  /* Meme voile, pour une photographie CLAIRE derriere le texte.
+     Pourquoi il existe : un bloc de titre + accroche + boutons monte jusqu'a
+     60 % de la hauteur du heros, la ou --voile-bas est retombe a 0.30. Sur une
+     image sombre cela passe ; sur un fond clair — studio en noir et blanc,
+     vetement blanc, ciel — le texte y tombe a 2.86:1, sous le seuil AA.
+     Celui-ci tient donc 0.62 jusqu'a 64 %, soit la valeur mesuree comme
+     necessaire pour du corps de texte sur une photographie entierement
+     blanche, avant de s'effacer plus haut. */
+  --voile-bas-clair: linear-gradient(
+    to top,
+    rgb(8 15 15 / 0.86) 0%,
+    rgb(8 15 15 / 0.80) 30%,
+    rgb(8 15 15 / 0.70) 55%,
+    rgb(8 15 15 / 0.62) 64%,
+    rgb(8 15 15 / 0.22) 82%,
+    rgb(8 15 15 / 0) 96%
   );
 
   /* Voile uniforme, pour un contenu centre. */

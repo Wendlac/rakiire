@@ -23,14 +23,11 @@ import { traduire, lienBoutique, lienProduit, lienPage } from "../lib/i18n";
 import { produits, misEnAvant } from "../data/produits";
 
 /* Photographies de la marque. Le heros est le seul plan de groupe de la serie :
-   il montre trois pieces a la fois, ce qu'aucune photo isolee ne fait.
-
-   ⚠ BOUCHE-TROU — lookbook-04.webp n'est pas la photo d'origine mais une
-   derivee recuperee dans la sortie de construction, re-encodee une fois. Elle
-   fait la bonne taille (1280x960) et passe a l'ecran, mais elle attend la
-   version retravaillee. Voir le README. */
+   il montre trois pieces a la fois, ce qu'aucune photo isolee ne fait. Son
+   fond noir le detache du reste du site, ou l'orange domine, et donne au
+   titre une assise que l'orange ne donnait pas. */
 import { Image } from "astro:assets";
-import heros from "../images/lookbook/lookbook-04.webp";
+import heros from "../images/lookbook/lookbook-04.jpg";
 import collectionCls from "../images/boutique/bissa-gurunsi.jpg";
 import collectionJea from "../images/lookbook/lookbook-06.jpg";
 
@@ -71,8 +68,9 @@ function couleursDe(produit: (typeof produits)[number]) {
   chemin={chemin}
 >
   <Heros
-    image={{ fichier: heros, alt: langue === "fr" ? "Trois mannequins côte à côte portant trois tee-shirts de la collection, fond orange" : "Three models side by side wearing three T-shirts from the collection, orange background" }}
+    image={{ fichier: heros, alt: langue === "fr" ? "Trois mannequins côte à côte portant trois tee-shirts de la collection, sur fond noir" : "Three models side by side wearing three T-shirts from the collection, against a black background" }}
     cadrage="center 22%"
+    voile="clair"
     surtitre={COLLECTIONS.CLS}
     titre={langue === "fr" ? "Le choix d’être soi" : "The choice to be yourself"}
     texte={langue === "fr"

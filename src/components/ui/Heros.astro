@@ -39,6 +39,13 @@ interface Props {
    */
   cadrage?: string;
   /**
+   * Densite du voile. `clair` quand la photographie est claire derriere le
+   * texte : la valeur par defaut n'y tient pas le contraste AA. Se verifie en
+   * mesurant, jamais a l'oeil — un titre blanc sur gris moyen passe pour
+   * lisible et echoue a 2.9:1.
+   */
+  voile?: "normal" | "clair";
+  /**
    * Niveau du titre. `h1` par defaut : sur une page reelle, le heros EST le
    * titre de la page. A abaisser quand un titre plus haut existe deja, pour ne
    * pas creer deux h1 dans un meme document.
@@ -55,6 +62,7 @@ const {
   hauteur = "moyen",
   ancrage = "bas-gauche",
   cadrage = "center",
+  voile = "normal",
   niveau: Titre = "h1",
   class: classe = "",
 } = Astro.props;
@@ -81,7 +89,11 @@ const centre = ancrage === "centre";
     }
   </div>
 
-  <div class={`heros__voile ${centre ? "heros__voile--plein" : ""}`} aria-hidden="true"></div>
+  <div
+    class={`heros__voile ${centre ? "heros__voile--plein" : ""} ${voile === "clair" ? "heros__voile--clair" : ""}`}
+    aria-hidden="true"
+  >
+  </div>
 
   <div class="cadre heros__cadre">
     <div class="heros__contenu">
@@ -141,6 +153,11 @@ const centre = ancrage === "centre";
     background: var(--voile-bas);
   }
 
+  .heros__voile--clair {
+    background: var(--voile-bas-clair);
+  }
+
+  /* Un contenu centre reclame un voile uniforme : il l'emporte sur le degrade. */
   .heros__voile--plein {
     background: var(--voile-plein);
   }

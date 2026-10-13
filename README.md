@@ -95,22 +95,14 @@ docs/
       la première incohérence à corriger, et la moins coûteuse : il suffit de
       reprendre les six blocs `nom:` du catalogue.
 
-- [ ] **Deux plans de groupe en meilleure définition.** Ce sont les deux seules
-      photos où plusieurs pièces apparaissent ensemble, et donc les deux que le
-      site met le plus en avant : `lookbook-04` porte le héros de l'accueil et
-      la clôture du lookbook, `lookbook-06` la seconde carte de collection.
-
-      Leurs fichiers actuels sont des **bouche-trous** : les originaux ayant été
-      retirés pour retraitement, ils ont été récupérés dans la sortie de
-      construction. `lookbook-06.jpg` est une copie conforme de ce qui avait
-      été versé (853 × 1280) ; `lookbook-04.webp` est une dérivée re-encodée
-      une fois, à la bonne taille (1280 × 960) mais pas à la qualité d'origine.
-
-      Déposer les versions retravaillées sous ces deux noms suffit — une seule
-      ligne d'import à corriger si l'extension change.
-
 - [x] **Photos produit.** Livrées, réduites à 1800 px, métadonnées EXIF
-      effacées. 13 fichiers, 1,7 Mo au total.
+      effacées. 13 fichiers, environ 2 Mo au total.
+
+      Les deux plans de groupe (`lookbook-04` et `lookbook-06`) ont été
+      retravaillés et remis en meilleure définition. `lookbook-04`, sur fond
+      noir, porte le héros de l'accueil et la clôture du lookbook : c'est le
+      seul visuel du site qui ne soit pas sur fond orange, et son fond sombre
+      est ce qui permet au titre du héros de tenir le contraste.
 
       Pour en ajouter : `node scripts/preparer-images.mjs <dossier-source>`,
       puis déclarer le visuel dans `src/data/produits.ts`. Les `alt` décrivent
